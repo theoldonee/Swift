@@ -19,28 +19,33 @@ const postCollection = database.collection("Post");
 export class DatabaseHandler{
     
     static async getAllUsers() {
-        // const option = { age: { $lte: 30 } };
 
+        // Finds all users
         const users = await userCollection.find().toArray();
 
         console.log(users);
-
-        await client.close();
     }
 
-    static async shouldLogin() {
-        // for searching
-        // const query = {$and : [{email: userEmail}, {password: password}]}
-        const query = {email: userEmail}
+    static async getUser(idTag) {
+        // query for an email match
+        var query = {email: idTag};
 
-        // for sorting
-        // const option = { age: { $lte: 30 } };
+        // Searches database based on query
+        var user =  await userCollection.find(query).toArray();
 
-        const users = await userCollection.find(query);
+        if (user.length == 0){
 
-        console.log(users);
+            // query for a username match
+            query = {userName: idTag};
+            user =  await userCollection.find(query).toArray();
 
-        await client.close();
+            // Checks if user
+            if (user.length == 0){
+                return false;
+            }
+        }
+
+        return user[0];
     }
 
 }

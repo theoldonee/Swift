@@ -1,10 +1,11 @@
 import express from "express";
-import {dirname} from "path";
+import {dirname, resolve} from "path";
 import {DatabaseHandler} from "./databaseHandler.js"
 // const Car = require("./databaseHandler.js")
 
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
+import { rejects } from "assert";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,15 +22,16 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Responds with the home page
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html");
-    // res.sendFile(__dirname + "/public/index.js");
 });
 
+// Responds with javascript file
 app.get("/index.js", (req, res) => {
-    // res.sendFile(__dirname + "/public/index.html");
     res.sendFile(__dirname + "/public/index.js");
 });
 
@@ -38,16 +40,16 @@ app.get("/M00933241/users", (req, res) => {
     res.send("get users");
 });
 
+// Handles 
 app.get("/M00933241/login", (req, res) => {
     res.send("get login");
 });
 
+// Handles sent login data
 app.post("/M00933241/login", (req, res) => {
     // console.log("here");
     // res.send(req.body);
     // console.log(req.body);
-
-
 });
 
 app.delete("/M00933241/login", (req, res) => {
@@ -71,7 +73,26 @@ app.delete("/M00933241/follow", (req, res) => {
 });
 
 app.get("/M00933241/users/search", (req, res) => {
-    res.send("search users");
+
+    // console.log(req.body);
+    var idTag = req.body.idTag
+    var userData = new Promise((resolve, reject) => {
+        var data = DatabaseHandler.getUser(idTag);
+        if (data){
+            resolve(data);
+        }else{
+            reject("No such user");
+        }
+
+    })
+    
+    userData.then((message) => {
+        res.send(message);
+    }).catch((message) => {
+        res.send(message);
+    })
+    
+   
 });
 
 app.get("/M00933241/content/search", (req, res) => {
@@ -79,3 +100,7 @@ app.get("/M00933241/content/search", (req, res) => {
 });
 
 
+// DatabaseHandler.getUser(userEmail=userEmail)
+function shouldLogin(idTag, userPassword){
+
+}
