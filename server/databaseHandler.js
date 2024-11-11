@@ -18,18 +18,23 @@ const loginCollection = database.collection("Loggedin");
 
 export class DatabaseHandler{
     
+    // Returns all users in the user collection
     static async getAllUsers() {
         // Finds all users
         const users = await userCollection.find().toArray();
 
-        await client.close();
+        // await client.close();
+
+        // Returns user
+        return users;
     }
 
+    // Returns a user
     static async getUser(idTag) {
         // query for an email match
         var query = {email: idTag};
 
-        // Searches database based on query
+        // Searches user collection based on query
         var user =  await userCollection.find(query).toArray();
 
         if (user.length == 0){
@@ -38,18 +43,21 @@ export class DatabaseHandler{
             query = {userName: idTag};
             user =  await userCollection.find(query).toArray();
 
-            // Checks if user
+            // Checks if user exist
             if (user.length == 0){
                 return false;
             }
         }
 
+        // Returns user
         return user[0];
     }
 
+    // Checks is a user exist in the user collection
     static async isUser(idTag){
         var user = await this.getUser(idTag)
 
+        // Checks if user data has been recieved
         if (user){
             return true;
         }else{
@@ -58,24 +66,20 @@ export class DatabaseHandler{
 
     }
 
+    // Adds a user to user collection
     static async addUser(user){
         
         var result = await userCollection.insertOne(user);
 
         return result;
-        // if (result == 1){
-        //     return true;
-        // }else{
-        //     return false;
-        // }
-
     }
 
+    // Removes a user to user collection
     static async deleteUser(idTag){
         // query for an email match
         var query = {email: idTag};
 
-        // Searches database based on query
+        // Searches user collection based on query
         var result =  await userCollection.deleteOne(query);
 
         if (result.deletedCount == 0){
@@ -84,15 +88,12 @@ export class DatabaseHandler{
             query = {userName: idTag};
             result =  await userCollection.deleteOne(query);
 
-            console.log("here" + result);
             // Checks if user
             if (result.deletedCount == 0){
                 // console.log(result);
                 return result;
             }
         }
-
-        console.log(result);
 
         return result;
     }
@@ -143,10 +144,11 @@ export class DatabaseHandler{
     // Checks if a user is logged in
     static async isLogged(idTag){
 
+        // query for email
         var query = {email: idTag};
 
         
-        // Searches loggedin collection based on email
+        // Searches loggedin collection based on query
         var user =  await loginCollection.find(query).toArray();
         if (user.length == 0){
 
@@ -156,34 +158,38 @@ export class DatabaseHandler{
             user =  await loginCollection.find(query).toArray();
         }
 
-        // Returns false if no user exist
+        // Returns false if user does not exist login in collection
         if (user.length == 0){
             return false;
         }
         
-
         return true;
 
     }
 
+    // Updates login status
     static async updateLogStatus(status, email){
-        // query for an email match
+        // Query for an email match
         const query = {email: email};
 
+        // Updates the login status of user
         const update = {
             $set: { status: status }
         }
-        // Searches database based on query
+
+        // Updates the login collection based on query
         var result = await loginCollection.updateOne(query, update);
 
         return result;
     }
 
+    // Gets a logged in user
     static async getloggedUser(idTag){
+
         // query for an email match
         var query = {email: idTag};
 
-        // Searches database based on query
+        // Searches the login collection based on query
         var user =  await loginCollection.find(query).toArray();
 
         if (user.length == 0){
@@ -192,23 +198,85 @@ export class DatabaseHandler{
             query = {userName: idTag};
             user =  await loginCollection.find(query).toArray();
 
-            // Checks if user
+            // Checks if user exist
             if (user.length == 0){
                 return false;
             }
         }
 
+        // Returns user
         return user[0];
+    }
+
+  
+    // Handles follow and unfollow event
+    static async followHandler(follow, followerIdTag, followedIdTag){
+        // Get follower and followed user
+        var follower = await this.getUser(followerIdTag);
+        var followed = await this.getUser(followedIdTag);
+
+        // Set queries
+        var followedQuery = {email: followed.email};
+        var followerQuery = {email: follower.email};
+
+        // Set update parameters
+        var followedUpdate = {$set: {followers: followed.followers}};
+        var followerUpdate = {$set: {following: follower.following}};
+       
+
+
+        var followedResult, followerResult, followedDetails, followerDetails, indexOfFollower, indexOfFollowed ;
+        
+        // Follower details
+        followerDetails = {   
+            email: follower.email,
+            userName: follower.userName,
+            firstName: follower.firstName,
+            lastName: follower.lastName
+        }
+
+        // Followed details
+        followedDetails = {
+            email: followed.email,
+            userName: followed.userName,
+            firstName: followed.firstName,
+            lastName: followed.lastName
+        }
+
+        // Checks if request is a follow request
+        if (follow == true){
+            // Adds follower to followers list
+            followed.followers.push(
+                followerDetails
+            );
+            
+            // Adds followed user to following list
+            follower.following.push(
+                followedDetails
+            );
+            
+        }else{
+
+            // Removes follower to followers list
+            indexOfFollower = followed.followers.indexOf(followerDetails);
+            followed.followers.splice(indexOfFollower, 1);
+
+            // Removes followed user to following list
+            indexOfFollowed = follower.following.indexOf(followedDetails);
+            follower.following.splice(indexOfFollowed, 1);
+        }
+
+        // Updates user collection
+        followedResult = await userCollection.updateOne(followedQuery, followedUpdate);
+        followerResult = await userCollection.updateOne(followerQuery, followerUpdate);
+
+        // Returns result
+        return {
+            followedResult: followedResult, 
+            followerResult: followerResult
+        };
+
     }
 }
 
-// db.collection.insertOne() 
-// db.collection.insertMany()
-
-// Deletes a single document that matches the search criteria 
-// db.collection.deleteOne(): 
- 
-// Deletes multiple documents that match the search criteria 
-// db.collection.deleteMany(): 
- 
 // db.collection.remove():

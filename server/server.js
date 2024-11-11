@@ -1,11 +1,9 @@
 import express from "express";
 import {dirname, resolve} from "path";
-import {DatabaseHandler} from "./databaseHandler.js"
-// const Car = require("./databaseHandler.js")
+import {DatabaseHandler} from "./databaseHandler.js";
 
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-// import { rejects } from "assert";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -167,12 +165,20 @@ app.post("/M00933241/contents", (req, res) => {
     res.send("contents post");
 });
 
-app.get("/M00933241/follow", (req, res) => {
-    res.send("follow get");
+app.post("/M00933241/follow", async (req, res) => {
+    var followerIdTag = req.body.followerIdTag;
+    var followedIdTag = req.body.followedIdTag;
+
+    var result = await DatabaseHandler.followHandler(true, followerIdTag, followedIdTag);
+    res.send(result);
 });
 
-app.delete("/M00933241/follow", (req, res) => {
-    res.send("follow delete");
+app.delete("/M00933241/follow", async (req, res) => {
+    var followerIdTag = req.body.followerIdTag;
+    var followedIdTag = req.body.followedIdTag;
+
+    var result = await DatabaseHandler.followHandler(false, followerIdTag, followedIdTag);
+    res.send(result);
 });
 
 app.get("/M00933241/users/search", (req, res) => {
