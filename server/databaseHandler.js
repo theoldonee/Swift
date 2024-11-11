@@ -47,12 +47,62 @@ export class DatabaseHandler{
         return user[0];
     }
 
+    static async isUser(idTag){
+        var user = await this.getUser(idTag)
+
+        if (user){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
+    static async addUser(user){
+        
+        var result = await userCollection.insertOne(user);
+
+        return result;
+        // if (result == 1){
+        //     return true;
+        // }else{
+        //     return false;
+        // }
+
+    }
+
+    static async deleteUser(idTag){
+        // query for an email match
+        var query = {email: idTag};
+
+        // Searches database based on query
+        var result =  await userCollection.deleteOne(query);
+
+        if (result.deletedCount == 0){
+
+            // query for a username match
+            query = {userName: idTag};
+            result =  await userCollection.deleteOne(query);
+
+            console.log("here" + result);
+            // Checks if user
+            if (result.deletedCount == 0){
+                // console.log(result);
+                return result;
+            }
+        }
+
+        console.log(result);
+
+        return result;
+    }
+
     // Updates logged in database.
     static async updateLogin({correctPassword, user, status} = {}){
         var log = await this.isLogged(user.email);
 
         // checks if user is not in logged collection
-        if (!log){
+        if ((!log) && (correctPassword != "delete") ){
             // adds data to collection
             var logTime = new Date();
             var data = {
@@ -61,24 +111,29 @@ export class DatabaseHandler{
                 date: logTime,
                 status: status
             };
-            await loginCollection.insertOne(data);
+           var result = await loginCollection.insertOne(data);
+           return result;
             
         }else{
             // Checks if password is correct
             if(correctPassword == true){
-                this.updateLogStatus(true, user.email);
+
+                var result = await this.updateLogStatus(true, user.email);
+                return result;
 
             } else if(correctPassword == false){
-                this.updateLogStatus(false, user.email);
+
+                var result = await this.updateLogStatus(false, user.email);
+                return result;
 
             }else{
                 const query = {email: user.email};
                 const result = await loginCollection.deleteOne(query);
 
                 if (result.deletedCount === 1) {
-                    return true;
+                    return result;
                 } else {
-                    return false;
+                    return result;
                 }
             }
         }
@@ -119,7 +174,9 @@ export class DatabaseHandler{
             $set: { status: status }
         }
         // Searches database based on query
-        await loginCollection.updateOne(query, update);
+        var result = await loginCollection.updateOne(query, update);
+
+        return result;
     }
 
     static async getloggedUser(idTag){

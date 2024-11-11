@@ -5,7 +5,7 @@ import {DatabaseHandler} from "./databaseHandler.js"
 
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-import { rejects } from "assert";
+// import { rejects } from "assert";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -36,11 +36,28 @@ app.get("/index.js", (req, res) => {
 });
 
 
-app.get("/M00933241/users", (req, res) => {
-    res.send("get users");
+app.post("/M00933241/users", async (req, res) => {
+    var user = req.body;
+    user.followers = []
+    user.following = [];
+    user.friends = [];
+    user.post = [];
+
+    
+    var result = await DatabaseHandler.addUser(user);
+    res.send(result);
 });
 
-// Handles 
+app.delete("/M00933241/users", async (req, res) => {
+    var idTag = req.body.idTag;
+
+
+    // res.send(idTag);
+    var result = await DatabaseHandler.deleteUser(idTag);
+    res.send(result);
+});
+
+
 app.get("/M00933241/login", async (req, res) => {
     var idTag = req.body.idTag;
 
@@ -53,9 +70,9 @@ app.get("/M00933241/login", async (req, res) => {
 
             // checks if user exist 
             if (userStatus){
-                resolve("logged in");
+                resolve({login: true, isuser: true});
             }else{
-                reject("wrong password");
+                reject({login: false, isuser: true});
             }
 
         })
@@ -66,6 +83,8 @@ app.get("/M00933241/login", async (req, res) => {
         }).catch((message) => {
             res.send(message);
         })
+    }else{
+        res.send({login: false, isuser: false});
     }
 });
 
@@ -74,8 +93,6 @@ app.post("/M00933241/login", (req, res) => {
     var idTag = req.body.idTag;
     var password = req.body.password;
     
-    // var status = setLog(idTag, password);
-
     var userData = new Promise( async (resolve, reject) => {
         var data = await DatabaseHandler.getUser(idTag);
 
@@ -84,16 +101,19 @@ app.post("/M00933241/login", (req, res) => {
             // checks if the password matches stored password.
             if (data.password == password){
                 
-                await DatabaseHandler.updateLogin({correctPassword: true, user: data, status: true});
-                resolve("Db updated");
+                var result = await DatabaseHandler.updateLogin({correctPassword: true, user: data, status: true});
+                resolve(result);
 
             }else{
-                await DatabaseHandler.updateLogin({correctPassword: false, user: data, status: false});
-                resolve("Db updated but wrong password");
+                var result = await DatabaseHandler.updateLogin({correctPassword: false, user: data, status: false});
+                resolve(result);
             }
             // resolve(data);
         }else{
-            reject("Db not updated, user not registered");
+            reject({
+                acknowledged: false,
+                insertedId: false
+            });
         }
 
     })
@@ -119,10 +139,10 @@ app.delete("/M00933241/login", (req, res) => {
         if(data){
             var result = await DatabaseHandler.updateLogin({correctPassword: "delete", user: data});
 
-            if(result){
-                resolve("Db updated");
+            if(result.acknowledged){
+                resolve(result);
             }else{
-                reject("invalid request");
+                reject(result);
             }
             
         }else{
