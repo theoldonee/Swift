@@ -23,7 +23,6 @@ export class DatabaseHandler{
         // Finds all users
         const users = await userCollection.find().toArray();
 
-        // await client.close();
 
         // Returns user
         return users;
@@ -32,7 +31,7 @@ export class DatabaseHandler{
     // Returns a user
     static async getUser(idTag) {
         // query for an email match
-        var query = {email: idTag};
+        var query = {_id: idTag};
 
         // Searches user collection based on query
         var user =  await userCollection.find(query).toArray();
@@ -45,7 +44,15 @@ export class DatabaseHandler{
 
             // Checks if user exist
             if (user.length == 0){
-                return false;
+                
+                var query = {email: idTag};
+
+                // Searches user collection based on query
+                var user =  await userCollection.find(query).toArray();
+
+                if (user.length == 0){
+                    return false;
+                }
             }
         }
 
@@ -208,7 +215,6 @@ export class DatabaseHandler{
         return user[0];
     }
 
-  
     // Handles follow and unfollow event
     static async followHandler(follow, followerIdTag, followedIdTag){
         // Get follower and followed user
@@ -275,6 +281,11 @@ export class DatabaseHandler{
             followedResult: followedResult, 
             followerResult: followerResult
         };
+
+    }
+
+    // 
+    static async postHandler(){
 
     }
 }

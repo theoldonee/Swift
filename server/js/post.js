@@ -1,11 +1,14 @@
 class Post{
     constructor(){
-        this.aurthor;
-        this.timeStamp;
+        this.authorEmail;
+        this.authorUsername;
         this.tag;
-        this.Header;
-        this.subHeading;
-        this.content;
+        // this.Header;
+        this.caption;
+        // this.content;
+        this.image;
+        this.timeStamp;
+        this.people;
         this.type;
         this.likes;
         this.comments = [

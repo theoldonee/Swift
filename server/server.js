@@ -1,14 +1,13 @@
 import express from "express";
 import {dirname, resolve} from "path";
 import {DatabaseHandler} from "./databaseHandler.js";
-
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
 const app = express();
 const port = process.env.PORT || 8080;
+
 
 app.listen(port, () =>{
     console.log(`Running on port ${port}`);
@@ -21,7 +20,10 @@ app.use((req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(fileUpload());
+
 
 // Responds with the home page
 app.get("/", (req, res) => {
@@ -158,11 +160,44 @@ app.delete("/M00933241/login", (req, res) => {
 });
 
 app.get("/M00933241/contents", (req, res) => {
-    res.send("ccontent gets");
+
+    res.send("content gets");
 });
 
 app.post("/M00933241/contents", (req, res) => {
-    res.send("contents post");
+
+    var post = req.body;
+    
+    post.likes = 0;
+    post.comments = [];
+    post.timeStamp = new Date();
+    // post.image = req.files.image;
+
+    var image = req.files.image;
+    var imgPath = "./uploads/" + image.name;
+
+    image.mv(imgPath, (err) => {
+
+        if(err){
+            throw err
+        }
+
+        console.log("Image uploaded to " + imgPath);
+    })
+
+    post.imgPath = imgPath;
+
+    if(post.imgPath && post.caption){
+        post.type = "text & image";
+    }else{
+        if(post.image){
+            post.type = "image";
+        }else{
+            post.type = "text";
+        }
+    }
+    console.log(post);
+    res.send(imgPath);
 });
 
 app.post("/M00933241/follow", async (req, res) => {
@@ -187,7 +222,6 @@ app.get("/M00933241/users/search", (req, res) => {
     var userData = new Promise( async (resolve, reject) => {
         var data = await DatabaseHandler.getUser(idTag);
 
-        console.log(data);
         if (data != false){ 
             resolve(data);
         }else{
@@ -199,7 +233,7 @@ app.get("/M00933241/users/search", (req, res) => {
     userData.then((message) => {
         res.send(message);
     }).catch((message) => {
-        console.log(message)
+        // console.log(message)
         res.send(message);
     })
     
