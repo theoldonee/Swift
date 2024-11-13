@@ -23,36 +23,27 @@ export class DatabaseHandler{
         // Finds all users
         const users = await userCollection.find().toArray();
 
-
         // Returns user
         return users;
     }
 
     // Returns a user
     static async getUser(idTag) {
-        // query for an email match
-        var query = {_id: idTag};
+        // Query for an email match
+        var query = {email: idTag};
 
         // Searches user collection based on query
         var user =  await userCollection.find(query).toArray();
 
         if (user.length == 0){
 
-            // query for a username match
+            // Query for a username match
             query = {userName: idTag};
             user =  await userCollection.find(query).toArray();
 
             // Checks if user exist
             if (user.length == 0){
-                
-                var query = {email: idTag};
-
-                // Searches user collection based on query
-                var user =  await userCollection.find(query).toArray();
-
-                if (user.length == 0){
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -62,6 +53,7 @@ export class DatabaseHandler{
 
     // Checks is a user exist in the user collection
     static async isUser(idTag){
+        // Gets a user
         var user = await this.getUser(idTag)
 
         // Checks if user data has been recieved
@@ -75,7 +67,7 @@ export class DatabaseHandler{
 
     // Adds a user to user collection
     static async addUser(user){
-        
+        // Inserts user data into UUser Collection
         var result = await userCollection.insertOne(user);
 
         return result;
@@ -83,21 +75,21 @@ export class DatabaseHandler{
 
     // Removes a user to user collection
     static async deleteUser(idTag){
-        // query for an email match
+        // Query for an email match
         var query = {email: idTag};
 
         // Searches user collection based on query
         var result =  await userCollection.deleteOne(query);
 
+        // Checks if a document has not been deleted
         if (result.deletedCount == 0){
 
-            // query for a username match
+            // Query for a username match
             query = {userName: idTag};
             result =  await userCollection.deleteOne(query);
 
-            // Checks if user
+            // Checks if a document has been deleted
             if (result.deletedCount == 0){
-                // console.log(result);
                 return result;
             }
         }
@@ -107,13 +99,16 @@ export class DatabaseHandler{
 
     // Updates logged in database.
     static async updateLogin({correctPassword, user, status} = {}){
+
+        // Checks if user data already exist in Login collection
         var log = await this.isLogged(user.email);
 
-        // checks if user is not in logged collection
+        // Checks if user is not in logged collection
         if ((!log) && (correctPassword != "delete") ){
-            // adds data to collection
+            // Adds data to collection
             var logTime = new Date();
             var data = {
+                userId: new ObjectId(user._id),
                 email: user.email,
                 userName: user.userName,
                 date: logTime,
@@ -135,7 +130,8 @@ export class DatabaseHandler{
                 return result;
 
             }else{
-                const query = {email: user.email};
+                // Query for userId match
+                const query = {userId: new ObjectId(user._id)};
                 const result = await loginCollection.deleteOne(query);
 
                 if (result.deletedCount === 1) {
@@ -151,7 +147,7 @@ export class DatabaseHandler{
     // Checks if a user is logged in
     static async isLogged(idTag){
 
-        // query for email
+        // Query for email
         var query = {email: idTag};
 
         
@@ -159,7 +155,7 @@ export class DatabaseHandler{
         var user =  await loginCollection.find(query).toArray();
         if (user.length == 0){
 
-            // query for a username match
+            // Query for a username match
             query = {userName: idTag};
 
             user =  await loginCollection.find(query).toArray();
@@ -193,7 +189,7 @@ export class DatabaseHandler{
     // Gets a logged in user
     static async getloggedUser(idTag){
 
-        // query for an email match
+        // Query for an email match
         var query = {email: idTag};
 
         // Searches the login collection based on query
@@ -201,7 +197,7 @@ export class DatabaseHandler{
 
         if (user.length == 0){
 
-            // query for a username match
+            // Query for a username match
             query = {userName: idTag};
             user =  await loginCollection.find(query).toArray();
 
@@ -234,7 +230,8 @@ export class DatabaseHandler{
         var followedResult, followerResult, followedDetails, followerDetails, indexOfFollower, indexOfFollowed ;
         
         // Follower details
-        followerDetails = {   
+        followerDetails = { 
+            userId: new ObjectId(follower._id),
             email: follower.email,
             userName: follower.userName,
             firstName: follower.firstName,
@@ -243,6 +240,7 @@ export class DatabaseHandler{
 
         // Followed details
         followedDetails = {
+            userId: new ObjectId(followed._id),
             email: followed.email,
             userName: followed.userName,
             firstName: followed.firstName,
@@ -284,9 +282,15 @@ export class DatabaseHandler{
 
     }
 
-    // 
-    static async postHandler(){
+    // Handles post
+    static async addPost(post){
 
+        post.authorId = new ObjectId(post.authorId);
+
+        console.log(post);
+        var result = await postCollection.insertOne(post);
+
+        return result;
     }
 }
 

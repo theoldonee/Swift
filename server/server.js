@@ -1,17 +1,23 @@
 import express from "express";
-import {dirname, resolve} from "path";
+import {dirname} from "path";
 import {DatabaseHandler} from "./databaseHandler.js";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
+import fileUpload from "express-fileupload";
+import fs from "fs";
+
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = process.env.PORT || 8080;
 
-
 app.listen(port, () =>{
     console.log(`Running on port ${port}`);
 });
+
+app.use("/public", express.static('public'));
+
 
 app.use((req, res, next) => {
     console.log(`request method: ${req.method}`);
@@ -160,23 +166,21 @@ app.delete("/M00933241/login", (req, res) => {
 });
 
 app.get("/M00933241/contents", (req, res) => {
-
+    
     res.send("content gets");
 });
 
-app.post("/M00933241/contents", (req, res) => {
+app.post("/M00933241/contents", async (req, res) => {
 
     var post = req.body;
-    
     post.likes = 0;
     post.comments = [];
     post.timeStamp = new Date();
-    // post.image = req.files.image;
 
     var image = req.files.image;
-    var imgPath = "./uploads/" + image.name;
+    var imgPath = "./public/uploads/" + image.name;
 
-    image.mv(imgPath, (err) => {
+    await image.mv(imgPath, (err) => {
 
         if(err){
             throw err
@@ -196,8 +200,10 @@ app.post("/M00933241/contents", (req, res) => {
             post.type = "text";
         }
     }
-    console.log(post);
-    res.send(imgPath);
+
+    var result = await DatabaseHandler.addPost(post);
+    
+    res.send({imgPath: imgPath, result: result});
 });
 
 app.post("/M00933241/follow", async (req, res) => {
@@ -244,6 +250,14 @@ app.get("/M00933241/content/search", (req, res) => {
     res.send("search content");
 });
 
+
+// app.get("/M00933241/image", async (req, res) => {
+//     var filePath =  req.query.filePath
+//     // console.log(req.query.filePath);
+//     res.sendFile(__dirname + filePath);
+//     // res.send(req.query.filePath);
+
+// });
 
 // DatabaseHandler.getUser(userEmail=userEmail)
 // function setLog(idTag, userPassword){
