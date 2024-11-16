@@ -4,20 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <title>Document</title>
 </head>
 <body>
     <section>
-        <!-- <div class="home_div">
+        <div class="home_div">
             <div class="home">
                 <span id="swift">Swift</span>
                 <div class="home_buttons">
-                    <button id="Home_register">Register</button>
-                    <button id="Home_login">Login</button>
+                    <button id="home_register">Register</button>
+                    <button id="home_login">Login</button>
                 </div>
             </div>
-        </div> -->
+        </div>
         <!-- <div class="login_div">
+            <div class="back_div" id="login_back_div">
+                <i class="fa-solid fa-chevron-left"></i>
+                 <span>Back</span>
+            </div>
             <div class="login">
                 <span id="login">Login</span>
                 <div class="login_input_div">
@@ -29,6 +34,11 @@
             </div>
         </div> -->
         <!-- <div class="register_div">
+            <div class="back_div" id="next_back_div">
+                <i class="fa-solid fa-chevron-left"></i>
+                 <span>Back</span>
+            </div>
+            
             <div class="register">
                 <span id="register">Register</span>
                 <div class="register_input_div">
@@ -36,25 +46,33 @@
                     <input type="text" placeholder="Last Name">
                     <input type="email" placeholder="Email">
                     <input type="password" placeholder="Password">
-                    <button id="register_button">Next</button>
+                    <button id="next_button">Next</button>
                 </div>
             </div>
         </div> -->
 
-        <div class="register_div">
+        <!-- <div class="register_div">
+            <div class="back_div" id="final_back_div">
+                <i class="fa-solid fa-chevron-left"></i>
+                <span>Back</span>
+            </div>
             <div class="register">
                 <span id="register">Final step</span>
                 <div class="register_input_div">
                     <p>Choose a profile or leave as default</p>
                     <div class="default_profile">
-                        <img src="default_profile.jpg" alt="default_profile">
+                        <img src="default_profile.jpg" alt="default_profile" id="profile_picture">
+                        <div class="file_upload_div">
+                            <label for="file_upload" class="custom_upload">+</label>
+                            <input type="file", id="file_upload">   
+                        </div>
                     </div>
-                    <input type="file">
+
                     <input type="text" placeholder="User Name">
                     <button id="register_button">Register</button>
                 </div>
             </div>
-        </div>
+        </div> -->
         
         
     </section>

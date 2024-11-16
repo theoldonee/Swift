@@ -51,7 +51,7 @@ section{
 /* Span styling */
 .home span, .login span, .register span{
     color: white;
-    font-family: "Borel", cursive;
+    font-family: "Borel", "cursive";
     font-style: normal;
     font-weight: 400;
     font-size: 150px;
@@ -123,6 +123,25 @@ section{
     }
 }
 
+.back_div{
+    position: absolute;
+    color: white;
+    font-family: "Borel";
+    font-size: 30px;
+    top: 40px;
+    left: 40px; 
+    transition: all 0.5 ease-in;
+}
+
+.back_div:hover{
+    font-size: 32px;
+    cursor: pointer;
+}
+
+.back_div:active{
+    font-size: 30px;
+    color: #7462ff;
+}
 
 /* LOGIN PAGE CSS */
 .login, .register{
@@ -143,6 +162,25 @@ input{
     padding-left: 10px;
     outline: none;
 }
+input[type="file"] {
+    /* color: white; */
+    display: none;
+}
+
+.custom_upload{
+    /* border: 1px solid #ccc; */
+    color: white;
+    background-color: #7462ff;
+    cursor: pointer;
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    padding: 10px ;
+    font-size: medium;
+    font-weight: bold;
+    
+}
+
 
 .login_input_div{
     height: 200px;
@@ -187,7 +225,7 @@ input{
 
 .register_input_div p{
     color: white;
-    /* font-family: "Montserrat"; */
+    font-family: "Montserrat";
 }
 
 
@@ -195,7 +233,6 @@ input{
     width: 200px;
     height: 200px;
     border-radius: 25%;
-    border: 1px solid black;
     object-fit: contain;
 }
 
@@ -204,4 +241,10 @@ input{
     height: 200px;
     border-radius: 25%;
     object-fit: cover;
+}
+
+.file_upload_div{
+    position: relative;
+    left: 170px;
+    bottom: 200px;
 }
