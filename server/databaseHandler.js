@@ -286,11 +286,17 @@ export class DatabaseHandler{
     static async addPost(post){
 
         post.authorId = new ObjectId(post.authorId);
-
-        console.log(post);
+        
         var result = await postCollection.insertOne(post);
 
         return result;
+    }
+
+    static async getPost(_id){
+        
+        var query = {_id: new ObjectId(_id)};
+        var post = await postCollection.find(query).toArray();
+        return post[0];
     }
 }
 

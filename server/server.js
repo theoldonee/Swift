@@ -37,9 +37,9 @@ app.get("/", (req, res) => {
 });
 
 // Responds with javascript file
-app.get("/index.js", (req, res) => {
-    res.sendFile(__dirname + "/public/index.js");
-});
+// app.get("/index.js", (req, res) => {
+//     res.sendFile(__dirname + "/public/index.js");
+// });
 
 
 app.post("/M00933241/users", async (req, res) => {
@@ -165,9 +165,12 @@ app.delete("/M00933241/login", (req, res) => {
     })
 });
 
-app.get("/M00933241/contents", (req, res) => {
-    
-    res.send("content gets");
+app.get("/M00933241/contents", async (req, res) => {
+    // console.log(req.body._id);
+    var post = await DatabaseHandler.getPost(req.body._id);
+
+    res.send(post);
+
 });
 
 app.post("/M00933241/contents", async (req, res) => {

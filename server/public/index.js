@@ -1,67 +1,20 @@
-
-
-$("#submit").click( () => {
-    // alert($("#username").val());
-    // $.post("/M00933241/login", 
-        // {
-        //     name: $("#username").val(),
-        //     password: $("#password").val() 
-
-        // }
-    // )
-
-    $.ajax({
-        url: "/M00933241/login",
-
-        type: "POST",
-        data: ({
-            name: $("#username").val(),
-            password: $("#password").val() 
-
-        }),
-        dataType: "html"
-
-    });
-
-    // $.ajax({
-    //     url: "/M00933241/uploads",
-
-    //     type: "GET",
-    //     data: ({
-    //         filePath: "/uploads/20230707_205819.jpg"
-
-    //     }),
-
-    // });
-
-    
-
-
+$("#login").click( () => {
+    console.log("here")
+    $("#swift").addClass("grow");
+    setTimeout(loginPage, 1600);
 
 });
 
-// const xhttp = new XMLHttpRequest();
-// xhttp.open("GET", "/M00933241/image");
+function loginPage(){
+    $("section").html("<p>Login<p>");
+}
+function register(){
+    $("section").html("<p>Register<p>");
+}
 
-// xhttp.send({filePath : "/uploads/20230707_205819.jpg"});
-// var file = xhttp.response;
-// console.log(file);
-// $("#image").attr("src", )
+$("#register").click( () => {
+    console.log("here")
+    $("#swift").addClass("grow");
+    setTimeout(register, 1600);
 
-// $.ajax({
-//     url: "/M00933241/image",
-
-//     type: "GET",
-//     data: ({
-//         filePath: "/uploads/20230707_205819.jpg"
-//     }),
-//     success: function(response) {
-//         //Do Something
-//         console.log(response);
-//       },
-//       error: function(xhr) {
-//         //Do Something to handle error
-//         console.log(xhr);
-//       }
-
-// });
+});

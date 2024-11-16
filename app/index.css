@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Borel&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lobster&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+}
+
+section{
+    height: 100vh;
+    width: 100%;
+}
+
+/* BACKGROUND STYLING */
+.home_div, .login_div, .register_div{
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(45deg, #7462ff, #ad0fb3,#09bd96);
+    animation: BackgroundColour 12s ease-in-out infinite;
+    background-size: 300% 300%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+@keyframes BackgroundColour {
+    0%{
+        background-position: 0 50%;
+    }
+    50%{
+        background-position: 100% 50%;
+    }
+    100%{
+        background-position: 0 50%;
+    }
+}
+
+/* */
+.home{
+    width: 900px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    
+}
+
+/* Span styling */
+.home span, .login span, .register span{
+    color: white;
+    font-family: "Borel", cursive;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 150px;
+    
+}
+
+/* Button styling */
+.home_buttons{
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.home_buttons button{
+    border: none;
+    width: 400px;
+    height: 50px;
+    transition: all 0.5s ease-in-out;
+    
+}
+
+.home_buttons button:hover{
+    cursor: pointer;
+    height: 60px;
+    transition: all 0.5s ;
+}
+
+#home_login{
+    color: white;
+    background-color: #7462ff;
+    /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+}
+
+#home_login:hover{
+    background-color: #493caa;
+}
+
+/* Shrinks text */
+.shrink{
+    animation: shrinkSwift 1s ease-in-out forwards;
+}
+
+/* Grows text */
+.grow{
+    animation: GrowSwift 2s ease-in-out 1;
+}
+
+@keyframes shrinkSwift {
+    0%{
+        color: #493caa;
+        font-size: 150px;
+    }
+    100%{
+        font-size: 5px;
+    }
+}
+
+@keyframes GrowSwift {
+    0%{
+        
+        font-size: 5px;
+    }
+    50%{
+        color: #493caa;
+    }
+    100%{
+        font-size: 450px;
+    }
+}
+
+
+/* LOGIN PAGE CSS */
+.login, .register{
+    width: 900px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Input field styling */
+input{
+    height: 40px;
+    border: none;
+    border-radius: 15px;
+    width: 400px;
+    padding-left: 10px;
+    outline: none;
+}
+
+.login_input_div{
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Styling for buttons on register and login page */
+.login button, .register button{
+    border: none;
+    color: white;
+    background-color: #7462ff;
+
+    width: 400px;
+    height: 50px;
+    transition: all 0.5s ease-in-out;
+}
+
+/* Styling for buttons on register and login page when hovering*/
+.login button:hover, .register button:hover{
+    cursor: pointer;
+    background-color: #493caa;
+}
+
+/* Styling for buttons on register and login page when active*/
+.login button:active, .register button:active{
+    cursor: pointer;
+    color: #493caa;
+    background-color: white;
+}
+
+/* REGISTER PAGE CSS */
+.register_input_div{
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.register_input_div p{
+    color: white;
+    /* font-family: "Montserrat"; */
+}
+
+
+.default_profile{
+    width: 200px;
+    height: 200px;
+    border-radius: 25%;
+    border: 1px solid black;
+    object-fit: contain;
+}
+
+.default_profile img{
+    width: 200px;
+    height: 200px;
+    border-radius: 25%;
+    object-fit: cover;
+}

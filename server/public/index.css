@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Borel&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lobster&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+}
+
+section{
+    height: 100vh;
+    width: 100%;
+}
+
+.home_div{
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(45deg, #7462ff, #ad0fb3,#09bd96);
+    animation: BackgroundColour 12s ease-in-out infinite;
+    background-size: 300% 300%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+@keyframes BackgroundColour {
+    0%{
+        background-position: 0 50%;
+    }
+    50%{
+        background-position: 100% 50%;
+    }
+    100%{
+        background-position: 0 50%;
+    }
+}
+
+
+.home{
+    width: 900px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    
+}
+
+.home span{
+    color: white;
+    font-family: "Borel", cursive;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 150px;
+    
+}
+
+/* Button styling */
+.home_buttons{
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.home_buttons button{
+    border: none;
+    width: 400px;
+    height: 50px;
+    transition: all 0.5s ease-in-out;
+    
+}
+
+.home_buttons button:hover{
+    cursor: pointer;
+    height: 60px;
+    transition: all 0.5s ;
+}
+
+#login{
+    color: white;
+    background-color: #7462ff;
+    /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+}
+
+#login:hover{
+    background-color: #493caa;
+}
+
+.grow{
+    
+    animation: GrowSwift 2s ease 0s 1;
+}
+
+@keyframes GrowSwift {
+    0%{
+        color: #493caa;
+        font-size: 150px;
+    }
+    100%{
+        font-size: 500px;
+    }
+}
+
+/* section {
+    overflow-y: hidden; 
+    overflow-x: hidden; 
+} */
