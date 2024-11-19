@@ -25,9 +25,14 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    parameterLimit: 100000,
+    limit: '50mb',
+    extended: true
+}));
+
+app.use(bodyParser.json({limit: '50mb', type: 'application/json'}));
 app.use(fileUpload());
 
 
@@ -36,6 +41,27 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html");
 });
 
+// app.get("/M00933241/:email", (req, res) => {
+//     console.log(req.params['email']);
+// });
+
+app.get("/M00933241/email", async (req, res) => {
+    var idTag = req.query.email;
+    
+    var result = await DatabaseHandler.isUser(idTag);
+
+    res.send({result: result});
+});
+
+app.get("/M00933241/username", async (req, res) => {
+    var idTag = req.query.userName;
+    
+    var result = await DatabaseHandler.isUser(idTag);
+
+    res.send({result: result});
+});
+
+
 // Responds with javascript file
 // app.get("/index.js", (req, res) => {
 //     res.sendFile(__dirname + "/public/index.js");
@@ -43,16 +69,59 @@ app.get("/", (req, res) => {
 
 
 app.post("/M00933241/users", async (req, res) => {
-    var user = req.body;
+
+    // 
+    var user = req.body.userJSON;
     user.followers = []
     user.following = [];
     user.friends = [];
     user.post = [];
 
+    if(req.body.profile_img != ""){
+
+    }else{
+        user.profile_img = "./public/uploads/default_profile/default_profile.jpg"
+    }
+    // create user json
+    // after creating user, create folder using user ID
+    // profile image path has the path `./public/uploads/${userID}/profile_image/img`
+
+
     
-    var result = await DatabaseHandler.addUser(user);
-    res.send(result);
+    // var result = await DatabaseHandler.addUser(user);
+    // res.send(result);
+
+    // if (!fs.existsSync(directoryPath)) {
+    //     // If it doesn't exist, create the directory
+    //     fs.mkdirSync(directoryPath);
+      
+    //     console.log(`Directory '${directoryPath}' created.`);
+    // } else {
+    // console.log(`Directory '${directoryPath}' already exists.`);
+    // }
 });
+
+async function writeImage(image, img_path){
+    const extension = image.split(';')[0].match(/jpeg|png|gif/)[0];
+    const data = image.replace(/^data:image\/\w+;base64,/, '');
+    const encoding  = 'base64';
+    const file = `${'file_name'}.${extension}`;
+    const path = './public/uploads/' + file;
+    fs.writeFileSync(path, data, encoding);
+    return
+}
+
+async function createFolder(directoryPath){
+    // if (!fs.existsSync(directoryPath)) {
+    //     // If it doesn't exist, create the directory
+    //     fs.mkdirSync(directoryPath);
+      
+    //     console.log(`Directory '${directoryPath}' created.`);
+    // } else {
+    // console.log(`Directory '${directoryPath}' already exists.`);
+    // }
+    return path;
+}
 
 app.delete("/M00933241/users", async (req, res) => {
     var idTag = req.body.idTag;
@@ -136,6 +205,7 @@ app.post("/M00933241/login", (req, res) => {
     // console.log(req.body);
 });
 
+
 app.delete("/M00933241/login", (req, res) => {
     var idTag = req.body.idTag;
 
@@ -165,6 +235,7 @@ app.delete("/M00933241/login", (req, res) => {
     })
 });
 
+
 app.get("/M00933241/contents", async (req, res) => {
     // console.log(req.body._id);
     var post = await DatabaseHandler.getPost(req.body._id);
@@ -172,6 +243,7 @@ app.get("/M00933241/contents", async (req, res) => {
     res.send(post);
 
 });
+
 
 app.post("/M00933241/contents", async (req, res) => {
 
@@ -209,6 +281,7 @@ app.post("/M00933241/contents", async (req, res) => {
     res.send({imgPath: imgPath, result: result});
 });
 
+
 app.post("/M00933241/follow", async (req, res) => {
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
@@ -217,6 +290,7 @@ app.post("/M00933241/follow", async (req, res) => {
     res.send(result);
 });
 
+
 app.delete("/M00933241/follow", async (req, res) => {
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
@@ -224,6 +298,7 @@ app.delete("/M00933241/follow", async (req, res) => {
     var result = await DatabaseHandler.followHandler(false, followerIdTag, followedIdTag);
     res.send(result);
 });
+
 
 app.get("/M00933241/users/search", (req, res) => {
 
@@ -248,6 +323,7 @@ app.get("/M00933241/users/search", (req, res) => {
     
    
 });
+
 
 app.get("/M00933241/content/search", (req, res) => {
     res.send("search content");
