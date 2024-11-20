@@ -70,57 +70,101 @@ app.get("/M00933241/username", async (req, res) => {
 
 app.post("/M00933241/users", async (req, res) => {
 
-    // 
+    // Gets user data
     var user = req.body.userJSON;
+    user.profile_img = "";
     user.followers = []
     user.following = [];
     user.friends = [];
     user.post = [];
 
+    var result = await DatabaseHandler.addUser(user);
+
+    var profile_image, idfolderPath, profileFolderPath, fileName, id;
+    id = `${result.insertedId}`;
+    
+    // Creates upload folder for user
+    idfolderPath = `./public/uploads/${id}`;
+    createFolder(idfolderPath);
+
+    // Checks if profile image has been selected
     if(req.body.profile_img != ""){
 
+        // Creates folder for uploaded profile image
+        profileFolderPath = `./public/uploads/${id}/default_profile`;
+        createFolder(profileFolderPath);
+
+        // Creates file name
+        fileName = generateFileName(user.post, id);
+
+        // Sets profile_image to created path
+        profile_image = writeImage(req.body.profile_img, profileFolderPath, 'profile_img');  
+
     }else{
-        user.profile_img = "./public/uploads/default_profile/default_profile.jpg"
+         // Sets profile_image to default profile image path
+        profile_image = "./public/uploads/default_profile/default_profile.jpg"
     }
-    // create user json
-    // after creating user, create folder using user ID
-    // profile image path has the path `./public/uploads/${userID}/profile_image/img`
 
-
+    // Updates user profile;
+    var updateResult = await DatabaseHandler.updateProfilePath(id, profile_image);
     
-    // var result = await DatabaseHandler.addUser(user);
-    // res.send(result);
+    res.send({
+        result: result,
+        updateResult: updateResult
+    });
 
-    // if (!fs.existsSync(directoryPath)) {
-    //     // If it doesn't exist, create the directory
-    //     fs.mkdirSync(directoryPath);
-      
-    //     console.log(`Directory '${directoryPath}' created.`);
-    // } else {
-    // console.log(`Directory '${directoryPath}' already exists.`);
-    // }
 });
 
-async function writeImage(image, img_path){
+// Writes image to specified directory
+async function writeImage(image, directory, fileName){
+    // Splits image string and gets file extension
     const extension = image.split(';')[0].match(/jpeg|png|gif/)[0];
+
+    // Splits image and gets image data
     const data = image.replace(/^data:image\/\w+;base64,/, '');
     const encoding  = 'base64';
-    const file = `${'file_name'}.${extension}`;
-    const path = './public/uploads/' + file;
+
+    const file = `${fileName}.${extension}`;
+
+    // Path to image
+    const path = `${directory }/${file}`;
+
+    // Creates image file in appropriate directory
     fs.writeFileSync(path, data, encoding);
-    return
+
+    return path;
 }
 
+// Creates a folder in a directory
 async function createFolder(directoryPath){
-    // if (!fs.existsSync(directoryPath)) {
-    //     // If it doesn't exist, create the directory
-    //     fs.mkdirSync(directoryPath);
-      
-    //     console.log(`Directory '${directoryPath}' created.`);
-    // } else {
-    // console.log(`Directory '${directoryPath}' already exists.`);
-    // }
-    return path;
+     // Creates new directory if directory doesn't exist,
+    if (!fs.existsSync(directoryPath)) {
+        fs.mkdirSync(directoryPath);
+        console.log(`Directory '${directoryPath}' created.`);
+    } else {
+        console.log(`Directory '${directoryPath}' already exists.`);
+    }
+}
+
+// creates a file name
+async function generateFileName(postList, id){
+    var length = postList.lenght;
+
+    // Equates length to 0 if length is undefined
+    if(length == undefined){
+        length = 0;
+    }
+
+    var fileName = `${id}_${length}`;
+
+    // Generates new file name if already taken.
+    if (fileName in postList){
+        var lastNumber = parseInt(postList[postList.length - 1].split('_')[1]);
+        fileName = `${id}_${lastNumber}` ; 
+    }
+
+    return fileName;
+
 }
 
 app.delete("/M00933241/users", async (req, res) => {

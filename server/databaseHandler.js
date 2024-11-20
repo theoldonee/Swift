@@ -73,6 +73,16 @@ export class DatabaseHandler{
         return result;
     }
 
+    // Updates user's profile image path
+    static async updateProfilePath(id, profilePath){
+
+        var query = {_id: new ObjectId(id)}
+        var update = {$set: {profile_img: profilePath}}
+        var followedResult = await userCollection.updateOne(query, update);
+        
+        return followedResult;
+    }
+
     // Removes a user to user collection
     static async deleteUser(idTag){
         // Query for an email match
