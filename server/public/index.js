@@ -91,25 +91,25 @@ function showFinalRegisterPage(user){
 
                 }else{
                     user.userName = userName;
-                    // const data = new FormData();
-                    // data.append('firstName', user.firstName);
-                    // data.append('lastName', user.lastName);
-                    // data.append('userName', user.userName);
-                    // data.append('email', user.email);
-                    // data.append('password', user.password);
-                    // data.append('profile_img', user.profile_img);
 
                     var userJSON = {
                         firstName: user.firstName,
                         lastName: user.lastName,
                         userName: user.userName,
                         email: user.email,
-                        password: user.password,
+                        password: user.password
+                    }
+
+                    if (user.profile_img == undefined){
+                        user.profile_img = '';
+                    }
+                    
+                    var requestData = {
+                        userJSON: userJSON,
                         profile_img: user.profile_img
                     }
-                    // console.log(data);
-                    // addUser(data);
-                    addUser(JSON.stringify(userJSON));
+
+                    addUser(JSON.stringify(requestData));
                     // alert("you have been registered");
                 }
             }else{
