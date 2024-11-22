@@ -1,4 +1,5 @@
 
+// Displays home page
 function showHomePage(){
     $("section").html(homePage);
 
@@ -14,6 +15,7 @@ function showHomePage(){
     });
 }
 
+// Adds grow class
 function grow(page, text){
     $("#swift").text(`${text}`);
     $("#swift").addClass("grow");
@@ -24,7 +26,7 @@ function grow(page, text){
     }
 }
 
-
+// Displays login page
 function showLoginPage(){
     $("section").html(loginPageString);
     $(".back_div").click( () => {
@@ -32,7 +34,7 @@ function showLoginPage(){
     });
 }
 
-
+// Displays register page
  function showRegisterPage(){
     $("section").html(registerPageString);
 
@@ -103,7 +105,7 @@ function showFinalRegisterPage(user){
                     if (user.profile_img == undefined){
                         user.profile_img = '';
                     }
-                    
+
                     var requestData = {
                         userJSON: userJSON,
                         profile_img: user.profile_img
@@ -203,6 +205,7 @@ async function databaseEmailVal(email){
 
 }
 
+// Validate username
 async function databaseuserNamelVal(userName){
     try{
         const response = await fetch(`/M00933241/username?userName=${userName}`, {
@@ -221,6 +224,7 @@ async function databaseuserNamelVal(userName){
 
 }
 
+// Sends user data to database
 async function addUser(data) {
     try{
         const response = await fetch(`/M00933241/users`, {
@@ -238,6 +242,7 @@ async function addUser(data) {
         console.log("Issue registering user " + err);
     }
 }
+
 var loginPageString, registerPageString, finalRegisterPageString, homePage;
 
 homePage = `
@@ -316,5 +321,5 @@ finalRegisterPageString = `
 `
 
 // showHomePage();
-showRegisterPage();
+// showRegisterPage();
 // showLoginPage();

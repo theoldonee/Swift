@@ -44,8 +44,7 @@ section{
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    align-items: center;
-    
+    align-items: center;   
 }
 
 /* Span styling */
@@ -55,6 +54,7 @@ section{
     font-style: normal;
     font-weight: 400;
     font-size: 150px;
+    user-select: none;
     
 }
 
@@ -143,6 +143,10 @@ section{
     color: #7462ff;
 }
 
+.back_div span{
+    user-select: none;
+}
+
 /* LOGIN PAGE CSS */
 .login, .register{
     width: 900px;
@@ -162,6 +166,8 @@ input{
     padding-left: 10px;
     outline: none;
 }
+
+
 input[type="file"] {
     /* color: white; */
     display: none;
@@ -248,3 +254,4 @@ input[type="file"] {
     left: 170px;
     bottom: 200px;
 }
+
