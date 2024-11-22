@@ -322,4 +322,4 @@ finalRegisterPageString = `
 
 // showHomePage();
 // showRegisterPage();
-// showLoginPage();
+showLoginPage();
