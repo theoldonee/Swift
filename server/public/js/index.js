@@ -32,6 +32,10 @@ function showLoginPage(){
     $(".back_div").click( () => {
         back();
     });
+
+    $("#login_button").click( () => {
+        validateLogin();
+    });
 }
 
 // Displays register page
@@ -153,12 +157,12 @@ function validateRegistration(){
         user.firstName = firstName;
         user.lastName = lastName;
         user.password = password;
-        validateEmail(email, user);
+        validateRegistrationEmail(email, user);
     }
 }
 
 // Validates email
-async function validateEmail(email, user){
+async function validateRegistrationEmail(email, user){
     if(email){
         var emailSplit = email.split("@");
         // check for @ sign in email
@@ -202,7 +206,6 @@ async function databaseEmailVal(email){
     }catch(err){
         console.log("Issue validating email from database" + err);
     }
-
 }
 
 // Validate username
@@ -243,7 +246,80 @@ async function addUser(data) {
     }
 }
 
+// Checks login field 
+async function validateLogin(){
+    var idTag, password;
+    idTag = $("#idTag").val();
+    password = $("#password").val();
+
+    if(!idTag){
+        alert("Please enter your username or email");
+    }else if(!password){
+        alert("Please enter a password");
+    }else{
+        var loginValResult = await loginUser(idTag, password);
+
+        if (loginValResult){
+            var loginResult = await checkLogin(idTag);
+            if(loginResult){
+                alert("Logged in");
+                window.location.href ="./public/app.html"
+            }else{
+                alert("Wrong password");
+            }
+        }else{
+            if (confirm("Email or username not registered. Would you like to register?")){
+                showRegisterPage();
+            }
+        };
+        
+    }
+}
+
+async function loginUser(idTag, password){
+    var data = JSON.stringify({
+        idTag: idTag,
+        password: password,
+    });
+    
+    try{
+        const response = await fetch(`/M00933241/login`, {
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: data
+        });
+    
+        const result = await response.json();
+
+        return result.acknowledged;
+    }catch(err){
+        console.log("Issue logging in user " + err);
+    }
+}
+
+async function checkLogin(idTag) {
+    try{
+        const response = await fetch(`/M00933241/login?idTag=${idTag}`, {
+            method: "GET",
+            headers:{
+                "Content-Type": "application/json"
+            },
+        });
+    
+        const result = await response.json();
+
+        return result.login;
+    }catch(err){
+        console.log("Issue getting login status of user \nError: " + err);
+    }
+}
+
+
+
 var loginPageString, registerPageString, finalRegisterPageString, homePage;
+var app, panel, display, weather, activitySuggestion;
 
 homePage = `
     <div class="home_div">
@@ -266,9 +342,9 @@ loginPageString = `
         <div class="login">
             <span id="login">Login</span>
             <div class="login_input_div">
-                <input type="text" placeholder="Email / Username">
-                <input type="password" placeholder="Password">
-                <button>Login</button>
+                <input type="text" placeholder="Email / Username" id="idTag">
+                <input type="password" placeholder="Password" id="password">
+                <button id="login_button">Login</button>
             </div>
             
         </div>
@@ -318,6 +394,101 @@ finalRegisterPageString = `
         </div>
     </div>
 
+`
+
+app = ` <div class="app">
+            <div class="panel_div">
+                <div class="panel_icon">
+                    <div>
+                        <div class="panel_icon_img" id="panel_icon_img" >
+                            <img src="./public/uploads/default_profile/default_profile.jpg" alt="Profile">
+                        </div>
+                        
+                        <div class="panel_icon_text">
+                            <span><b>_username_</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel_options">
+                    <span>Feed</span>
+                </div>
+                <div class="panel_options">
+                    <span>Chat</span>
+                </div>
+                <div class="panel_options">
+                    <span>Account</span>
+                </div>
+                <div id="logout_div">
+                    <Button id="logout">Logout</Button>
+                </div>
+            </div>
+    
+            <div class="display">
+                <div class="nav_bar_top">
+
+                </div>
+                <div class="feed_div">
+                    <div class="feed">
+                        
+                    
+                    </div>
+
+                    <div class="more_info">
+                        <div class="weather">
+                            <div class="info_header">
+                                <span><b>weather</b></span>
+                            </div>
+                            <div class="info">
+
+                            </div>
+                        </div>
+
+                        <div class="activity_suggestion">
+                            <div class="info_header">
+                                <span><b>Activity suggestion</b></span>
+                            </div>
+                            <div class="suggestion" id="suggestion">
+                                <span><b>Activity:</b> Mow your neighbor's lawn</span>
+                                <span><b>Type:</b> Charity</span>
+                                <span><b>Participants:</b> 1</span>
+                                <span><b>Duration:</b> Minutes</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="nav_bar_bottom">
+                    
+                </div>
+            </div>
+    
+        </div>`
+
+weather = `
+    <div class="weather">
+        <div class="info_header">
+            <span><b>weather</b></span>
+        </div>
+        <div class="info">
+
+        </div>
+    </div>
+`
+
+activitySuggestion = `
+    <div class="activity_suggestion">
+        <div class="info_header">
+            <span><b>Activity suggestion</b></span>
+        </div>
+        <div class="suggestion">
+            <span><b>Activity:</b> Mow your neighbor's lawn</span>
+            <span><b>Type:</b> Charity</span>
+            <span><b>Participants:</b> 1</span>
+            <span><b>Duration:</b> Minutes</span>
+        </div>
+    </div>
 `
 
 // showHomePage();
