@@ -121,7 +121,7 @@ app.post("/M00933241/users", async (req, res) => {
         fileName = generateFileName(user.post, id);
 
         // Sets profile_image to created path
-        profile_image = writeImage(req.body.profile_img, profileFolderPath, 'profile_img');  
+        profile_image = await writeImage(req.body.profile_img, profileFolderPath, 'profile_img');  
 
     }else{
          // Sets profile_image to default profile image path
