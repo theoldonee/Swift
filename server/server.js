@@ -1,24 +1,30 @@
+// Importing modules
 import express from "express";
+import fileUpload from "express-fileupload";
+import expressSession from "express-session";
 import {dirname} from "path";
 import {DatabaseHandler} from "./databaseHandler.js";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-import fileUpload from "express-fileupload";
 import fs from "fs";
 
 
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+// Set port
 const port = process.env.PORT || 8080;
 
+// Configure express to listen on set port
 app.listen(port, () =>{
     console.log(`Running on port ${port}`);
 });
 
+// Configure express to allow access to the public folder
 app.use("/public", express.static('public'));
 
-
+// 
 app.use((req, res, next) => {
     console.log(`request method: ${req.method}`);
     console.log(`request URL: ${req.url}`);
@@ -26,14 +32,27 @@ app.use((req, res, next) => {
 });
 
 // app.use(express.urlencoded({ extended: true }));
+
+// Configures espress to use body-parser urlencoded
 app.use(bodyParser.urlencoded({
     parameterLimit: 100000,
     limit: '50mb',
     extended: true
 }));
 
+// Configures espress to use body-parser json
 app.use(bodyParser.json({limit: '50mb', type: 'application/json'}));
+
+// Configures espress to use express-fileupload
 app.use(fileUpload());
+
+// Configures espress to use express-session
+// app.use(expressSession({
+//     secret: "Swift",
+//     cookie: { maxAge: 60000 },
+//     resave: false,
+//     saveUninitialized: true
+// }));
 
 
 // Responds with the home page
@@ -53,6 +72,7 @@ app.get("/M00933241/email", async (req, res) => {
     res.send({result: result});
 });
 
+
 app.get("/M00933241/username", async (req, res) => {
     var idTag = req.query.userName;
     
@@ -61,11 +81,14 @@ app.get("/M00933241/username", async (req, res) => {
     res.send({result: result});
 });
 
+app.get("/M00933241/user", async (req, res) => {
+    var idTag = req.query.id;
+    
+    var result = await DatabaseHandler.getUser(idTag);
 
-// Responds with javascript file
-// app.get("/index.js", (req, res) => {
-//     res.sendFile(__dirname + "/public/index.js");
-// });
+    console.log(result)
+    res.send({result: result});
+});
 
 
 app.post("/M00933241/users", async (req, res) => {
@@ -178,7 +201,7 @@ app.delete("/M00933241/users", async (req, res) => {
 
 
 app.get("/M00933241/login", async (req, res) => {
-    var idTag = req.body.idTag;
+    var idTag = req.query.idTag;
 
     var inDatabase = await DatabaseHandler.isLogged(idTag);
 
@@ -189,7 +212,7 @@ app.get("/M00933241/login", async (req, res) => {
 
             // checks if user exist 
             if (userStatus){
-                resolve({login: true, isuser: true});
+                resolve({login: true, isuser: true, id: data.userId});
             }else{
                 reject({login: false, isuser: true});
             }
@@ -221,18 +244,29 @@ app.post("/M00933241/login", (req, res) => {
             if (data.password == password){
                 
                 var result = await DatabaseHandler.updateLogin({correctPassword: true, user: data, status: true});
+                // var response = {
+                //     correctPassword: true,
+                //     result: result
+                // }
                 resolve(result);
 
             }else{
                 var result = await DatabaseHandler.updateLogin({correctPassword: false, user: data, status: false});
+                var response = {
+                    correctPassword: false,
+                    result: result
+                }
                 resolve(result);
             }
             // resolve(data);
         }else{
-            reject({
+            var result = {
                 acknowledged: false,
-                insertedId: false
-            });
+                insertedId: null,
+            }
+            
+
+            reject(result);
         }
 
     })
@@ -386,3 +420,16 @@ app.get("/M00933241/content/search", (req, res) => {
 // function setLog(idTag, userPassword){
     
 // }
+
+const bordomAPI = 'https://bored-api.appbrewery.com/random';
+
+async function getActivity(){
+    const response = await axios.get(bordomAPI);
+}
+
+const weatherAPI = 'https://bored-api.appbrewery.com/random';
+
+async function getWeather(){
+    const response = await axios.get(weatherAPI);
+}
+
