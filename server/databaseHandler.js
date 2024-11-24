@@ -29,8 +29,16 @@ export class DatabaseHandler{
 
     // Returns a user
     static async getUser(idTag) {
-        // Query for an email match
-        var query = {email: idTag};
+        var query;
+
+        try{
+            // Query for an ID match
+            query = { _id: new ObjectId(`${idTag}`)};
+        }catch{
+            // Query for an email match
+            query = {email: idTag};
+        }
+        
 
         // Searches user collection based on query
         var user =  await userCollection.find(query).toArray();
