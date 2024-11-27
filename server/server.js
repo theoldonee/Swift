@@ -121,11 +121,17 @@ app.post("/M00933241/users", async (req, res) => {
         fileName = generateFileName(user.post, id);
 
         // Sets profile_image to created path
-        profile_image = await writeImage(req.body.profile_img, profileFolderPath, 'profile_img');  
+        var writeResult = await writeImage(req.body.profile_img, profileFolderPath, 'profile_img');
+        
+        if(writeResult.result == true){
+            profile_image = `./uploads/${id}/default_profile/${writeResult.file}`;
+        }else{
+            profile_image = "./uploads/default_profile/default_profile.jpg"
+        }
 
     }else{
          // Sets profile_image to default profile image path
-        profile_image = "./public/uploads/default_profile/default_profile.jpg"
+        profile_image = "./uploads/default_profile/default_profile.jpg"
     }
 
     // Updates user profile;
@@ -140,22 +146,29 @@ app.post("/M00933241/users", async (req, res) => {
 
 // Writes image to specified directory
 async function writeImage(image, directory, fileName){
-    // Splits image string and gets file extension
-    const extension = image.split(';')[0].match(/jpeg|png|gif/)[0];
+    try{
+        // Splits image string and gets file extension
+        const extension = image.split(';')[0].match(/jpeg|png|gif/)[0];
 
-    // Splits image and gets image data
-    const data = image.replace(/^data:image\/\w+;base64,/, '');
-    const encoding  = 'base64';
+        // Splits image and gets image data
+        const data = image.replace(/^data:image\/\w+;base64,/, '');
+        const encoding  = 'base64';
 
-    const file = `${fileName}.${extension}`;
+        const file = `${fileName}.${extension}`;
 
-    // Path to image
-    const path = `${directory }/${file}`;
+        // Path to image
+        const path = `${directory }/${file}`;
 
-    // Creates image file in appropriate directory
-    fs.writeFileSync(path, data, encoding);
+        // Creates image file in appropriate directory
+        fs.writeFileSync(path, data, encoding);
 
-    return path;
+        return {result: true, file: file};
+    }catch(err){
+        return {result: false, file: null};
+    }
+    
+
+    
 }
 
 // Creates a folder in a directory
@@ -315,10 +328,14 @@ app.delete("/M00933241/login", (req, res) => {
 
 
 app.get("/M00933241/contents", async (req, res) => {
-    // console.log(req.body._id);
-    var post = await DatabaseHandler.getPost(req.body._id);
+    var idTag = req.query.id;
+    var post = await DatabaseHandler.getPost(idTag);
 
-    res.send(post);
+    var response = {
+        post: post
+    }
+
+    res.send(response);
 
 });
 
