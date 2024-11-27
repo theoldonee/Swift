@@ -117,9 +117,6 @@ app.post("/M00933241/users", async (req, res) => {
         profileFolderPath = `./public/uploads/${id}/default_profile`;
         createFolder(profileFolderPath);
 
-        // Creates file name
-        fileName = generateFileName(user.post, id);
-
         // Sets profile_image to created path
         var writeResult = await writeImage(req.body.profile_img, profileFolderPath, 'profile_img');
         
@@ -183,25 +180,25 @@ async function createFolder(directoryPath){
 }
 
 // creates a file name
-async function generateFileName(postList, id){
-    var length = postList.lenght;
+// async function generateFileName(postList, id){
+//     var length = postList.lenght;
 
-    // Equates length to 0 if length is undefined
-    if(length == undefined){
-        length = 0;
-    }
+//     // Equates length to 0 if length is undefined
+//     if(length == undefined){
+//         length = 0;
+//     }
 
-    var fileName = `${id}_${length}`;
+//     var fileName = `${id}_${length}`;
 
-    // Generates new file name if already taken.
-    if (fileName in postList){
-        var lastNumber = parseInt(postList[postList.length - 1].split('_')[1]);
-        fileName = `${id}_${lastNumber}` ; 
-    }
+//     // Generates new file name if already taken.
+//     if (fileName in postList){
+//         var lastNumber = parseInt(postList[postList.length - 1].split('_')[1]);
+//         fileName = `${id}_${lastNumber}` ; 
+//     }
 
-    return fileName;
+//     return fileName;
 
-}
+// }
 
 app.delete("/M00933241/users", async (req, res) => {
     var idTag = req.body.idTag;
@@ -342,38 +339,76 @@ app.get("/M00933241/contents", async (req, res) => {
 
 app.post("/M00933241/contents", async (req, res) => {
 
-    var post = req.body;
-    post.likes = 0;
+    var post, imageData;
+
+    post = req.body.postData;
+    post.likesCount = 0;
+    post.commentCount = 0;
     post.comments = [];
+    post.likes = [];
     post.timeStamp = new Date();
+    
+    imageData = req.body.imageData;
 
-    var image = req.files.image;
-    var imgPath = "./public/uploads/" + image.name;
-
-    await image.mv(imgPath, (err) => {
-
-        if(err){
-            throw err
-        }
-
-        console.log("Image uploaded to " + imgPath);
-    })
-
-    post.imgPath = imgPath;
-
-    if(post.imgPath && post.caption){
+    // Determines the post type
+    if(imageData != '' && post.caption != ''){
         post.type = "text & image";
     }else{
-        if(post.image){
+        if(imageData){
             post.type = "image";
         }else{
             post.type = "text";
         }
     }
 
-    var result = await DatabaseHandler.addPost(post);
+    var addPostResult, userPostResult, imageUpdateResult;
+
+    addPostResult = await DatabaseHandler.addPost(post);
+
     
-    res.send({imgPath: imgPath, result: result});
+    var imgPath, postId, authorId, uploadFolderPath;
+    
+    postId = `${addPostResult.insertedId}`;
+    authorId = post.authorId;
+
+    userPostResult = await DatabaseHandler.updateUserPost(postId, authorId);
+
+    // Checks if imageData contains data
+    if(imageData != ""){
+        // Creates folder for uploaded profile image
+        uploadFolderPath = `./public/uploads/${authorId}/uploads`;
+
+        createFolder(uploadFolderPath);
+
+        // Sets profile_image to created path
+        var writeResult = await writeImage(imageData, uploadFolderPath, postId);
+        
+        if(writeResult.result == true){
+            imgPath = `./uploads/${authorId}/uploads/${writeResult.file}`;
+            post.imgPath = imgPath;
+
+        }
+        else{
+            post.imgPath = '';
+        }
+
+    }else{
+        post.imgPath = '';
+    }
+
+    imageUpdateResult = await DatabaseHandler.updatePostImgPath(postId, post.imgPath)
+
+    var response = {
+        addPostResult: addPostResult,
+        userPostResult: userPostResult,
+        imageUpdateResult: imageUpdateResult
+
+    }
+
+    console.log(response);
+
+    res.send(response);
+    // res.send({imgPath: imgPath, result: result});
 });
 
 
