@@ -84,11 +84,29 @@ export class DatabaseHandler{
     // Updates user's profile image path
     static async updateProfilePath(id, profilePath){
 
-        var query = {_id: new ObjectId(id)}
-        var update = {$set: {profile_img: profilePath}}
-        var followedResult = await userCollection.updateOne(query, update);
+        var query = {_id: new ObjectId(id)};
+        var update = {$set: {profile_img: profilePath}};
+        var updateResult = await userCollection.updateOne(query, update);
         
-        return followedResult;
+        return updateResult;
+    }
+
+    // Updates user's post
+    static async updateUserPost(postId, authorId){
+        var user, query, update, userPost;
+
+        user = await this.getUser(authorId);
+
+        userPost = user.post;
+        userPost.push(postId);
+
+        query = {_id: new ObjectId(authorId)};
+        update = {$set: {post: userPost}};
+
+        var updateResult = await userCollection.updateOne(query, update);
+        
+        return updateResult;
+
     }
 
     // Removes a user to user collection
@@ -304,14 +322,22 @@ export class DatabaseHandler{
     static async addPost(post){
 
         post.authorId = new ObjectId(post.authorId);
-        
         var result = await postCollection.insertOne(post);
 
         return result;
     }
 
+    // Updates post Image path
+    static async updatePostImgPath(postId, imgPath){
+
+        var query = {_id: new ObjectId(postId)};
+        var update = {$set: {imgPath: imgPath}};
+        var result = await postCollection.updateOne(query, update);
+
+        return result;
+    }
+
     static async getPost(_id){
-        
         var query = {_id: new ObjectId(_id)};
         var post = await postCollection.find(query).toArray();
         return post[0];
