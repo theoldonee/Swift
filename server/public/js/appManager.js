@@ -3,19 +3,52 @@ export {
     AppManager
 };
 
-var id, user, app;
+var id, user, app, feedPage, chatPage, accountPage;
 
 class AppManager{
 
     static appLoad(userID){
         id = userID;
+        console.log(id);
         this.injectApp();
-        this.accountPageinitialize();
         this.feedInitialize();
     }
+
+    // Initializes panel
+    static panelInitialize() {
+
+
+        $("#feed_option").click( () => {
+            $("#feed_option").addClass("selected_option");
+            $("#chat_option").removeClass("selected_option");
+            $("#account_option").removeClass("selected_option");
+
+            this.feedInitialize()
+        });
+
+        $("#chat_option").click( () => {
+            $("#chat_option").addClass("selected_option");
+            $("#feed_option").removeClass("selected_option");
+            $("#account_option").removeClass("selected_option");
+        });
+
+        $("#account_option").click( () => {
+            $("#account_option").addClass("selected_option");
+            $("#chat_option").removeClass("selected_option");
+            $("#feed_option").removeClass("selected_option");
+            this.accountPageinitialize(); 
+        });
+    }
     
-    static injectApp(){
+    static async injectApp(){
         $("section").html(app);
+        var result = await this.getUserData(id);
+    
+        user = result.result;
+
+        this.panelInitialize();
+        this.setUserName(user.userName);
+        this.setProfileImage(user.profile_img);
     }
 
     static async  getUserData(userId){
@@ -35,40 +68,6 @@ class AppManager{
         }
     }
     
-    static async accountPageinitialize(){
-        $("#feed_option").click( () => {
-            $("#feed_option").addClass("selected_option");
-            $("#chat_option").removeClass("selected_option");
-            $("#account_option").removeClass("selected_option");
-        });
-    
-        $("#chat_option").click( () => {
-            $("#chat_option").addClass("selected_option");
-            $("#feed_option").removeClass("selected_option");
-            $("#account_option").removeClass("selected_option");
-        });
-    
-        $("#account_option").click( () => {
-            $("#account_option").addClass("selected_option");
-            $("#chat_option").removeClass("selected_option");
-            $("#feed_option").removeClass("selected_option");
-        });
-    
-        var result = await this.getUserData(id);
-    
-        user = result.result;
-        this.setUserName(user.userName);
-        this.setName(user.firstName, user.lastName);
-        this.setProfileImage(user.profile_img);
-        this.setFollowingInfo(
-            user.post.length, 
-            user.following.length, 
-            user.followers.length
-        );
-        this.getPost(user.post);
-    
-    }
-    
     static setUserName(userName){
         $(".panel_icon_text").html(`
             <span><b>${userName}</b></span>
@@ -85,10 +84,11 @@ class AppManager{
     
     static setProfileImage(path){
         
-        $("#panel_user_profile_img").attr("src", path);
         $("#user_profile_img").attr("src", path);
+
+        $("#user_account_profile_img").attr("src", path);
+
         $(".user_post_profile_img").attr("src", path);
-    
     
     }
     
@@ -107,10 +107,10 @@ class AppManager{
     }
     
     
-    static async getPost(posts){
+    static async getUserPost(posts){
         for (var postID of posts){
             try{
-                var response = await fetch( `/M00933241/contents?id=${postID}`, {
+                var response = await fetch( `/M00933241/contents/${postID}`, {
                     method: "GET",
                     headers: {
                         "content-type": "application/json"
@@ -120,18 +120,49 @@ class AppManager{
                 var result = await response.json();
                 var postJSON = result.post;
                 var post = PostManager.constructPost(postJSON);
-                injectPost(post, postJSON._id);
+                this.injectPost(post, postJSON._id, "accountPage");
     
             }catch(err){
-                console.log("Issue getting data of user \nError: " + err);
+                console.log(`Issue getting post ${postID} of user \nError: ` + err);
             }
         }
     }
+
+    static async getAllPost(){
+       
+            try{
+                var response = await fetch( `/M00933241/contents?getBy="all"`, {
+                    method: "GET",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                });
     
+                var result = await response.json();
+                var postList = result.posts;
+
+                console.log(postList);
+
+                for (var postJSON of postList){
+                    var post = PostManager.constructPost(postJSON);
+                    this.injectPost(post, postJSON._id, "feedPage");
+                }
     
-    static injectPost(post, postID){
+            }catch(err){
+                console.log(`Issue getting post of user \nError: ` + err);
+            }
+        
+    }
     
-        $(".user_post").append(post);
+    // Injects post into display div
+    static injectPost(post, postID, page){
+        
+        if(page == "feedPage"){
+            $(".feed").prepend(post);
+        }else{
+            $(".user_post").prepend(post);
+        }
+        
         $(`#${postID}_like_icon i`).click( () => {
             if ($(`#${postID}_like_icon`).hasClass("liked")){
                 $(`#${postID}_like_icon`).removeClass("liked");
@@ -143,14 +174,43 @@ class AppManager{
                 $(`#${postID}_like_icon`).addClass("liked");
             }
         });
+
+        $(`#${postID}_follow`).click( () => {
+            if($(`#${postID}_follow`).hasClass("following_button")){
+                $(`#${postID}_follow`).removeClass("following_button");
+                // unfollow();
+                $(`#${postID}_follow b`).text("follow");
+            }else{
+                $(`#${postID}_follow`).addClass("following_button");
+                $(`#${postID}_follow b`).text("following");
+                // follow();
+            }
+        });
     }
     
+    // Initializes feedPage
     static feedInitialize(){
-    
+        $(".display").html(feedPage);
         $(".nav_bottom_icons i").click( () => {
-            $(".create_post_div").slideToggle();
+            $(".create_post_div").slideToggle({
+                duration: 'fast',
+                step: function() {
+                    if ($(this).css('display') == 'block') {
+                        $(this).css('display', 'flex');
+                    }
+                },
+                complete: function() {
+
+                    if ($(this).css('display') == 'block') {
+                        $(this).css('display', 'flex');
+                    }
+                }
+            });
+            
         });
-    
+        
+        // this.getFeed();
+        this.getAllPost();
         var post, img;
         post = {
             caption: '',
@@ -200,6 +260,7 @@ class AppManager{
         });
     }
     
+    //  Send user's post to server
     static async sendUserPost(postData, imageData){
         var data, requestData;
     
@@ -225,6 +286,40 @@ class AppManager{
             console.log("Issue registering user " + err);
         }
     }
+    
+    // Initializes accountPage
+    static async accountPageinitialize(){
+        // Injects account page into display div
+        $(".display").html(accountPage);
+        
+    
+        this.setUserName(user.userName);
+        this.setName(user.firstName, user.lastName);
+        this.setProfileImage(user.profile_img);
+        this.setFollowingInfo(
+            user.post.length, 
+            user.following.length, 
+            user.followers.length
+        );
+
+        try{
+            var response = await fetch( `/M00933241/${user._id}/contents?`, {
+                method: "GET",
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
+
+            var result = await response.json();
+            var postList = result.post;
+
+            this.getUserPost(postList);
+        }catch(err){
+
+        }
+        
+    
+    }
 
 }
 
@@ -234,7 +329,7 @@ app = `
             <div class="panel_icon">
                 <div>
                     <div class="panel_icon_img">
-                        <img src="./uploads/default_profile/default_profile.jpg" alt="Profile" id="user_profile_img">
+                        <img src="public/uploads/default_profile/default_profile.jpg" alt="Profile" id="user_profile_img">
                     </div>
                     
                     <div class="panel_icon_text">
@@ -276,64 +371,108 @@ app = `
         </div>
 
         <div class="display">
-            <div class="feed_div">
-                <div class="feed">
-                
-                </div>
-
-                <div class="more_info">
-                    <div class="weather">
-                        <div class="info_header">
-                            <span><b>weather</b></span>
-                        </div>
-                        <div class="info">
-
-                        </div>
-                    </div>
-
-                    <div class="activity_suggestion">
-                        <div class="info_header">
-                            <span><b>Activity suggestion</b></span>
-                        </div>
-                        <div class="suggestion">
-                            <span><b>Activity:</b> Mow your neighbor's lawn</span>
-                            <span><b>Type:</b> Charity</span>
-                            <span><b>Participants:</b> 1</span>
-                            <span><b>Duration:</b> Minutes</span>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-            <div class="nav_bar_bottom">
-                <div class="nav_bottom_icons">
-                    <i class="fa-regular fa-square-plus"></i>
-
-                    <div class="create_post_div">
-
-                        <div class="create_post_img_div">
-                            <img src="./uploads/default_profile/default_profile.jpg" alt="default_profile" id="create_post_img">
-                            <div class="file_upload_div">
-                                <label for="create_post_upload" class="create_upload_label">+</label>
-                                <input type="file", id="create_post_upload">   
-                            </div>
-                        </div>
-                        <div class="create_post_input_div">
-
-                            <textarea name="caption_text" id="create_post_caption" placeholder="Caption"></textarea>
-                            <textarea name="caption_tag" id="create_post_Tag" placeholder="Tag (#tag #tag)"></textarea>
-                            
-                        </div>
-                        <div>
-                            <button id="create_post_button">Post</button>
-                        </div>
-
-                    </div>
-                </div>
-                
-            </div>
+            
         </div>
 
     </div>
+`
+
+feedPage = `
+    <div class="feed_div">
+        <div class="feed">
+        
+        </div>
+
+        <div class="more_info">
+            <div class="weather">
+                <div class="info_header">
+                    <span><b>weather</b></span>
+                </div>
+                <div class="info">
+
+                </div>
+            </div>
+
+            <div class="activity_suggestion">
+                <div class="info_header">
+                    <span><b>Activity suggestion</b></span>
+                </div>
+                <div class="suggestion">
+                    <span><b>Activity:</b> Mow your neighbor's lawn</span>
+                    <span><b>Type:</b> Charity</span>
+                    <span><b>Participants:</b> 1</span>
+                    <span><b>Duration:</b> Minutes</span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="nav_bar_bottom">
+        <div class="nav_bottom_icons">
+            <i class="fa-regular fa-square-plus"></i>
+
+            <div class="create_post_div">
+
+                <div class="create_post_img_div">
+                    <img src="public/uploads/default_profile/default_profile.jpg" alt="default_profile" id="create_post_img">
+                    <div class="file_upload_div">
+                        <label for="create_post_upload" class="create_upload_label">+</label>
+                        <input type="file", id="create_post_upload">   
+                    </div>
+                </div>
+                <div class="create_post_input_div">
+
+                    <textarea name="caption_text" id="create_post_caption" placeholder="Caption"></textarea>
+                    <textarea name="caption_tag" id="create_post_Tag" placeholder="Tag (#tag #tag)"></textarea>
+                    
+                </div>
+                <div>
+                    <button id="create_post_button">Post</button>
+                </div>
+
+            </div>
+        </div>
+        
+    </div>
+`
+chatPage = `
+
+`
+
+accountPage = `
+    <div class="account_display">
+        <div class="account_info">
+            <div class="user_info_div">
+                <div class="user_profile_img">
+                    <img src="" alt="profile_picture" id="user_account_profile_img">
+                </div>
+                <div class="user_info">
+                    <div class="user_username">
+                        <span><b></b></span>
+                    </div>
+                    <div class="follow_info">
+                        <span><b id="user_post_count"></b> Post</span>
+                        <span><b id="user_followers_count"></b> Followers</span>
+                        <span><b id="user_following_count"></b> Following</span>
+                    </div>
+                    <div id="user_name">
+                        <span><b>Gabby</b> <b>Babby</b></span>
+                    </div>
+
+                    <div id="user_buttons">
+                        
+                        <button id="edit_button">Edit profile</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="user_post">
+
+            </div>
+        </div>
+    </div>
+            
+
 `
