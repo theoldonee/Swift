@@ -109,6 +109,13 @@ export class DatabaseHandler{
 
     }
 
+    static async getUserPost(idTag){
+        var user = await this.getUser(idTag);
+
+        return user.post;
+
+    }
+
     // Removes a user to user collection
     static async deleteUser(idTag){
         // Query for an email match
@@ -337,8 +344,14 @@ export class DatabaseHandler{
         return result;
     }
 
-    static async getPost(_id){
-        var query = {_id: new ObjectId(_id)};
+    static async getAllPost(){
+        // get all post
+        const posts = await postCollection.find().toArray();
+        return posts;
+    }
+
+    static async getPost(idTag){
+        var query = {_id: new ObjectId(idTag)};
         var post = await postCollection.find(query).toArray();
         return post[0];
     }
