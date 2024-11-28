@@ -1,3 +1,4 @@
+import {AppManager} from "./appManager.js"
 
 // Displays home page
 function showHomePage(){
@@ -70,8 +71,15 @@ function showFinalRegisterPage(user){
             document.getElementById("profile_picture").src = this.result;
             user.profile_img = this.result;
         };
-    
-        fr.readAsDataURL($("#file_upload")[0].files[0]);
+        
+        var file = $("#file_upload")[0].files[0]; // Uploaded file
+
+        // Checks if file is an imagr
+        if(file.type.match('image.*')){
+            fr.readAsDataURL(file);
+        }else{
+            alert("Invalid file format");
+        }
     });
 
     $("#register_button").click( async () => {
@@ -115,8 +123,7 @@ function showFinalRegisterPage(user){
                         profile_img: user.profile_img
                     }
 
-                    addUser(JSON.stringify(requestData));
-                    // alert("you have been registered");
+                    addUser(JSON.stringify(requestData), userJSON);
                 }
             }else{
                 alert("Your username cannot have '?', '/', '\\', '=' ");
@@ -228,7 +235,7 @@ async function databaseuserNamelVal(userName){
 }
 
 // Sends user data to database
-async function addUser(data) {
+async function addUser(data, userData) {
     try{
         const response = await fetch(`/M00933241/users`, {
             method: "POST",
@@ -239,8 +246,25 @@ async function addUser(data) {
         });
     
         const result = await response.json();
-        // return result.result;
-        console.log(result);
+
+        if(result.result.acknowledged == true){
+            var idTag = result.result.insertedId
+
+            var loginValResult = loginUser(idTag, userData.password);
+
+            if (loginValResult){
+                var loginResult = await checkLogin(idTag);
+                if(loginResult.login){
+                    AppManager.appLoad(loginResult.id);
+                }else{
+                    showLoginPage();
+                }
+            }else{
+                showLoginPage();
+            };
+
+        }
+
     }catch(err){
         console.log("Issue registering user " + err);
     }
@@ -263,7 +287,7 @@ async function validateLogin(){
             var loginResult = await checkLogin(idTag);
             if(loginResult.login){
                 alert("Logged in");
-                window.location.href =`./public/app.html?id=${loginResult.id}`
+                AppManager.appLoad(loginResult.id);
             }else{
                 alert("Wrong password");
             }
@@ -395,76 +419,6 @@ finalRegisterPageString = `
     </div>
 
 `
-
-app = ` <div class="app">
-            <div class="panel_div">
-                <div class="panel_icon">
-                    <div>
-                        <div class="panel_icon_img" id="panel_icon_img" >
-                            <img src="./public/uploads/default_profile/default_profile.jpg" alt="Profile">
-                        </div>
-                        
-                        <div class="panel_icon_text">
-                            <span><b>_username_</b></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel_options">
-                    <span>Feed</span>
-                </div>
-                <div class="panel_options">
-                    <span>Chat</span>
-                </div>
-                <div class="panel_options">
-                    <span>Account</span>
-                </div>
-                <div id="logout_div">
-                    <Button id="logout">Logout</Button>
-                </div>
-            </div>
-    
-            <div class="display">
-                <div class="nav_bar_top">
-
-                </div>
-                <div class="feed_div">
-                    <div class="feed">
-                        
-                    
-                    </div>
-
-                    <div class="more_info">
-                        <div class="weather">
-                            <div class="info_header">
-                                <span><b>weather</b></span>
-                            </div>
-                            <div class="info">
-
-                            </div>
-                        </div>
-
-                        <div class="activity_suggestion">
-                            <div class="info_header">
-                                <span><b>Activity suggestion</b></span>
-                            </div>
-                            <div class="suggestion" id="suggestion">
-                                <span><b>Activity:</b> Mow your neighbor's lawn</span>
-                                <span><b>Type:</b> Charity</span>
-                                <span><b>Participants:</b> 1</span>
-                                <span><b>Duration:</b> Minutes</span>
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-                <div class="nav_bar_bottom">
-                    
-                </div>
-            </div>
-    
-        </div>`
 
 weather = `
     <div class="weather">
