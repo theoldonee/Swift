@@ -128,7 +128,7 @@ app.post("/M00933241/users", async (req, res) => {
 
     }else{
          // Sets profile_image to default profile image path
-        profile_image = "./uploads/default_profile/default_profile.jpg"
+        profile_image = "public/uploads/default_profile/default_profile.jpg"
     }
 
     // Updates user profile;
@@ -325,8 +325,44 @@ app.delete("/M00933241/login", (req, res) => {
 
 
 app.get("/M00933241/contents", async (req, res) => {
-    var idTag = req.query.id;
-    var post = await DatabaseHandler.getPost(idTag);
+    var getBy, posts, response;
+
+    getBy = req.query.getBy;
+
+    if (getBy = "all"){
+        posts = await DatabaseHandler.getAllPost();
+    }
+    
+    
+    response = {
+        posts: posts
+    }
+
+    res.send(response);
+
+});
+
+// Gets post by id
+app.get("/M00933241/contents/:id", async (req, res) => {
+    var idTag, post, response;
+
+    idTag = req.params['id'];
+
+    post = await DatabaseHandler.getPost(idTag);
+    
+    response = {
+        post: post
+    };
+
+    res.send(response);
+
+});
+
+
+// Get user's post
+app.get("/M00933241/:id/contents", async (req, res) => {
+    var idTag = req.params['id']
+    var post = await DatabaseHandler.getUserPost(idTag);
 
     var response = {
         post: post
@@ -384,7 +420,7 @@ app.post("/M00933241/contents", async (req, res) => {
         var writeResult = await writeImage(imageData, uploadFolderPath, postId);
         
         if(writeResult.result == true){
-            imgPath = `./uploads/${authorId}/uploads/${writeResult.file}`;
+            imgPath = `public/uploads/${authorId}/uploads/${writeResult.file}`;
             post.imgPath = imgPath;
 
         }
