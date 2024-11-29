@@ -5,10 +5,15 @@ export{
 
 class PostManager{
 
-    static constructPost(postJSON){
+    static postFollowing;
+    static userId;
+
+    static constructPost(postJSON, following, userId){
         // var postOpenTag = `<div class="post">`
         
         // var postCloseTag = `</div>`
+       this.postFollowing = following;
+       this.userId = userId;
 
         var postConstruct = `
             <div class="post">
@@ -20,7 +25,7 @@ class PostManager{
                     postJSON._id, 
                     postJSON.likesCount,
                     postJSON.commentCount,
-                
+                    postJSON.authorId
                 )}
             </div>
         `
@@ -38,20 +43,30 @@ class PostManager{
         </div>
         `   
     }
+
+    static setFollowing(postId, authorId){
+        if(this.postFollowing){
+            return `<span id="${postId}_${authorId}_follow" class="follow_button following_button"><b>following</b></span>`   
+        }else if(authorId != this.userId){
+            return `<span id="${postId}_${authorId}_follow" class="follow_button"><b>follow</b></span>`
+        }else{
+            return ``
+        }
+    }
     
     
-    static postContent(caption, path, aurthor, postId, likes, comments){
+    static postContent(caption, path, authorUsername, postId, likes, comments, authorId, following){
         
         
         var postContentDiv= `
             <div class="post_content_div">
                 <div class="post_aurthor">
                     <div>
-                        <span><b>${aurthor}</b></span>
+                        <span><b>${authorUsername}</b></span>
                     </div>
                     <span><b>.</b></span>
                     <div>
-                        <span id="${postId}_follow" class="follow_button"><b>.follow</b></span>
+                        ${this.setFollowing(postId, authorId)}  
                     </div>
                 </div>
                 
