@@ -7,9 +7,9 @@ var id, user, app, feedPage, chatPage, accountPage;
 
 class AppManager{
 
+    // Loads app and gets id value
     static appLoad(userID){
         id = userID;
-        console.log(id);
         this.injectApp();
         this.feedInitialize();
     }
@@ -40,17 +40,26 @@ class AppManager{
         });
     }
     
+    // injects app into html
     static async injectApp(){
         $("section").html(app);
+
+        // gets user data
         var result = await this.getUserData(id);
     
         user = result.result;
 
+        // Initializes panel
         this.panelInitialize();
+
+        // sets user name
         this.setUserName(user.userName);
+
+        // sets profile picture
         this.setProfileImage(user.profile_img);
     }
 
+    // Gets user data from server
     static async  getUserData(userId){
         try{
             var response = await fetch( `/M00933241/user?id=${userId}`, {
@@ -68,6 +77,7 @@ class AppManager{
         }
     }
     
+    // Sets username of user
     static setUserName(userName){
         $(".panel_icon_text").html(`
             <span><b>${userName}</b></span>
@@ -77,27 +87,25 @@ class AppManager{
             <span><b>${userName}</b></span>
         `);
         
-        $(".user_post_aurthor").html(`
-            <span><b>${userName}</b></span>
-        `);
     }
     
+    // Sets user profile image
     static setProfileImage(path){
         
         $("#user_profile_img").attr("src", path);
 
         $("#user_account_profile_img").attr("src", path);
 
-        $(".user_post_profile_img").attr("src", path);
-    
     }
     
+    // Sets user's name in account page
     static setName(firstName, lastName){
         $("#user_name").html(`
             <span><b>${firstName}</b> <b>${lastName}</b></span>
             `)
     }
     
+    // Displays users following info
     static setFollowingInfo(post, following, followers){
         $("#user_post_count").text(`${post}`);
     
@@ -106,8 +114,10 @@ class AppManager{
         $("#user_followers_count").text(`${followers}`);
     }
     
-    
+    // gets user's post from server
     static async getUserPost(posts){
+
+        // Loops over user post ids
         for (var postID of posts){
             try{
                 var response = await fetch( `/M00933241/contents/${postID}`, {
@@ -120,7 +130,7 @@ class AppManager{
                 var result = await response.json();
                 var postJSON = result.post;
                 var post = PostManager.constructPost(postJSON);
-                this.injectPost(post, postJSON._id, "accountPage");
+                this.injectPost(post, postJSON._id, "accountPage", postJSON.authorId);
     
             }catch(err){
                 console.log(`Issue getting post ${postID} of user \nError: ` + err);
@@ -128,6 +138,7 @@ class AppManager{
         }
     }
 
+    // Gets all available post from server
     static async getAllPost(){
        
             try{
@@ -141,11 +152,10 @@ class AppManager{
                 var result = await response.json();
                 var postList = result.posts;
 
-                console.log(postList);
-
+                // Loops over all post to create and inject into web page
                 for (var postJSON of postList){
                     var post = PostManager.constructPost(postJSON);
-                    this.injectPost(post, postJSON._id, "feedPage");
+                    this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
                 }
     
             }catch(err){
@@ -155,14 +165,16 @@ class AppManager{
     }
     
     // Injects post into display div
-    static injectPost(post, postID, page){
+    static injectPost(post, postID, page, authorId){
         
+        // Checks the page which the post should be injected into
         if(page == "feedPage"){
             $(".feed").prepend(post);
         }else{
             $(".user_post").prepend(post);
         }
         
+        // initializes post buttons
         $(`#${postID}_like_icon i`).click( () => {
             if ($(`#${postID}_like_icon`).hasClass("liked")){
                 $(`#${postID}_like_icon`).removeClass("liked");
@@ -175,17 +187,84 @@ class AppManager{
             }
         });
 
-        $(`#${postID}_follow`).click( () => {
-            if($(`#${postID}_follow`).hasClass("following_button")){
-                $(`#${postID}_follow`).removeClass("following_button");
-                // unfollow();
-                $(`#${postID}_follow b`).text("follow");
+        // Checks if a follow button is clicked
+        $(`#${postID}_${authorId}_follow`).click( () => {
+            if($(`#${postID}_${authorId}_follow`).hasClass("following_button")){
+                this.unfollow(postID, authorId);
             }else{
-                $(`#${postID}_follow`).addClass("following_button");
-                $(`#${postID}_follow b`).text("following");
-                // follow();
+                this.follow(postID, authorId);
             }
         });
+    }
+
+    static async follow(postId, authorId){
+        var data, requestData;
+
+        data ={
+            followerIdTag: id,
+            followedIdTag: authorId,
+        }
+
+        requestData = JSON.stringify(data);
+        try{
+
+            var response = await fetch( `/M00933241/follow`, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: requestData
+            });
+
+            var result, followedResult, followerResult
+            
+            result = await response.json();
+            followedResult = result.followedResult;
+            followerResult = result.followerResult;
+
+            if(followedResult.acknowledged && followerResult.acknowledged){
+                $(`#${postId}_${authorId}_follow`).addClass("following_button");
+                $(`#${postId}_${authorId}_follow b`).text("following");
+            }
+
+            
+        }catch(err){
+            console.log(`Issue making follow request \nError: ` + err);
+        }
+
+    }
+
+    static async unfollow(postId, authorId){
+        var data, requestData;
+        data ={
+            followerIdTag: id,
+            followedIdTag: authorId,
+        }
+
+        requestData = JSON.stringify(data);
+        try{
+            var response = await fetch( `/M00933241/follow`, {
+                method: "DELETE",
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
+
+            var result, followedResult, followerResult
+            
+            result = await response.json();
+            followedResult = result.followedResult;
+            followerResult = result.followerResult;
+
+            if(followedResult.acknowledged && followerResult.acknowledged){
+                $(`#${postId}_${authorId}_follow`).removeClass("following_button");
+                $(`#${postId}_${authorId}_follow b`).text("follow");
+            }
+
+        }catch(err){
+            console.log(`Issue making unfollow request \nError: ` + err);
+        }
+
     }
     
     // Initializes feedPage
