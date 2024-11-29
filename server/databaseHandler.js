@@ -78,16 +78,21 @@ export class DatabaseHandler{
         // Inserts user data into UUser Collection
         var result = await userCollection.insertOne(user);
 
+        // Returns result
         return result;
     }
 
     // Updates user's profile image path
     static async updateProfilePath(id, profilePath){
 
+        // Set query and update parameters
         var query = {_id: new ObjectId(id)};
         var update = {$set: {profile_img: profilePath}};
+
+        // Gets update result
         var updateResult = await userCollection.updateOne(query, update);
-        
+
+        // Returns update result
         return updateResult;
     }
 
@@ -95,23 +100,32 @@ export class DatabaseHandler{
     static async updateUserPost(postId, authorId){
         var user, query, update, userPost;
 
+        // Gets user
         user = await this.getUser(authorId);
 
         userPost = user.post;
+        // Adds new post to user's post
         userPost.push(postId);
 
+        // Updates user's data in database
         query = {_id: new ObjectId(authorId)};
         update = {$set: {post: userPost}};
 
+        // Gets update result
         var updateResult = await userCollection.updateOne(query, update);
         
+        // Returns update result
         return updateResult;
 
     }
 
+    // Gets user's post
     static async getUserPost(idTag){
+
+        // Gets user
         var user = await this.getUser(idTag);
 
+        // Returns user's post list
         return user.post;
 
     }
@@ -133,10 +147,12 @@ export class DatabaseHandler{
 
             // Checks if a document has been deleted
             if (result.deletedCount == 0){
+                // Returns result
                 return result;
             }
         }
 
+        // returns result
         return result;
     }
 
@@ -157,29 +173,42 @@ export class DatabaseHandler{
                 date: logTime,
                 status: status
             };
+
+            // Gets log insertion result
            var result = await loginCollection.insertOne(data);
+
+           // Returns result
            return result;
             
         }else{
             // Checks if password is correct
             if(correctPassword == true){
 
+                // Get's and returns  update result
                 var result = await this.updateLogStatus(true, user.email);
+
+                // Returns result
                 return result;
 
             } else if(correctPassword == false){
 
+                // Get's and returns update result
                 var result = await this.updateLogStatus(false, user.email);
+
+                // Returns result
                 return result;
 
             }else{
                 // Query for userId match
                 const query = {userId: new ObjectId(user._id)};
+                // Delete's data from log
                 const result = await loginCollection.deleteOne(query);
 
                 if (result.deletedCount === 1) {
+                    // Returns result
                     return result;
                 } else {
+                    // Returns result
                     return result;
                 }
             }
@@ -201,6 +230,7 @@ export class DatabaseHandler{
             // Query for a username match
             query = {userName: idTag};
 
+            // Get's user's log information
             user =  await loginCollection.find(query).toArray();
         }
 
@@ -209,6 +239,7 @@ export class DatabaseHandler{
             return false;
         }
         
+        // Returns true
         return true;
 
     }
@@ -226,6 +257,7 @@ export class DatabaseHandler{
         // Updates the login collection based on query
         var result = await loginCollection.updateOne(query, update);
 
+        // Returns result
         return result;
     }
 
@@ -238,6 +270,7 @@ export class DatabaseHandler{
         // Searches the login collection based on query
         var user =  await loginCollection.find(query).toArray();
 
+        // Checks if list is empty
         if (user.length == 0){
 
             // Query for a username match
@@ -274,20 +307,12 @@ export class DatabaseHandler{
         
         // Follower details
         followerDetails = { 
-            userId: new ObjectId(follower._id),
-            email: follower.email,
-            userName: follower.userName,
-            firstName: follower.firstName,
-            lastName: follower.lastName
+            userId: new ObjectId(follower._id)
         }
 
         // Followed details
         followedDetails = {
-            userId: new ObjectId(followed._id),
-            email: followed.email,
-            userName: followed.userName,
-            firstName: followed.firstName,
-            lastName: followed.lastName
+            userId: new ObjectId(followed._id)
         }
 
         // Checks if request is a follow request
@@ -328,9 +353,13 @@ export class DatabaseHandler{
     // Handles post
     static async addPost(post){
 
+        // Creates Id object
         post.authorId = new ObjectId(post.authorId);
+
+        // Gets result of post insertion into database
         var result = await postCollection.insertOne(post);
 
+        // Returns result
         return result;
     }
 
@@ -339,20 +368,32 @@ export class DatabaseHandler{
 
         var query = {_id: new ObjectId(postId)};
         var update = {$set: {imgPath: imgPath}};
+
+        // Gets result of update
         var result = await postCollection.updateOne(query, update);
 
+        // Returns result
         return result;
     }
 
+    // Gets all post present in database
     static async getAllPost(){
         // get all post
         const posts = await postCollection.find().toArray();
+
+        // Returns posts
         return posts;
     }
 
+    // Gets a post
     static async getPost(idTag){
+        // Create query
         var query = {_id: new ObjectId(idTag)};
+
+        // Get's post
         var post = await postCollection.find(query).toArray();
+
+        // Returns a post
         return post[0];
     }
 }
