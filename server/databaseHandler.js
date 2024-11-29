@@ -294,8 +294,8 @@ export class DatabaseHandler{
         var followed = await this.getUser(followedIdTag);
 
         // Set queries
-        var followedQuery = {email: followed.email};
-        var followerQuery = {email: follower.email};
+        var followedQuery = {_id: new ObjectId(followed._id)};
+        var followerQuery = {_id: new ObjectId(follower._id)};
 
         // Set update parameters
         var followedUpdate = {$set: {followers: followed.followers}};
