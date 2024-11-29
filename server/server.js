@@ -55,15 +55,13 @@ app.use(fileUpload());
 // }));
 
 
-// Responds with the home page
+// Handles GET request made to the home path
 app.get("/", (req, res) => {
+    // Sends response
     res.sendFile(__dirname + "/public/index.html");
 });
 
-// app.get("/M00933241/:email", (req, res) => {
-//     console.log(req.params['email']);
-// });
-
+// Handles GET request made to the /M00933241/email path
 app.get("/M00933241/email", async (req, res) => {
     var idTag = req.query.email;
     
@@ -72,7 +70,7 @@ app.get("/M00933241/email", async (req, res) => {
     res.send({result: result});
 });
 
-
+// Handles GET request made to the /M00933241/username path
 app.get("/M00933241/username", async (req, res) => {
     var idTag = req.query.userName;
     
@@ -81,6 +79,7 @@ app.get("/M00933241/username", async (req, res) => {
     res.send({result: result});
 });
 
+// Handles GET request made to the /M00933241/user path
 app.get("/M00933241/user", async (req, res) => {
     var idTag = req.query.id;
     
@@ -90,7 +89,7 @@ app.get("/M00933241/user", async (req, res) => {
     res.send({result: result});
 });
 
-
+// Handles POST request made to the /M00933241/user path
 app.post("/M00933241/users", async (req, res) => {
 
     // Gets user data
@@ -200,16 +199,15 @@ async function createFolder(directoryPath){
 
 // }
 
+// Handles DELETE request made to the /M00933241/users path
 app.delete("/M00933241/users", async (req, res) => {
     var idTag = req.body.idTag;
 
-
-    // res.send(idTag);
     var result = await DatabaseHandler.deleteUser(idTag);
     res.send(result);
 });
 
-
+// Handles GET request made to the /M00933241/:id/contents path
 app.get("/M00933241/login", async (req, res) => {
     var idTag = req.query.idTag;
 
@@ -231,7 +229,6 @@ app.get("/M00933241/login", async (req, res) => {
         
         userData.then((message) => {
             res.send(message);
-            // res.send(message);
         }).catch((message) => {
             res.send(message);
         })
@@ -240,7 +237,7 @@ app.get("/M00933241/login", async (req, res) => {
     }
 });
 
-// Handles sent login data
+// Handles POST request made to the /M00933241/login path
 app.post("/M00933241/login", (req, res) => {
     var idTag = req.body.idTag;
     var password = req.body.password;
@@ -254,28 +251,20 @@ app.post("/M00933241/login", (req, res) => {
             if (data.password == password){
                 
                 var result = await DatabaseHandler.updateLogin({correctPassword: true, user: data, status: true});
-                // var response = {
-                //     correctPassword: true,
-                //     result: result
-                // }
+              
                 resolve(result);
 
             }else{
                 var result = await DatabaseHandler.updateLogin({correctPassword: false, user: data, status: false});
-                var response = {
-                    correctPassword: false,
-                    result: result
-                }
+                
                 resolve(result);
             }
-            // resolve(data);
         }else{
             var result = {
                 acknowledged: false,
                 insertedId: null,
             }
             
-
             reject(result);
         }
 
@@ -283,17 +272,12 @@ app.post("/M00933241/login", (req, res) => {
     
     userData.then((message) => {
         res.send(message);
-        // res.send(message);
     }).catch((message) => {
         res.send(message);
-    })
-
-    // console.log("here");
-    // res.send(req.body);
-    // console.log(req.body);
+    });
 });
 
-
+// Handles DELETE request made to the /M00933241/login path
 app.delete("/M00933241/login", (req, res) => {
     var idTag = req.body.idTag;
 
@@ -323,7 +307,7 @@ app.delete("/M00933241/login", (req, res) => {
     })
 });
 
-
+// Handles GET request made to the /M00933241/contents path
 app.get("/M00933241/contents", async (req, res) => {
     var getBy, posts, response;
 
@@ -342,7 +326,7 @@ app.get("/M00933241/contents", async (req, res) => {
 
 });
 
-// Gets post by id
+// Handles GET request made to the M00933241/contents/:id path
 app.get("/M00933241/contents/:id", async (req, res) => {
     var idTag, post, response;
 
@@ -359,7 +343,7 @@ app.get("/M00933241/contents/:id", async (req, res) => {
 });
 
 
-// Get user's post
+// Handles GET request made to the /M00933241/:id/contents path
 app.get("/M00933241/:id/contents", async (req, res) => {
     var idTag = req.params['id']
     var post = await DatabaseHandler.getUserPost(idTag);
@@ -372,11 +356,12 @@ app.get("/M00933241/:id/contents", async (req, res) => {
 
 });
 
-
+// Handles POST request made to the /M00933241/contents path
 app.post("/M00933241/contents", async (req, res) => {
 
     var post, imageData;
-
+    
+    // Sets post properties
     post = req.body.postData;
     post.likesCount = 0;
     post.commentCount = 0;
@@ -399,6 +384,7 @@ app.post("/M00933241/contents", async (req, res) => {
 
     var addPostResult, userPostResult, imageUpdateResult;
 
+    // Adds post to database
     addPostResult = await DatabaseHandler.addPost(post);
 
     
@@ -407,6 +393,7 @@ app.post("/M00933241/contents", async (req, res) => {
     postId = `${addPostResult.insertedId}`;
     authorId = post.authorId;
 
+    // Updates user's post list
     userPostResult = await DatabaseHandler.updateUserPost(postId, authorId);
 
     // Checks if imageData contains data
@@ -432,6 +419,7 @@ app.post("/M00933241/contents", async (req, res) => {
         post.imgPath = '';
     }
 
+    // Updates the post's image path
     imageUpdateResult = await DatabaseHandler.updatePostImgPath(postId, post.imgPath)
 
     var response = {
@@ -441,13 +429,10 @@ app.post("/M00933241/contents", async (req, res) => {
 
     }
 
-    console.log(response);
-
     res.send(response);
-    // res.send({imgPath: imgPath, result: result});
 });
 
-
+// Handles POST request made to the /M00933241/follow path
 app.post("/M00933241/follow", async (req, res) => {
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
@@ -456,7 +441,7 @@ app.post("/M00933241/follow", async (req, res) => {
     res.send(result);
 });
 
-
+// Handles DELETE request made to the /M00933241/follow path
 app.delete("/M00933241/follow", async (req, res) => {
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
@@ -465,9 +450,10 @@ app.delete("/M00933241/follow", async (req, res) => {
     res.send(result);
 });
 
-
+// Handles GET request made to the /M00933241/users/search path
 app.get("/M00933241/users/search", (req, res) => {
 
+    // Gets idTag
     var idTag = req.body.idTag
     var userData = new Promise( async (resolve, reject) => {
         var data = await DatabaseHandler.getUser(idTag);
@@ -483,31 +469,17 @@ app.get("/M00933241/users/search", (req, res) => {
     userData.then((message) => {
         res.send(message);
     }).catch((message) => {
-        // console.log(message)
         res.send(message);
     })
     
    
 });
 
-
+// Handles GET request made to the /M00933241/content/search path
 app.get("/M00933241/content/search", (req, res) => {
     res.send("search content");
 });
 
-
-// app.get("/M00933241/image", async (req, res) => {
-//     var filePath =  req.query.filePath
-//     // console.log(req.query.filePath);
-//     res.sendFile(__dirname + filePath);
-//     // res.send(req.query.filePath);
-
-// });
-
-// DatabaseHandler.getUser(userEmail=userEmail)
-// function setLog(idTag, userPassword){
-    
-// }
 
 const bordomAPI = 'https://bored-api.appbrewery.com/random';
 
