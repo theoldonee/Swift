@@ -85,8 +85,29 @@ app.get("/M00933241/user", async (req, res) => {
     
     var result = await DatabaseHandler.getUser(idTag);
 
-    console.log(result)
     res.send({result: result});
+});
+
+// Handles GET request made to the /M00933241/:id/follow path
+app.get("/M00933241/:id/follow", async (req, res) => {
+    var idTag, listType, user, result;
+
+    // Gets the value of the parameter "id"
+    idTag = req.params['id'];
+    listType = req.query.listType;
+    
+    user = await DatabaseHandler.getUser(idTag);
+
+    if(user){
+        if (listType == "following"){
+            result = user.following;
+            res.send({result: result});
+        }else if (listType == "followers"){
+            result = user.followers;
+            res.send({result: result})
+        }
+    }
+    
 });
 
 // Handles POST request made to the /M00933241/user path
