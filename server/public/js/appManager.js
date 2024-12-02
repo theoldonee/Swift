@@ -1,9 +1,10 @@
 import {PostManager} from "./postManager.js"
+// import
 export {
     AppManager
 };
 
-var id, user, app, feedPage, chatPage, accountPage;
+var id, user, app, feedPage, chatPage, accountPage, allResults;
 
 class AppManager{
 
@@ -45,7 +46,7 @@ class AppManager{
         $("section").html(app);
 
         // gets user data
-        var result = await this.getUserData(id);
+        var result = await this.getUserData();
     
         user = result.result;
 
@@ -60,9 +61,9 @@ class AppManager{
     }
 
     // Gets user data from server
-    static async  getUserData(userId){
+    static async  getUserData(){
         try{
-            var response = await fetch( `/M00933241/user?id=${userId}`, {
+            var response = await fetch( `/M00933241/user?id=${id}`, {
                 method: "GET",
                 headers: {
                     "content-type": "application/json"
@@ -76,7 +77,31 @@ class AppManager{
             console.log("Issue getting data of user \nError: " + err);
         }
     }
+
+    // Get user following
+    static async  getUserFollowing(type){
+        try{
+            var response = await fetch( `/M00933241/${id}/follow?listType=${type}`, {
+                method: "GET",
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
     
+            var result = await response.json();
+
+            if (type == "following"){
+                user.following = result.result;
+            }else if (type == "followers"){
+                user.followers = result.result;
+            }
+            
+        }catch(err){
+            console.log("Issue getting following of user \nError: " + err);
+        }
+    }
+    
+
     // Sets username of user
     static setUserName(userName){
         $(".panel_icon_text").html(`
@@ -129,7 +154,7 @@ class AppManager{
     
                 var result = await response.json();
                 var postJSON = result.post;
-                var post = PostManager.constructPost(postJSON);
+                var post = PostManager.constructPost(postJSON, false, id);
                 this.injectPost(post, postJSON._id, "accountPage", postJSON.authorId);
     
             }catch(err){
@@ -154,14 +179,35 @@ class AppManager{
 
                 // Loops over all post to create and inject into web page
                 for (var postJSON of postList){
-                    var post = PostManager.constructPost(postJSON);
-                    this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                    
+                    // Checks if user is following author
+                    if(this.isFollowing(postJSON.authorId) ){
+                        var post = PostManager.constructPost(postJSON, true, id);
+                        this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                    }else{
+                        var post = PostManager.constructPost(postJSON, false, id);
+                        this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                    }
+                    
                 }
     
             }catch(err){
                 console.log(`Issue getting post of user \nError: ` + err);
             }
         
+    }
+
+    // Checks if user is following author
+    static isFollowing(authorId){
+
+        // itterates over user following
+        for(var followings of user.following){
+            console.log(followings.userId, authorId);
+            // Checks if following userId is equal to authorId
+            if(followings.userId == authorId){
+                return true;
+            }
+        }
     }
     
     // Injects post into display div
@@ -190,14 +236,15 @@ class AppManager{
         // Checks if a follow button is clicked
         $(`#${postID}_${authorId}_follow`).click( () => {
             if($(`#${postID}_${authorId}_follow`).hasClass("following_button")){
-                this.unfollow(postID, authorId);
+                this.unfollow(authorId);
             }else{
-                this.follow(postID, authorId);
+                this.follow(authorId);
             }
         });
     }
 
-    static async follow(postId, authorId){
+    // Sends follow request
+    static async follow(authorId){
         var data, requestData;
 
         data ={
@@ -206,6 +253,7 @@ class AppManager{
         }
 
         requestData = JSON.stringify(data);
+        // Sends POST request to /M00933241/follow
         try{
 
             var response = await fetch( `/M00933241/follow`, {
@@ -222,9 +270,10 @@ class AppManager{
             followedResult = result.followedResult;
             followerResult = result.followerResult;
 
+            // Checks if both results have been acknowledged
             if(followedResult.acknowledged && followerResult.acknowledged){
-                $(`#${postId}_${authorId}_follow`).addClass("following_button");
-                $(`#${postId}_${authorId}_follow b`).text("following");
+                this.updateFollowButton(authorId, "following");
+                this.getUserFollowing("following");
             }
 
             
@@ -234,7 +283,8 @@ class AppManager{
 
     }
 
-    static async unfollow(postId, authorId){
+    // Sends unfollow request
+    static async unfollow(authorId){
         var data, requestData;
         data ={
             followerIdTag: id,
@@ -242,12 +292,14 @@ class AppManager{
         }
 
         requestData = JSON.stringify(data);
+        // Delete request to /M00933241/follow
         try{
             var response = await fetch( `/M00933241/follow`, {
                 method: "DELETE",
                 headers: {
                     "content-type": "application/json"
-                }
+                },
+                body: requestData
             });
 
             var result, followedResult, followerResult
@@ -256,9 +308,10 @@ class AppManager{
             followedResult = result.followedResult;
             followerResult = result.followerResult;
 
+            // Checks if both results have been acknowledged
             if(followedResult.acknowledged && followerResult.acknowledged){
-                $(`#${postId}_${authorId}_follow`).removeClass("following_button");
-                $(`#${postId}_${authorId}_follow b`).text("follow");
+                this.updateFollowButton(authorId, "unfollowing");
+                this.getUserFollowing("following");
             }
 
         }catch(err){
@@ -324,7 +377,8 @@ class AppManager{
         $("#create_post_button").click( () => {
             post.caption = $("#create_post_caption").val();
             post.tags = $("#create_post_Tag").val();
-    
+            
+            // Checks if image string is empty
             if (img == '' && post.caption  == ''){
                 alert("You cannot make and empty post");
             }else{
@@ -337,7 +391,45 @@ class AppManager{
             };
     
         });
+
+        $("#search_icon").click( () => {
+            this.searchDivDisplay("down");
+        });
+    
+        $(".suggested_friend_username").click( () => {
+            this.searchDivDisplay("down");
+        });
+    
+        $("#close_serach").click( () => {
+            this.searchDivDisplay("up");
+        });
+
     }
+
+    static searchDivDisplay(state){
+        if(state == "down"){
+            $(".search_result_div").slideDown({
+                duration: 'fast',
+                step: function() {
+                    if ($(this).css('display') == 'block') {
+                        $(this).css('display', 'flex');
+                    }
+                },
+                complete: function() {
+    
+                    if ($(this).css('display') == 'block') {
+                        $(this).css('display', 'flex');
+                    }
+                }
+            });
+        }else{
+    
+            $(".search_result_div").slideUp({
+                duration: 'fast'
+            });
+        }
+    }
+    
     
     //  Send user's post to server
     static async sendUserPost(postData, imageData){
@@ -360,21 +452,49 @@ class AppManager{
             });
         
             const result = await response.json();
-            console.log("Post result: " + result);
         }catch(err){
             console.log("Issue registering user " + err);
         }
     }
     
+    // Updates all follow buttons containind author Id
+    static updateFollowButton(authorId, buttonState){
+        var followButtonList = $(".follow_button");
+        
+        // itterates over the list of follow buttons
+        for (var button of followButtonList){
+            var buttonId = $(button).attr("id");
+
+            // checks if the follow button contains the author's id
+            if (buttonId.includes(authorId)){
+                // checks if the button state is following or unfollowing
+                if(buttonState == "following"){
+                    $(`#${buttonId}`).addClass("following_button");
+                    $(`#${buttonId} b`).text("following");
+                }else{
+                    $(`#${buttonId}`).removeClass("following_button");
+                    $(`#${buttonId} b`).text("follow");
+                }
+            }
+                
+            
+        }
+    }
+
     // Initializes accountPage
     static async accountPageinitialize(){
         // Injects account page into display div
         $(".display").html(accountPage);
         
-    
+        
+        // Sets user's information
         this.setUserName(user.userName);
         this.setName(user.firstName, user.lastName);
         this.setProfileImage(user.profile_img);
+
+        await this.getUserFollowing("following");
+        await this.getUserFollowing("followers");
+
         this.setFollowingInfo(
             user.post.length, 
             user.following.length, 
@@ -485,6 +605,36 @@ feedPage = `
 
             </div>
 
+            <div class="search_suggestion">
+                <div class="info_header">
+                    <span><b>Search</b></span>
+                </div>
+                <div class="search_div">
+                    <input type="text" id="search" placeholder="Search...(Tags, users)">
+                    <i class="fa-solid fa-magnifying-glass" id="search_icon"></i>
+                </div>
+                <div class="friend_suggestion_div">
+                    <div class="friend_suggestion_info">
+                        <span>Friend Suggestion</span>
+                    </div>
+                    <div class="friend_suggestion">
+
+                    </div>
+                </div>
+
+                <div class="search_result_div">
+                    <div class="close_serach_div">
+                        <i class="fa-solid fa-x" id="close_serach"></i>
+                    </div>
+
+                    <div class="result_display">
+
+                        
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     <div class="nav_bar_bottom">
@@ -554,4 +704,17 @@ accountPage = `
     </div>
             
 
+`
+
+allResults = `
+    <nav class="search_result">
+        <ul>
+            <li class="search_result_options">Accounts</li>
+            <li class="search_result_options">Tags</li>
+            <li class="search_result_options">Text</li>
+        </ul>
+    </nav>
+    <div class="results">
+
+    </div>
 `
