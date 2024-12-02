@@ -47,12 +47,14 @@ app.use(bodyParser.json({limit: '50mb', type: 'application/json'}));
 app.use(fileUpload());
 
 // Configures espress to use express-session
-// app.use(expressSession({
-//     secret: "Swift",
-//     cookie: { maxAge: 60000 },
-//     resave: false,
-//     saveUninitialized: true
-// }));
+app.use(
+    expressSession({
+        secret: "Swift",
+        cookie: { maxAge: 60000 },
+        resave: false,
+        saveUninitialized: true
+    })
+);
 
 
 // Handles GET request made to the home path
@@ -141,9 +143,9 @@ app.post("/M00933241/users", async (req, res) => {
         var writeResult = await writeImage(req.body.profile_img, profileFolderPath, 'profile_img');
         
         if(writeResult.result == true){
-            profile_image = `./uploads/${id}/default_profile/${writeResult.file}`;
+            profile_image = `public/uploads/${id}/default_profile/${writeResult.file}`;
         }else{
-            profile_image = "./uploads/default_profile/default_profile.jpg"
+            profile_image = "public/uploads/default_profile/default_profile.jpg"
         }
 
     }else{
@@ -199,27 +201,6 @@ async function createFolder(directoryPath){
     }
 }
 
-// creates a file name
-// async function generateFileName(postList, id){
-//     var length = postList.lenght;
-
-//     // Equates length to 0 if length is undefined
-//     if(length == undefined){
-//         length = 0;
-//     }
-
-//     var fileName = `${id}_${length}`;
-
-//     // Generates new file name if already taken.
-//     if (fileName in postList){
-//         var lastNumber = parseInt(postList[postList.length - 1].split('_')[1]);
-//         fileName = `${id}_${lastNumber}` ; 
-//     }
-
-//     return fileName;
-
-// }
-
 // Handles DELETE request made to the /M00933241/users path
 app.delete("/M00933241/users", async (req, res) => {
     var idTag = req.body.idTag;
@@ -228,7 +209,7 @@ app.delete("/M00933241/users", async (req, res) => {
     res.send(result);
 });
 
-// Handles GET request made to the /M00933241/:id/contents path
+// Handles GET request made to the /M00933241/login path
 app.get("/M00933241/login", async (req, res) => {
     var idTag = req.query.idTag;
 
@@ -241,7 +222,21 @@ app.get("/M00933241/login", async (req, res) => {
 
             // checks if user exist 
             if (userStatus){
+
+                try{
+                    var loggedUsers = req.session.loggedUsers;
+                    var index = loggedUsers.indexOf(`${data.userId}`);
+                    if(index){
+                        req.session.loggedUsers.push(`${data.userId}`);
+                    }
+                    
+                }catch{
+                    req.session.loggedUsers = [];
+                    req.session.loggedUsers.push(`${data.userId}`);
+                }
+
                 resolve({login: true, isuser: true, id: data.userId});
+                
             }else{
                 reject({login: false, isuser: true});
             }
@@ -300,7 +295,7 @@ app.post("/M00933241/login", (req, res) => {
 
 // Handles DELETE request made to the /M00933241/login path
 app.delete("/M00933241/login", (req, res) => {
-    var idTag = req.body.idTag;
+    var idTag = req.query.id;
 
     var userData = new Promise( async (resolve, reject) => {
         var data = await DatabaseHandler.getUser(idTag);
@@ -309,7 +304,11 @@ app.delete("/M00933241/login", (req, res) => {
             var result = await DatabaseHandler.updateLogin({correctPassword: "delete", user: data});
 
             if(result.acknowledged){
+                var loggedUsers = req.session.loggedUsers;
+                var index = loggedUsers.indexOf(`${data.userId}`);
+                req.session.loggedUsers.splice(index, 1);
                 resolve(result);
+
             }else{
                 reject(result);
             }
