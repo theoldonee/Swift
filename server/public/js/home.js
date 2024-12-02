@@ -2,14 +2,16 @@ import {AppManager} from "./appManager.js"
 
 // Displays home page
 function showHomePage(){
+    // Injects home page html
     $("section").html(homePage);
 
+    // Detects when the login button is clicked
     $("#home_login").click( () => {
         $("#swift").addClass("shrink");
         setTimeout(grow, 1000, "login", "Login");
     });
     
-    
+    // Detects when the register button is clicked
     $("#home_register").click( () => {
         $("#swift").addClass("shrink");
         setTimeout(grow, 1000, "register", "Register");
@@ -20,20 +22,27 @@ function showHomePage(){
 function grow(page, text){
     $("#swift").text(`${text}`);
     $("#swift").addClass("grow");
+
+    // Checks if the page is login
     if(page == "login"){
+        // Displays login page if page is login
         setTimeout(showLoginPage, 2000);
-    }else{
+    }else{ // Displays register page
         setTimeout(showRegisterPage, 2000);
     }
 }
 
 // Displays login page
 function showLoginPage(){
+    // Injects home page html
     $("section").html(loginPageString);
+
+    // Detects when the back button is clicked 
     $(".back_div").click( () => {
         back();
     });
 
+    // Detects when the login button is clicked 
     $("#login_button").click( () => {
         validateLogin();
     });
@@ -41,12 +50,15 @@ function showLoginPage(){
 
 // Displays register page
  function showRegisterPage(){
+    // Injects registration page html
     $("section").html(registerPageString);
 
+    // Detects when the "next" button is clicked 
     $("#next_button").click( async () => {
         validateRegistration();
     });
 
+    // Detects when the back button is clicked 
     $(".back_div").click( () => {
         back();
     });
@@ -74,7 +86,7 @@ function showFinalRegisterPage(user){
         
         var file = $("#file_upload")[0].files[0]; // Uploaded file
 
-        // Checks if file is an imagr
+        // Checks if file is an image
         if(file.type.match('image.*')){
             fr.readAsDataURL(file);
         }else{
@@ -82,10 +94,12 @@ function showFinalRegisterPage(user){
         }
     });
 
+    // Detects when the register button is clicked 
     $("#register_button").click( async () => {
         var userName, result;
         userName = $("#userName").val(); 
 
+        // Checks if a username has been entered
         if (!userName){
             alert("You must enter a username");
         }else{
@@ -95,10 +109,11 @@ function showFinalRegisterPage(user){
             var equal = userName.split("=").length == 1;
             
 
-            // 
+            // If the username contains unwanted symbols
             if (questionmark && forwardSlash && backSlash && equal){
                 result = await databaseuserNamelVal(userName);
 
+                // Checks if username is taken
                 if(result){
                     // user.userName = userName;
                     alert("Username already taken");
@@ -114,6 +129,7 @@ function showFinalRegisterPage(user){
                         password: user.password
                     }
 
+                    // checks if the user has picked a profile picture
                     if (user.profile_img == undefined){
                         user.profile_img = '';
                     }
@@ -123,6 +139,7 @@ function showFinalRegisterPage(user){
                         profile_img: user.profile_img
                     }
 
+                    // Adds user
                     addUser(JSON.stringify(requestData), userJSON);
                 }
             }else{
@@ -154,6 +171,7 @@ function validateRegistration(){
     email = $("#email").val();
     password = $("#password").val();
 
+    // Checks if input data has been entered
     if(!firstName){
         alert("Please enter your first name");
     }else if(!lastName){
@@ -164,12 +182,15 @@ function validateRegistration(){
         user.firstName = firstName;
         user.lastName = lastName;
         user.password = password;
+
+        // Validates registration
         validateRegistrationEmail(email, user);
     }
 }
 
 // Validates email
 async function validateRegistrationEmail(email, user){
+    // Checks if email has been entered
     if(email){
         var emailSplit = email.split("@");
         // check for @ sign in email
@@ -199,6 +220,7 @@ async function validateRegistrationEmail(email, user){
 
 // Checks if email is present in the database
 async function databaseEmailVal(email){
+    // Sends a email through POST request to the /M00933241/email path
     try{
         const response = await fetch(`/M00933241/email?email=${email}`, {
             method: "GET",
@@ -217,6 +239,8 @@ async function databaseEmailVal(email){
 
 // Validate username
 async function databaseuserNamelVal(userName){
+    
+    // Sends a usernsme through GET request to the /M00933241/username path
     try{
         const response = await fetch(`/M00933241/username?userName=${userName}`, {
             method: "GET",
@@ -236,6 +260,8 @@ async function databaseuserNamelVal(userName){
 
 // Sends user data to database
 async function addUser(data, userData) {
+    
+    // Sends a user data through POST request to the /M00933241/users path
     try{
         const response = await fetch(`/M00933241/users`, {
             method: "POST",
@@ -247,13 +273,19 @@ async function addUser(data, userData) {
     
         const result = await response.json();
 
+        // Checks if user has been added to database
         if(result.result.acknowledged == true){
             var idTag = result.result.insertedId
 
+            // Logs in user
             var loginValResult = loginUser(idTag, userData.password);
-
+            
+            // Checks if user info has been added to login collection
             if (loginValResult){
+                
+                // Gets login status
                 var loginResult = await checkLogin(idTag);
+                // Checks if user should be logged in
                 if(loginResult.login){
                     AppManager.appLoad(loginResult.id);
                 }else{
@@ -276,17 +308,18 @@ async function validateLogin(){
     idTag = $("#idTag").val();
     password = $("#password").val();
 
+    // Checks if an email or username has been inputed
     if(!idTag){
         alert("Please enter your username or email");
-    }else if(!password){
+    }else if(!password){ // checks if password has been inputed
         alert("Please enter a password");
     }else{
         var loginValResult = await loginUser(idTag, password);
-
+        
+        // Checks if user exist
         if (loginValResult){
             var loginResult = await checkLogin(idTag);
             if(loginResult.login){
-                alert("Logged in");
                 AppManager.appLoad(loginResult.id);
             }else{
                 alert("Wrong password");
@@ -300,12 +333,14 @@ async function validateLogin(){
     }
 }
 
+// Sends a login POST request to the server
 async function loginUser(idTag, password){
     var data = JSON.stringify({
         idTag: idTag,
         password: password,
     });
     
+    // Sends a login POST request to the /M00933241/login path
     try{
         const response = await fetch(`/M00933241/login`, {
             method: "POST",
@@ -317,13 +352,17 @@ async function loginUser(idTag, password){
     
         const result = await response.json();
 
+        // returns result
         return result.acknowledged;
     }catch(err){
         console.log("Issue logging in user " + err);
     }
 }
 
+// Sends a login GET request to the server
 async function checkLogin(idTag) {
+
+    // Sends a login GET request to the /M00933241/login path
     try{
         const response = await fetch(`/M00933241/login?idTag=${idTag}`, {
             method: "GET",
@@ -343,8 +382,8 @@ async function checkLogin(idTag) {
 
 
 var loginPageString, registerPageString, finalRegisterPageString, homePage;
-var app, panel, display, weather, activitySuggestion;
 
+// Home page string
 homePage = `
     <div class="home_div">
         <div class="home">
@@ -356,7 +395,7 @@ homePage = `
         </div>
     </div>
 `
-
+// Login page string
 loginPageString = `
     <div class="login_div">
         <div class="back_div" id="login_back_div">
@@ -375,6 +414,7 @@ loginPageString = `
     </div>
 `;
 
+// Registration page string
 registerPageString = `
     <div class="register_div">
         <div class="back_div" id="next_back_div">
@@ -394,6 +434,7 @@ registerPageString = `
     </div
 `;
 
+// Final registration page string
 finalRegisterPageString = `
     <div class="register_div">
         <div class="back_div" id="final_back_div">
@@ -418,31 +459,6 @@ finalRegisterPageString = `
         </div>
     </div>
 
-`
-
-weather = `
-    <div class="weather">
-        <div class="info_header">
-            <span><b>weather</b></span>
-        </div>
-        <div class="info">
-
-        </div>
-    </div>
-`
-
-activitySuggestion = `
-    <div class="activity_suggestion">
-        <div class="info_header">
-            <span><b>Activity suggestion</b></span>
-        </div>
-        <div class="suggestion">
-            <span><b>Activity:</b> Mow your neighbor's lawn</span>
-            <span><b>Type:</b> Charity</span>
-            <span><b>Participants:</b> 1</span>
-            <span><b>Duration:</b> Minutes</span>
-        </div>
-    </div>
 `
 
 // showHomePage();
