@@ -220,7 +220,7 @@ export class DatabaseHandler{
     static async isLogged(idTag){
 
         // Query for email
-        var query = {email: idTag};
+        var query = {userName: idTag};
 
         
         // Searches loggedin collection based on query
@@ -265,7 +265,7 @@ export class DatabaseHandler{
     static async getloggedUser(idTag){
 
         // Query for an email match
-        var query = {email: idTag};
+        var query = {userName: idTag};
 
         // Searches the login collection based on query
         var user =  await loginCollection.find(query).toArray();
@@ -292,6 +292,7 @@ export class DatabaseHandler{
         // Get follower and followed user
         var follower = await this.getUser(followerIdTag);
         var followed = await this.getUser(followedIdTag);
+
 
         // Set queries
         var followedQuery = {_id: new ObjectId(followed._id)};
