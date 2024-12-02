@@ -1,30 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Borel&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lobster&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap');
-
-
 .app{
     display: flex;
     height: 100%;
     font-family: "Montserrat";
-    color: black;
+    color: white;
 }
 
 .panel_div{
     height: 100%;
     width: 16%;
-    background-color: #f8f7ff;
-    /* color: white; */
-    /* border-right: 1px solid #09bd96; */
+    background-color: black;
 }
 
 .panel_icon{
     padding: 10px;
     height: 90px;
-    /* width: 100%; */
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #7462ff;
+    background-color: #493caa;
     color: white;
 }
 
@@ -37,7 +30,6 @@
 .panel_icon_img{
     height: 100%;
     width: 70px;   
-    /* background-color: #493caa; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -46,7 +38,6 @@
 .panel_icon_text{
     height: 100%;
     width: 100%;   
-    /* background-color: #ad0fb3; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -69,29 +60,22 @@
 }
 
 .panel_options{
-    /* margin-top: 50px; */
     display: flex;
     justify-content: flex-start;
-    /* padding-left: 8px; */
     align-items: center;
     height: 70px;
     width: 100%;
-    /* background-color: #493caa; */
-    /* background-color: black; */
     border: 1px solid #09bd96;
-    /* background: linear-gradient(90deg, #7462ff, #ad0fb3,#09bd96);
-    animation: BackgroundColour 12s ease-in-out infinite;
-    background-size: 150% 150%; */
-    /* gap: 20px; */
 }
 
 .panel_options:hover{
     cursor: pointer;
+    box-shadow: 2px 0px 10px rgba(255, 255, 255, 0.336);
+    transform: scaleY(1.1);
 }
 
 .selected_option{
     color: white;
-    /* background-color: #7462ff; */
     background-color: #493caa;
 }
 
@@ -102,8 +86,6 @@
 }
 
 .panel_option_name span{
-    /* color:white; */
-    /* font-style: normal; */
     font-size: 20px;
     font-weight: bold;
     user-select: none;
@@ -117,7 +99,6 @@
     width: 100%;
     position: relative;
     background-color: #09bd96;
-    /* top: 507px; */
     top: 451px;
 }
 
@@ -128,6 +109,8 @@
     border: none;
     color: white;
     transition: all 0.5 ease-in;
+    font-family: "Montserrat";
+    font-weight: bold;
 }
 
 #logout_button:hover{
@@ -138,7 +121,6 @@
 .display{
     width: 94%;
     height: 100%;
-    /* background-color: #09bd96; */
-    /* background-color: black; */
     border-left: 1px solid #09bd96;
+    background-color: black;
 }

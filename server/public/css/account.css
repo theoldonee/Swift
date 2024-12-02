@@ -1,17 +1,14 @@
 .account_display{
-    /* background-color: aqua; */
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
+    background-color: black;
 }
 
 .account_info{
-    /* background-color: green; */
     width: 800px;
     height: 100%;
-    /* display: flex;
-    justify-content: center; */
     overflow: scroll;
 }
 
@@ -22,17 +19,18 @@
 
 .user_info_div{
     width: 100%;
-    background-color: azure;
+    /* background-color: rgb(105, 105, 105); */
+    background-color: black;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 400px;
+    border-radius: 30px;
 }
 
 .user_profile_img{
     width: 300px;
     height: 300px;
-    background-color: burlywood;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -40,7 +38,7 @@
 
 .user_profile_img > img{
     border: none;
-    border-radius: 5px;
+    border-radius: 40px;
     width: 150px;
     height: 150px;
 }
@@ -48,17 +46,16 @@
 .user_info{
     width: 400px;
     height: 300px;
-    background-color: yellow;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
 .user_username, .follow_info, #user_name{
-    border: 1px solid black;
     display: flex;
     align-items: center;
     height: 40px;
+    color: white;
 }
 
 .follow_info{
@@ -69,8 +66,149 @@
 
 } */
 
+#edit_button{
+    width: 60px;
+    height: 40px;
+    font-family: "Montserrat";
+    font-weight: bold;
+    background-color: #7462ff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.5s ;
+}
+
+#edit_button:hover{
+    cursor: pointer;
+    background-color: #6652fa;
+    color: white;   
+}
+
+#edit_button:active{
+    background-color: white;
+    color: #6652fa;   
+
+}
+
+
 .user_post{
     width: 100%;
     height: 900px;
-    background-color: blueviolet;
+    /* background-color: blueviolet; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user_post_aurthor{
+    height: 30px;
+}
+
+
+/* --------------------------------------------------------------------------------------------------------- */
+
+.account_display{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    background-color: black;
+}
+
+.account_info{
+    width: 800px;
+    height: 100%;
+    overflow: scroll;
+}
+
+.account_info::-webkit-scrollbar { 
+    display: none; 
+}
+
+
+.user_info_div{
+    width: 100%;
+    /* background-color: rgb(105, 105, 105); */
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    border-radius: 30px;
+}
+
+.user_profile_img{
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user_profile_img > img{
+    border: none;
+    border-radius: 40px;
+    width: 150px;
+    height: 150px;
+}
+
+.user_info{
+    width: 400px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.user_username, .follow_info, #user_name{
+    display: flex;
+    align-items: center;
+    height: 40px;
+    color: white;
+}
+
+.follow_info{
+    gap: 20px;
+}
+
+/* #user_name{
+
+} */
+
+#edit_button{
+    width: 60px;
+    height: 40px;
+    font-family: "Montserrat";
+    font-weight: bold;
+    background-color: #7462ff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.5s ;
+}
+
+#edit_button:hover{
+    cursor: pointer;
+    background-color: #6652fa;
+    color: white;   
+}
+
+#edit_button:active{
+    background-color: white;
+    color: #6652fa;   
+
+}
+
+
+.user_post{
+    width: 100%;
+    height: 900px;
+    /* background-color: blueviolet; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user_post_aurthor{
+    height: 30px;
 }

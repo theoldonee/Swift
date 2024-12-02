@@ -1,134 +1,149 @@
-@import url('https://fonts.googleapis.com/css2?family=Borel&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lobster&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap');
 
-.app{
-    display: flex;
-    height: 100%;
-    font-family: "Montserrat";
-}
+/* STYLING FOR BOTTOM BAR */
 
-.panel_div{
-    height: 100%;
-    width: 20%;
-    background-color: black;
-    color: white;
-    /* border-right: 1px solid #09bd96; */
-}
-
-.panel_icon{
-    padding: 10px;
-    height: 90px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* background-color: #089778; */
-}
-.panel_icon > div{
-    width: 80%;
-    height: 100%;
-    display: flex;
-}
-
-.panel_icon_img{
-    height: 100%;
-    width: 70px;   
-    /* background-color: #493caa; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.panel_icon_text{
-    height: 100%;
-    width: 100%;   
-    /* background-color: #ad0fb3; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-
-.panel_icon_img img{
-    width: 60px;
-    height: 60px;
-    border-radius: 20px;
-    object-fit: cover;
-}
-
-
-.panel_options{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 10%;
-    width: 100%;
-    /* background-color: #493caa; */
-    background-color: black;
-    border: 1px solid #09bd96;
-    /* background: linear-gradient(90deg, #7462ff, #ad0fb3,#09bd96);
-    animation: BackgroundColour 12s ease-in-out infinite;
-    background-size: 150% 150%; */
-}
-
-.panel_options span{
-    color:white;
-    font-style: normal;
-    font-weight: 400;
-    user-select: none;
-}
-
-#logout_div{
-    width: 100%;
-    position: relative;
-    background-color: #09bd96;
-    /* top: 507px; */
-    top: 451px;
-}
-
-#logout{
-    width: 100%;
-    height: 70px;
-    background-color: #09bd96;
-    border: none;
-    color: white;
-    transition: all 0.5 ease-in;
-}
-
-#logout:hover{
-    cursor: pointer;
-    background-color: #089778;
-}
-
-.display{
-    width: 80%;
-    height: 100%;
-    /* background-color: #09bd96; */
-    background-color: black;
-    border-left: 1px solid #09bd96;
-}
-
-/* STYLING FOR NAV BARS */
-.nav_bar_top{
-    width: 100%;
-    height: 70px;
-    background-color: #089778;
-}
-
+/* Styling for buttom nav bar*/
 .nav_bar_bottom{
     width: 100%;
     height: 70px;
-    background-color: #089778;
+    /* background-color: #089778; */
+    display: flex;
+    align-items: center;
 }
 
+/* Styling for buttom bar icon div*/
+.nav_bottom_icons{
+    width: 950px;
+    height: 60px;
+    border: 1px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Styling for buttom bar icon*/
+.nav_bottom_icons i{
+    font-size: 40px;   
+    color: rgba(255, 255, 255, 0.527);
+}
+
+/* Styling for buttom bar icon when hovered over*/
+.nav_bottom_icons i:hover{
+    cursor: pointer;
+    transform: scaleY(1.1) scaleX(1.1);
+    transform-origin: 20%, 40px;
+}
+
+/* Styling for buttom bar icon when pressed*/
+.nav_bottom_icons i:active{
+    color: #7462ff;
+}
+
+/* Styling for create post div */
+.create_post_div{
+    position: absolute;
+    top: 10px;
+    width: 920px;
+    height: 830px;
+    background-color: rgb(68, 68, 68);
+    border-radius: 30px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+/* Styling for create post div */
+.create_post_img_div{
+    width: 400px;
+    height: 500px;
+}
+
+/* Styling for create post file input */
+#create_post_img{
+    width: 400px;
+    height: 500px;
+    border-radius: 20px;
+}
+
+/* Styling for create post file input label */
+.create_upload_label{
+    background-color: #7462ff;
+    padding: 4px;
+    border-radius: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    position: relative;
+    bottom: 320px;
+    left: 215px;
+}
+
+/* Styling for create post file input label when hovered over*/
+.create_upload_label:hover{
+    background-color: #7462ff;
+    cursor: pointer;
+    padding: 6px;
+}
+
+/* Styling for create post input div*/
+.create_post_input_div{
+    /* border: 1px solid white; */
+    width: 800px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* Styling for create post text area*/
+.create_post_input_div textarea{
+    border: 1px solid white;
+    color: grey;
+    border-radius: 0px;
+    width: 98%;
+    height: 80px;
+    resize: none;
+    background-color: rgb(49, 49, 49);
+}
+
+/* Styling for create post text area when focused*/
+.create_post_input_div textarea:focus{
+    outline: none;
+    border: 1px solid #6552fc;
+}
+
+/* Styling for create post post button*/
+#create_post_button{
+    background-color: #7462ff;
+    color: white;
+    width: 150px;
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    font-family: "Montserrat";
+    font-weight: bold;
+}
+
+/* Styling for create post post button when hovered over*/
+#create_post_button:hover{
+    background-color: #6552fc;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+/* FEED STYLING */
+
+/* Styling for feed div */
 .feed_div{
     width: 100%;
-    height: 770px;
+    height: 841px;
     /* background-color: #ad0fb3; */
     display: flex;
     justify-content: center;
 }
 
+/* Styling for feed */
 .feed{
     width: 800px;
     height: 100%;
@@ -137,60 +152,14 @@
     margin-right: 20px;
 }
 
+/* Styling for feed scrollbar */
 .feed::-webkit-scrollbar { 
     display: none; 
 }
 
-/* STYLING FOR POST */
-.post{
-    padding: 10px 0px 0px 15px;
-    border-top: 1px solid gray;
-    /* border-bottom: 1px solid white; */
-    width: 98%;
-    display: flex; 
-    color: white;
-}
-
-
-.post_profile{
-margin-right: 10px;
-}
-
-.post_profile_img img{
-    width: 60px;
-    height: 60px;
-    border-radius: 20px;
-    object-fit: cover;
-}
-
-.post_content_div{
-    width: 100%;
-}
-
-.post_aurthor{
-    height: 30px;
-}
-.post_bar{
-    width: 100%;
-    height: 40px;
-    /* background-color: aqua; */
-}
-
-.post_text{
-    margin-bottom: 10px;
-}
-
-.post_img_div{
-    width: 100%;
-    height: 548px;
-}
-
-.post_img_div img{
-    width: 100%;
-    height: 100%;
-}
-    
+/* Syling for more info */
 .more_info{
+    padding-top: 8px;
     width: 30%;
     height: 100%;
     display: flex;
@@ -199,22 +168,32 @@ margin-right: 10px;
     /* background-color: #7462ff; */
 }
 
+/* Syling for weather */
 .weather{
     width: 100%;
-    height: 100px;
+    height: 180px;
     border: 1px solid white;
     border-radius: 10px;
-    color: white;
+    /* color: white; */
 }
 
+/* Syling for info */
+.info{
+    height: 70%;
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: 2px 0px 10px black;
+
+}
+
+/* Style for activity suggestion */
 .activity_suggestion{
-    color: white;
     width: 100%;
     height: 200px;
-    border: 1px solid white;
     border-radius: 10px;
+    border: 1px solid white;
 }
 
+/* Syling for info header */
 .info_header{
     color: white;
     width: 100%;
@@ -222,12 +201,191 @@ margin-right: 10px;
     background-color: #7462ff;
     display: flex;
     justify-content: center;
-    border-radius: 10px 10px 0px 00px;
+    align-items: center;
+    border-radius: 10px 10px 0px 0px;
 }
 
+/* Syling for bold tag in info header */
+.info_header span b{
+    color: white;
+}
+
+/* Syling for suggestion */
 .suggestion{
     padding: 5px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    border: 1px solid black;
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: 2px 0px 10px black;
 }
+
+/* Syling for search suggestion */
+.search_suggestion{
+    width: 100%;
+    height: 700px;
+    border-radius: 10px;
+    border: 1px solid white;
+}
+
+/* Syling for search div */
+.search_suggestion .search_div{
+    width: 100%;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Syling for search input */
+#search{
+    width: 400px;
+    height: 30px;
+    border-radius: 0px;
+    background-color: rgb(53, 53, 53);
+    color: gray;
+}
+
+/* Syling for search icon when hovering */
+#search_icon:hover{
+    cursor: pointer;
+}
+
+/* Syling for friend suggestion div */
+.friend_suggestion_div{
+    width: 100%;
+    height: 430px;
+}
+
+/* Syling for friend suggestion info */
+.friend_suggestion_info{
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(53, 53, 53);
+    color: gray;
+}
+
+/* Syling for friend suggestion */
+.friend_suggestion{
+    height: 390px;
+    padding-top: 10px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: space-evenly; */
+    gap: 10px;
+}
+
+/* Syling for friend suggestion scrollbar track */
+.friend_suggestion::-webkit-scrollbar-track {
+    border: 1px solid #000;
+    padding: 2px 0;
+    background-color: #404040;
+}
+
+/* Syling for friend suggestion scrollbar */
+.friend_suggestion::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Syling for friend suggestion scrollbar-thumb */
+.friend_suggestion::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #6552fc;
+    border: 1px solid #000;
+}
+
+/* Syling for suggested friends */
+.suggested_friend_div{
+    width: 460px;
+    height: 90px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #404040;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.suggested_friend_div:hover{
+    transform: translateY(-3px);
+    box-shadow: 2px 0px 10px rgba(255, 255, 255, 0.336);
+}
+
+
+.suggested_friend_img_div{
+    width: 100px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+
+.suggested_friend_img_div img{
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 10px;
+    
+}
+
+.suggested_friend_img_div{
+    width: 100px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.suggested_friend_info{
+    height: 100%;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.suggested_friend_info span b:hover{
+    color: #6552fc;
+    cursor: pointer;
+}
+
+.suggested_friend_follow{
+    height: 100%;
+    width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.suggested_fiend_follow_button{
+    width: 80px;
+    height: 50px;
+    background-color: #6552fc;
+    color: white;
+    font-family: "Montserrat";
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+}
+
+.suggested_fiend_follow_button:hover{
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.suggested_fiend_follow_button:active{
+    cursor: pointer;
+    transform: scale(1);
+}
+

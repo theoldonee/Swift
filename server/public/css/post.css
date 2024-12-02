@@ -1,0 +1,107 @@
+/* STYLING FOR POST */
+
+/* Styling for post div */
+.post{
+    padding: 10px 0px 0px 15px;
+    border-top: 1px solid gray;
+    /* border-bottom: 1px solid white; */
+    width: 80%;
+    display: flex; 
+    color: white;
+    /* color: white; */
+}
+
+/* Syling for post profile */
+.post_profile{
+margin-right: 10px;
+}
+
+/* Syling for post profile image */
+.post_profile_img img{
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+/* Syling for post content div */
+.post_content_div{
+    width: 100%;
+}
+
+/* Syling for post author */
+.post_aurthor{
+    height: 30px;
+    display: flex;
+    gap: 3px;
+
+}
+
+/* Syling for follow button */
+.follow_button{
+    color: #7462ff;
+}
+
+/* Syling for follow button when hovered over*/
+.follow_button:hover{
+    cursor: pointer;
+    color: #09bd96;
+}
+
+/* Syling for following button */
+.following_button{
+    color: #09bd96;
+}
+
+/* Syling for post text */
+.post_text{
+    margin-bottom: 10px;
+}
+
+/* Syling for post image div*/
+.post_img_div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.808);
+    border-radius: 6px;
+    width: 100%;
+    height: 600px;
+}
+
+/* Syling for post image */
+.post_img_div img{
+    width: 400px;
+    height: 100%;
+}
+
+/* Syling for post bar */
+.post_bar{
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 23px;
+    gap: 8px;
+}
+
+/* Syling for post bar icon */
+.post_bar_icon{
+    width: 50px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+/* Syling for icons when hovered over */
+.post_bar_icon i:hover{
+    cursor: pointer;
+    color: #7462ff;;
+}
+
+/* Syling for  heart icon */
+.liked i{
+    font-size: 25px;
+    color: #7462ff;;
+}
