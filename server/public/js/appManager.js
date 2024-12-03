@@ -1,5 +1,7 @@
 import {PostManager} from "./postManager.js"
-// import
+import { HomeManager } from "./home.js";
+import { SearchAndSuggestionsManager } from "./searchAndSuggestions.js";
+
 export {
     AppManager
 };
@@ -7,7 +9,7 @@ export {
 var id, user, app, feedPage, chatPage, accountPage, allResults;
 
 class AppManager{
-
+    static currentPage;
     // Loads app and gets id value
     static appLoad(userID){
         id = userID;
@@ -23,7 +25,8 @@ class AppManager{
             $("#feed_option").addClass("selected_option");
             $("#chat_option").removeClass("selected_option");
             $("#account_option").removeClass("selected_option");
-
+            AppManager.currentPage = "feed";
+            console.log(AppManager.currentPage);
             this.feedInitialize()
         });
 
@@ -37,8 +40,33 @@ class AppManager{
             $("#account_option").addClass("selected_option");
             $("#chat_option").removeClass("selected_option");
             $("#feed_option").removeClass("selected_option");
+            AppManager.currentPage = "account";
+            console.log(AppManager.currentPage);
             this.accountPageinitialize(); 
         });
+
+        $("#logout_button").click( () => {
+            this.logoutUser();
+        });
+
+    }
+
+    static async logoutUser(){
+        try{
+            var response = await fetch( `/M00933241/login?id=${id}`, {
+                method: "DELETE",
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
+
+            var result = await response.json();
+            if(result.acknowledged){
+                HomeManager.showHomePage();
+            }
+        }catch(err){
+            console.log(`Issue logging out user \nError: ` + err);
+        }
     }
     
     // injects app into html
@@ -167,7 +195,7 @@ class AppManager{
     static async getAllPost(){
        
             try{
-                var response = await fetch( `/M00933241/contents?getBy="all"`, {
+                const response = await fetch( `/M00933241/contents?getBy="all"`, {
                     method: "GET",
                     headers: {
                         "content-type": "application/json"
@@ -184,10 +212,12 @@ class AppManager{
                     if(this.isFollowing(postJSON.authorId) ){
                         var post = PostManager.constructPost(postJSON, true, id);
                         this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
-                    }else{
-                        var post = PostManager.constructPost(postJSON, false, id);
-                        this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
                     }
+                    
+                    // else{
+                    //     var post = PostManager.constructPost(postJSON, false, id);
+                    //     this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                    // }
                     
                 }
     
@@ -202,7 +232,6 @@ class AppManager{
 
         // itterates over user following
         for(var followings of user.following){
-            console.log(followings.userId, authorId);
             // Checks if following userId is equal to authorId
             if(followings.userId == authorId){
                 return true;
@@ -323,6 +352,11 @@ class AppManager{
     // Initializes feedPage
     static feedInitialize(){
         $(".display").html(feedPage);
+
+        SearchAndSuggestionsManager.userId = id;
+        SearchAndSuggestionsManager.start();
+
+
         $(".nav_bottom_icons i").click( () => {
             $(".create_post_div").slideToggle({
                 duration: 'fast',
