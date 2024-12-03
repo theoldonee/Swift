@@ -235,6 +235,7 @@ app.get("/M00933241/login", async (req, res) => {
                     req.session.loggedUsers.push(`${data.userId}`);
                 }
 
+                // console.log(req.session);
                 resolve({login: true, isuser: true, id: data.userId});
                 
             }else{
@@ -469,6 +470,63 @@ app.delete("/M00933241/follow", async (req, res) => {
     var result = await DatabaseHandler.followHandler(false, followerIdTag, followedIdTag);
     res.send(result);
 });
+
+// Handles GET request made to the /M00933241/:id/suggestFollowing path
+app.get("/M00933241/:id/suggestFollowing", async (req, res) => {
+    var idTag = req.params['id']
+    var user = await DatabaseHandler.getUser(idTag);
+
+    var usersList = await DatabaseHandler.getAllUsers();
+
+    var addedUserCount = 0;
+    var followList = [];
+
+    var stopLoop = false;
+    var index = 0;
+
+    while ( !stopLoop){
+       
+        if(`${usersList[index]._id}` != `${user._id}`){
+
+            if (!(isFollowing(user.following, usersList[index]._id))){
+                var friendTodAdd = {
+                    _id: usersList[index]._id,
+                    userName: usersList[index].userName,
+                    profile_img: usersList[index].profile_img
+                }
+
+                followList.push(friendTodAdd);
+                addedUserCount++;
+            }
+            
+            if(addedUserCount == 6){
+                stopLoop = true;
+            }
+            
+            
+        }
+
+        index++;
+        if(index == usersList.length){
+            stopLoop = true;
+        }
+    }
+
+    var response = {
+        followList: followList
+    }
+
+    res.send(response);
+
+});
+
+function isFollowing(followingList, suggestion){
+    for(var following of followingList){
+        if (!(`${following.userId}` != `${suggestion}`)){
+            return true;
+        }
+    }
+}
 
 // Handles GET request made to the /M00933241/users/search path
 app.get("/M00933241/users/search", (req, res) => {
