@@ -1,383 +1,391 @@
-import {AppManager} from "./appManager.js"
+import {AppManager} from "./appManager.js";
 
-// Displays home page
-function showHomePage(){
-    // Injects home page html
-    $("section").html(homePage);
-
-    // Detects when the login button is clicked
-    $("#home_login").click( () => {
-        $("#swift").addClass("shrink");
-        setTimeout(grow, 1000, "login", "Login");
-    });
-    
-    // Detects when the register button is clicked
-    $("#home_register").click( () => {
-        $("#swift").addClass("shrink");
-        setTimeout(grow, 1000, "register", "Register");
-    });
+export{
+    HomeManager
 }
 
-// Adds grow class
-function grow(page, text){
-    $("#swift").text(`${text}`);
-    $("#swift").addClass("grow");
+class HomeManager{
+    // Displays home page
+    static showHomePage(){
+        // Injects home page html
+        $("section").html(homePage);
 
-    // Checks if the page is login
-    if(page == "login"){
-        // Displays login page if page is login
-        setTimeout(showLoginPage, 2000);
-    }else{ // Displays register page
-        setTimeout(showRegisterPage, 2000);
-    }
-}
-
-// Displays login page
-function showLoginPage(){
-    // Injects home page html
-    $("section").html(loginPageString);
-
-    // Detects when the back button is clicked 
-    $(".back_div").click( () => {
-        back();
-    });
-
-    // Detects when the login button is clicked 
-    $("#login_button").click( () => {
-        validateLogin();
-    });
-}
-
-// Displays register page
- function showRegisterPage(){
-    // Injects registration page html
-    $("section").html(registerPageString);
-
-    // Detects when the "next" button is clicked 
-    $("#next_button").click( async () => {
-        validateRegistration();
-    });
-
-    // Detects when the back button is clicked 
-    $(".back_div").click( () => {
-        back();
-    });
-}
-
-// Shows final register page and gives functionality to all buttons
-function showFinalRegisterPage(user){
-    // Displays the final register page
-    $("section").html(finalRegisterPageString);
-
-    // Takes User back to the previous page
-    $(".back_div").click( () => {
-        back();
-    });
-
-    // Shows selected profile picture
-    $('#file_upload').on("change", () => {
-        var fr = new FileReader();
-
-        // changes image source to choosen file.
-        fr.onload = function(e) { 
-            document.getElementById("profile_picture").src = this.result;
-            user.profile_img = this.result;
-        };
+        // Detects when the login button is clicked
+        $("#home_login").click( () => {
+            $("#swift").addClass("shrink");
+            setTimeout(HomeManager.grow, 1000, "login", "Login");
+        });
         
-        var file = $("#file_upload")[0].files[0]; // Uploaded file
+        // Detects when the register button is clicked
+        $("#home_register").click( () => {
+            $("#swift").addClass("shrink");
+            setTimeout(HomeManager.grow, 1000, "register", "Register");
+        });
+    }
 
-        // Checks if file is an image
-        if(file.type.match('image.*')){
-            fr.readAsDataURL(file);
-        }else{
-            alert("Invalid file format");
+    // Adds grow class
+    static grow(page, text){
+        $("#swift").text(`${text}`);
+        $("#swift").addClass("grow");
+
+        // Checks if the page is login
+        if(page == "login"){
+            // Displays login page if page is login
+            setTimeout(HomeManager.showLoginPage, 2000);
+        }else{ // Displays register page
+            setTimeout(HomeManager.showRegisterPage, 2000);
         }
-    });
+    }
 
-    // Detects when the register button is clicked 
-    $("#register_button").click( async () => {
-        var userName, result;
-        userName = $("#userName").val(); 
+    // Displays login page
+    static showLoginPage(){
+        // Injects home page html
+        $("section").html(loginPageString);
 
-        // Checks if a username has been entered
-        if (!userName){
-            alert("You must enter a username");
-        }else{
-            var questionmark = userName.split("?").length == 1;
-            var forwardSlash = userName.split("/").length == 1;
-            var backSlash = userName.split("\\").length == 1;
-            var equal = userName.split("=").length == 1;
+        // Detects when the back button is clicked 
+        $(".back_div").click( () => {
+            HomeManager.back();
+        });
+
+        // Detects when the login button is clicked 
+        $("#login_button").click( () => {
+            HomeManager.validateLogin();
+        });
+    }
+
+    // Displays register page
+    static showRegisterPage(){
+        // Injects registration page html
+        $("section").html(registerPageString);
+
+        // Detects when the "next" button is clicked 
+        $("#next_button").click( async () => {
+            HomeManager.validateRegistration();
+        });
+
+        // Detects when the back button is clicked 
+        $(".back_div").click( () => {
+            HomeManager.back();
+        });
+    }
+
+    // Shows final register page and gives functionality to all buttons
+    static showFinalRegisterPage(user){
+        // Displays the final register page
+        $("section").html(finalRegisterPageString);
+
+        // Takes User back to the previous page
+        $(".back_div").click( () => {
+            HomeManager.back();
+        });
+
+        // Shows selected profile picture
+        $('#file_upload').on("change", () => {
+            var fr = new FileReader();
+
+            // changes image source to choosen file.
+            fr.onload = function (e) { 
+                document.getElementById("profile_picture").src = this.result;
+                user.profile_img = this.result;
+            };
             
+            var file = $("#file_upload")[0].files[0]; // Uploaded file
 
-            // If the username contains unwanted symbols
-            if (questionmark && forwardSlash && backSlash && equal){
-                result = await databaseuserNamelVal(userName);
-
-                // Checks if username is taken
-                if(result){
-                    // user.userName = userName;
-                    alert("Username already taken");
-
-                }else{
-                    user.userName = userName;
-
-                    var userJSON = {
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        userName: user.userName,
-                        email: user.email,
-                        password: user.password
-                    }
-
-                    // checks if the user has picked a profile picture
-                    if (user.profile_img == undefined){
-                        user.profile_img = '';
-                    }
-
-                    var requestData = {
-                        userJSON: userJSON,
-                        profile_img: user.profile_img
-                    }
-
-                    // Adds user
-                    addUser(JSON.stringify(requestData), userJSON);
-                }
+            // Checks if file is an image
+            if(file.type.match('image.*')){
+                fr.readAsDataURL(file);
             }else{
-                alert("Your username cannot have '?', '/', '\\', '=' ");
+                alert("Invalid file format");
             }
-            
-        }
-    });
-}
+        });
 
-// Takes user back to the previous page
-function back(){
-    var id = $(".back_div").attr("id");
+        // Detects when the register button is clicked 
+        $("#register_button").click( async () => {
+            var userName, result;
+            userName = $("#userName").val(); 
 
-    // Checks if user is on login or register page
-    if ((id == "login_back_div") || (id == "next_back_div")){
-        showHomePage();
-    }else{
-        showRegisterPage();
-    }
-}
-
-// Checks registration field 
-function validateRegistration(){
-    var firstName , lastName, email, password;
-    var user = {};
-    firstName = $("#firstName").val();
-    lastName = $("#lastName").val();
-    email = $("#email").val();
-    password = $("#password").val();
-
-    // Checks if input data has been entered
-    if(!firstName){
-        alert("Please enter your first name");
-    }else if(!lastName){
-        alert("Please enter your last name");
-    }else if(!password){
-        alert("Please enter a password");
-    }else{
-        user.firstName = firstName;
-        user.lastName = lastName;
-        user.password = password;
-
-        // Validates registration
-        validateRegistrationEmail(email, user);
-    }
-}
-
-// Validates email
-async function validateRegistrationEmail(email, user){
-    // Checks if email has been entered
-    if(email){
-        var emailSplit = email.split("@");
-        // check for @ sign in email
-        if(emailSplit.length == 2){
-            // check for .com sign in email
-            if(emailSplit[1].split(".")[1] = "com"){
-                var result =  await databaseEmailVal(email);
-                // Suggest redirection to login page if email exist
-                if (result){
-                    if (confirm("Email already registered. Would you like to login?")){
-                        showLoginPage();
-                    }
-                }else{
-                    user.email = email;
-                    showFinalRegisterPage(user);
-                }
+            // Checks if a username has been entered
+            if (!userName){
+                alert("You must enter a username");
             }else{
-                alert("Invalid email no .com");
-            }
-        }else{
-            alert("Invalid email, no @ sign");
-        }
-    }else{
-        alert("Email field is empty");
-    }
-}
-
-// Checks if email is present in the database
-async function databaseEmailVal(email){
-    // Sends a email through POST request to the /M00933241/email path
-    try{
-        const response = await fetch(`/M00933241/email?email=${email}`, {
-            method: "GET",
-            headers:{
-                "Content-Type": "application/json"
-            },
-        
-        });
-    
-        const result = await response.json();
-        return result.result;
-    }catch(err){
-        console.log("Issue validating email from database" + err);
-    }
-}
-
-// Validate username
-async function databaseuserNamelVal(userName){
-    
-    // Sends a usernsme through GET request to the /M00933241/username path
-    try{
-        const response = await fetch(`/M00933241/username?userName=${userName}`, {
-            method: "GET",
-            headers:{
-                "Content-Type": "application/json"
-            },
-        
-        });
-    
-        const result = await response.json();
-        return result.result;
-    }catch(err){
-        console.log("Issue validating username from database" + err);
-    }
-
-}
-
-// Sends user data to database
-async function addUser(data, userData) {
-    
-    // Sends a user data through POST request to the /M00933241/users path
-    try{
-        const response = await fetch(`/M00933241/users`, {
-            method: "POST",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body: data
-        });
-    
-        const result = await response.json();
-
-        // Checks if user has been added to database
-        if(result.result.acknowledged == true){
-            var idTag = result.result.insertedId
-
-            // Logs in user
-            var loginValResult = loginUser(idTag, userData.password);
-            
-            // Checks if user info has been added to login collection
-            if (loginValResult){
+                var questionmark = userName.split("?").length == 1;
+                var forwardSlash = userName.split("/").length == 1;
+                var backSlash = userName.split("\\").length == 1;
+                var equal = userName.split("=").length == 1;
                 
-                // Gets login status
-                var loginResult = await checkLogin(idTag);
-                // Checks if user should be logged in
+
+                // If the username contains unwanted symbols
+                if (questionmark && forwardSlash && backSlash && equal){
+                    result = await HomeManager.databaseuserNamelVal(userName);
+
+                    // Checks if username is taken
+                    if(result){
+                        // user.userName = userName;
+                        alert("Username already taken");
+
+                    }else{
+                        user.userName = userName;
+
+                        var userJSON = {
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            userName: user.userName,
+                            email: user.email,
+                            password: user.password
+                        }
+
+                        // checks if the user has picked a profile picture
+                        if (user.profile_img == undefined){
+                            user.profile_img = '';
+                        }
+
+                        var requestData = {
+                            userJSON: userJSON,
+                            profile_img: user.profile_img
+                        }
+
+                        // Adds user
+                        HomeManager.addUser(JSON.stringify(requestData), userJSON);
+                    }
+                }else{
+                    alert("Your username cannot have '?', '/', '\\', '=' ");
+                }
+                
+            }
+        });
+    }
+
+    // Takes user back to the previous page
+    static back(){
+        var id = $(".back_div").attr("id");
+
+        // Checks if user is on login or register page
+        if ((id == "login_back_div") || (id == "next_back_div")){
+            this.showHomePage();
+        }else{
+            this.showRegisterPage();
+        }
+    }
+
+    // Checks registration field 
+    static validateRegistration(){
+        var firstName , lastName, email, password;
+        var user = {};
+        firstName = $("#firstName").val();
+        lastName = $("#lastName").val();
+        email = $("#email").val();
+        password = $("#password").val();
+
+        // Checks if input data has been entered
+        if(!firstName){
+            alert("Please enter your first name");
+        }else if(!lastName){
+            alert("Please enter your last name");
+        }else if(!password){
+            alert("Please enter a password");
+        }else{
+            user.firstName = firstName;
+            user.lastName = lastName;
+            user.password = password;
+
+            // Validates registration
+            this.validateRegistrationEmail(email, user);
+        }
+    }
+
+    // Validates email
+    static async validateRegistrationEmail(email, user){
+        // Checks if email has been entered
+        if(email){
+            var emailSplit = email.split("@");
+            // check for @ sign in email
+            if(emailSplit.length == 2){
+                // check for .com sign in email
+                if(emailSplit[1].split(".")[1] = "com"){
+                    var result =  await this.databaseEmailVal(email);
+                    // Suggest redirection to login page if email exist
+                    if (result){
+                        if (confirm("Email already registered. Would you like to login?")){
+                            this.showLoginPage();
+                        }
+                    }else{
+                        user.email = email;
+                        this.showFinalRegisterPage(user);
+                    }
+                }else{
+                    alert("Invalid email no .com");
+                }
+            }else{
+                alert("Invalid email, no @ sign");
+            }
+        }else{
+            alert("Email field is empty");
+        }
+    }
+
+    // Checks if email is present in the database
+    static async databaseEmailVal(email){
+        // Sends a email through POST request to the /M00933241/email path
+        try{
+            const response = await fetch(`/M00933241/email?email=${email}`, {
+                method: "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+            
+            });
+        
+            const result = await response.json();
+            return result.result;
+        }catch(err){
+            console.log("Issue validating email from database" + err);
+        }
+    }
+
+    // Validate username
+    static async databaseuserNamelVal(userName){
+        
+        // Sends a usernsme through GET request to the /M00933241/username path
+        try{
+            const response = await fetch(`/M00933241/username?userName=${userName}`, {
+                method: "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+            
+            });
+        
+            const result = await response.json();
+            return result.result;
+        }catch(err){
+            console.log("Issue validating username from database" + err);
+        }
+
+    }
+
+    // Sends user data to database
+    static async addUser(data, userData) {
+        
+        // Sends a user data through POST request to the /M00933241/users path
+        try{
+            const response = await fetch(`/M00933241/users`, {
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body: data
+            });
+        
+            const result = await response.json();
+
+            // Checks if user has been added to database
+            if(result.result.acknowledged == true){
+                var idTag = result.result.insertedId;
+                var password = userData.password;
+                // Logs in user
+                var loginValResult = await this.loginUser(idTag, password);
+
+                // Checks if user info has been added to login collection
+                if (loginValResult){
+                    
+                    // Gets login status
+                    var loginResult = await this.checkLogin(idTag);
+                    console.log(loginResult);
+                    // Checks if user should be logged in
+                    if(loginResult.login){
+                        AppManager.appLoad(idTag);
+                    }else{
+                        this.showLoginPage();
+                    }
+                }else{
+                    this.showLoginPage();
+                };
+
+            }
+
+        }catch(err){
+            console.log("Issue registering user " + err);
+        }
+    }
+
+    // Checks login field 
+    static async validateLogin(){
+        var idTag, password;
+        idTag = $("#idTag").val();
+        password = $("#password").val();
+
+        // Checks if an email or username has been inputed
+        if(!idTag){
+            alert("Please enter your username or email");
+        }else if(!password){ // checks if password has been inputed
+            alert("Please enter a password");
+        }else{
+            var loginValResult = await this.loginUser(idTag, password);
+            
+            // Checks if user exist
+            if (loginValResult){
+                var loginResult = await this.checkLogin(idTag);
                 if(loginResult.login){
                     AppManager.appLoad(loginResult.id);
                 }else{
-                    showLoginPage();
+                    alert("Wrong password");
                 }
             }else{
-                showLoginPage();
+                if (confirm("Email or username not registered. Would you like to register?")){
+                    this.showRegisterPage();
+                }
             };
-
+            
         }
-
-    }catch(err){
-        console.log("Issue registering user " + err);
     }
-}
 
-// Checks login field 
-async function validateLogin(){
-    var idTag, password;
-    idTag = $("#idTag").val();
-    password = $("#password").val();
-
-    // Checks if an email or username has been inputed
-    if(!idTag){
-        alert("Please enter your username or email");
-    }else if(!password){ // checks if password has been inputed
-        alert("Please enter a password");
-    }else{
-        var loginValResult = await loginUser(idTag, password);
-        
-        // Checks if user exist
-        if (loginValResult){
-            var loginResult = await checkLogin(idTag);
-            if(loginResult.login){
-                AppManager.appLoad(loginResult.id);
-            }else{
-                alert("Wrong password");
-            }
-        }else{
-            if (confirm("Email or username not registered. Would you like to register?")){
-                showRegisterPage();
-            }
-        };
-        
-    }
-}
-
-// Sends a login POST request to the server
-async function loginUser(idTag, password){
-    var data = JSON.stringify({
-        idTag: idTag,
-        password: password,
-    });
-    
-    // Sends a login POST request to the /M00933241/login path
-    try{
-        const response = await fetch(`/M00933241/login`, {
-            method: "POST",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body: data
+    // Sends a login POST request to the server
+    static async loginUser(idTag, password){
+        var data = JSON.stringify({
+            idTag: idTag,
+            password: password,
         });
-    
-        const result = await response.json();
+        
+        // Sends a login POST request to the /M00933241/login path
+        try{
+            const response = await fetch(`/M00933241/login`, {
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body: data
+            });
+        
+            const result = await response.json();
 
-        // returns result
-        return result.acknowledged;
-    }catch(err){
-        console.log("Issue logging in user " + err);
+            // returns result
+            return result.acknowledged;
+        }catch(err){
+            console.log("Issue logging in user " + err);
+        }
+    }
+
+    // Sends a login GET request to the server
+    static async checkLogin(idTag) {
+
+        // Sends a login GET request to the /M00933241/login path
+        try{
+            const response = await fetch(`/M00933241/login?idTag=${idTag}`, {
+                method: "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+            });
+        
+            const result = await response.json();
+
+            return result;
+        }catch(err){
+            console.log("Issue getting login status of user \nError: " + err);
+        }
     }
 }
 
-// Sends a login GET request to the server
-async function checkLogin(idTag) {
-
-    // Sends a login GET request to the /M00933241/login path
-    try{
-        const response = await fetch(`/M00933241/login?idTag=${idTag}`, {
-            method: "GET",
-            headers:{
-                "Content-Type": "application/json"
-            },
-        });
-    
-        const result = await response.json();
-
-        return result;
-    }catch(err){
-        console.log("Issue getting login status of user \nError: " + err);
-    }
-}
 
 
 
@@ -462,5 +470,5 @@ finalRegisterPageString = `
 `
 
 // showHomePage();
-// showRegisterPage();
-showLoginPage();
+// HomeManager.showRegisterPage();
+HomeManager.showLoginPage();
