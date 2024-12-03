@@ -10,6 +10,9 @@ var id, user, app, feedPage, chatPage, accountPage, allResults;
 
 class AppManager{
     static currentPage;
+    static getPostInterval;
+    static cancelInterval;
+
     // Loads app and gets id value
     static appLoad(userID){
         id = userID;
@@ -19,7 +22,6 @@ class AppManager{
 
     // Initializes panel
     static panelInitialize() {
-
 
         $("#feed_option").click( () => {
             $("#feed_option").addClass("selected_option");
@@ -46,6 +48,7 @@ class AppManager{
         });
 
         $("#logout_button").click( () => {
+            AppManager.currentPage = "home";
             this.logoutUser();
         });
 
@@ -183,7 +186,7 @@ class AppManager{
                 var result = await response.json();
                 var postJSON = result.post;
                 var post = PostManager.constructPost(postJSON, false, id);
-                this.injectPost(post, postJSON._id, "accountPage", postJSON.authorId);
+                AppManager.injectPost(post, postJSON._id, "accountPage", postJSON.authorId);
     
             }catch(err){
                 console.log(`Issue getting post ${postID} of user \nError: ` + err);
@@ -209,15 +212,18 @@ class AppManager{
                 for (var postJSON of postList){
                     
                     // Checks if user is following author
-                    if(this.isFollowing(postJSON.authorId) ){
-                        var post = PostManager.constructPost(postJSON, true, id);
-                        this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                    if(AppManager.isFollowing(postJSON.authorId) ){
+                        var displayedPost = PostManager.displayedPost;
+
+                        var index = displayedPost.indexOf(postJSON._id);
+
+                        if(index == -1){
+                            PostManager.displayedPost.push(postJSON._id);
+                            var post = PostManager.constructPost(postJSON, true, id);
+                            AppManager.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                        }
+                        
                     }
-                    
-                    // else{
-                    //     var post = PostManager.constructPost(postJSON, false, id);
-                    //     this.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
-                    // }
                     
                 }
     
@@ -350,7 +356,7 @@ class AppManager{
     }
     
     // Initializes feedPage
-    static feedInitialize(){
+    static async feedInitialize(){
         $(".display").html(feedPage);
 
         SearchAndSuggestionsManager.userId = id;
@@ -374,9 +380,7 @@ class AppManager{
             });
             
         });
-        
-        // this.getFeed();
-        this.getAllPost();
+
         var post, img;
         post = {
             caption: '',
@@ -438,6 +442,27 @@ class AppManager{
             this.searchDivDisplay("up");
         });
 
+        await this.getAllPost();
+
+        if(this.getPostInterval && this.cancelInterval){
+            clearInterval(this.getPostInterval);
+            clearInterval(this.cancelInterval);
+        }
+
+        this.getPostInterval = setInterval(this.getAllPost, 3000);
+        this.cancelInterval = setInterval(this.ShouldCancelPostGet, 1000);
+
+    }
+
+    static ShouldCancelPostGet(){
+        
+        if (AppManager.currentPage != "feed"){
+            PostManager.displayedPost = [];
+            clearInterval(AppManager.getPostInterval);
+            clearInterval(AppManager.cancelInterval);
+        }
+            
+        
     }
 
     static searchDivDisplay(state){
