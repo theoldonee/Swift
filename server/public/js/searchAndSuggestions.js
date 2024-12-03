@@ -12,6 +12,33 @@ class SearchAndSuggestionsManager{
     static suggestionInterval;
     static cancelInterval;
 
+    static async start(){
+        await this.getFollowSuggestion();
+
+        console.log(this.suggestionInterval, this.cancelInterval);
+        if(this.suggestionInterval && this.cancelInterval){
+            console.log("Cancelling interval, first if");
+            clearInterval(this.suggestionInterval);
+            clearInterval(this.cancelInterval);
+        }
+
+        this.suggestionInterval = setInterval(this.getFollowSuggestion, 8000);
+        this.cancelInterval = setInterval(this.ShouldCancelInterval, 1000);
+
+        console.log(this.suggestionInterval, this.cancelInterval);
+    }
+
+    static ShouldCancelInterval(){
+        if (AppManager.currentPage != "feed"){
+            console.log("Cancelling interval");
+            SearchAndSuggestionsManager.displayedUsers = [];
+            console.log(SearchAndSuggestionsManager.suggestionInterval, SearchAndSuggestionsManager.cancelInterval);
+            clearInterval(SearchAndSuggestionsManager.suggestionInterval);
+            clearInterval(SearchAndSuggestionsManager.cancelInterval);
+        }
+        
+    }
+
     static async getFollowSuggestion(){
         try{
 
@@ -68,10 +95,10 @@ class SearchAndSuggestionsManager{
         $(".friend_suggestion").append(suggestedFriend);
 
         this.displayedUsers.push(suggestion._id);
-        $(`#${suggestion._id}_suggested_friend_follow_button`).click( () => {
+        $(`#${suggestion._id}_suggested_friend_follow_button`).click( async () => {
 
             $(`#${suggestion._id}_suggested_friend`).remove();
-            AppManager.follow(suggestion._id);
+            await AppManager.follow(suggestion._id);
 
             var indexOfSuggestion = SearchAndSuggestionsManager.displayedUsers.indexOf(suggestion._id);
             SearchAndSuggestionsManager.displayedUsers.splice(indexOfSuggestion, 1);
@@ -84,23 +111,6 @@ class SearchAndSuggestionsManager{
         });
     }
 
-
-    static start(){
-        this.getFollowSuggestion();
-        // this.injectFollowSuggestions();
-        // var suggestionInterval = setInterval(this.injectFollowSuggestions, 8000);
-        SearchAndSuggestionsManager.suggestionInterval = setInterval(this.getFollowSuggestion, 8000);
-        SearchAndSuggestionsManager.cancelInterval = setInterval(this.ShouldCancelInterval, 1000);
-    }
-
-    static ShouldCancelInterval(){
-        if (AppManager.currentPage != "feed"){
-            SearchAndSuggestionsManager.displayedUsers = [];
-            clearInterval(SearchAndSuggestionsManager.suggestionInterval);
-            clearInterval(SearchAndSuggestionsManager.cancelInterval);
-        }
-        
-    }
 
 }
 
