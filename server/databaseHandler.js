@@ -59,6 +59,23 @@ export class DatabaseHandler{
         return user[0];
     }
 
+    static async getUsers(idTag){
+        var userNameQuery = {userName: {$regex: `${idTag}`}};
+        var firstNameQuery = {firstName: {$regex: `${idTag}`}};
+        var lastNameQuery = {lastName: {$regex: `${idTag}`}};
+
+        var userByUsername =  await userCollection.find(userNameQuery).toArray();
+        var userByFirstName=  await userCollection.find(firstNameQuery).toArray();
+        var userByLastName =  await userCollection.find(lastNameQuery).toArray();
+
+        return {
+            userByUsername: userByUsername,
+            userByFirstName: userByFirstName,
+            userByLastName: userByLastName
+        }
+
+    }
+
     // Checks is a user exist in the user collection
     static async isUser(idTag){
         // Gets a user
@@ -397,6 +414,17 @@ export class DatabaseHandler{
         // Returns a post
         return post[0];
     }
-}
 
-// db.collection.remove():
+    static async getPosts(idTag){
+        var captionQuery = {caption: {$regex: `${idTag}`}};
+        var tagQuery = {tags: {$regex: `${idTag}`}};
+
+        var postByCaption =  await postCollection.find(captionQuery).toArray();
+        var postByTag =  await postCollection.find(tagQuery).toArray();
+        
+        return {
+            postByCaption: postByCaption,
+            postByTag: postByTag
+        }
+    }
+}
