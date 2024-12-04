@@ -7,16 +7,15 @@ class PostManager{
 
     static postFollowing;
     static userId;
+    static displayedPost = [];
 
     static constructPost(postJSON, following, userId){
-        // var postOpenTag = `<div class="post">`
-        
-        // var postCloseTag = `</div>`
+
        this.postFollowing = following;
        this.userId = userId;
 
         var postConstruct = `
-            <div class="post">
+            <div class="post" id="${postJSON._id}_post">
                 ${this.postProfile(postJSON.profile_img)}
                 ${this.postContent(
                     postJSON.caption, 
