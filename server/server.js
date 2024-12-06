@@ -125,7 +125,7 @@ app.post("/M00933241/users", async (req, res) => {
 
     var result = await DatabaseHandler.addUser(user);
 
-    var profile_image, idfolderPath, profileFolderPath, fileName, id;
+    var profile_image, idfolderPath, profileFolderPath, id;
     id = `${result.insertedId}`;
     
     // Creates upload folder for user
@@ -142,6 +142,7 @@ app.post("/M00933241/users", async (req, res) => {
         // Sets profile_image to created path
         var writeResult = await writeImage(req.body.profile_img, profileFolderPath, 'profile_img');
         
+        // Checks if write result was successful
         if(writeResult.result == true){
             profile_image = `public/uploads/${id}/default_profile/${writeResult.file}`;
         }else{
@@ -202,19 +203,22 @@ async function createFolder(directoryPath){
 }
 
 // Handles DELETE request made to the /M00933241/users path
-app.delete("/M00933241/users", async (req, res) => {
-    var idTag = req.body.idTag;
+// app.delete("/M00933241/users", async (req, res) => {
+//     var idTag = req.body.idTag;
 
-    var result = await DatabaseHandler.deleteUser(idTag);
-    res.send(result);
-});
+//     // 
+//     var result = await DatabaseHandler.deleteUser(idTag);
+//     res.send(result);
+// });
 
 // Handles GET request made to the /M00933241/login path
 app.get("/M00933241/login", async (req, res) => {
     var idTag = req.query.idTag;
 
+    // gets log status of user
     var inDatabase = await DatabaseHandler.isLogged(idTag);
 
+    // Checks if log status exist
     if(inDatabase){
         var userData = new Promise( async (resolve, reject) => {
             var data = await DatabaseHandler.getloggedUser(idTag);
@@ -299,23 +303,29 @@ app.delete("/M00933241/login", (req, res) => {
     var idTag = req.query.id;
 
     var userData = new Promise( async (resolve, reject) => {
+        // Gets user
         var data = await DatabaseHandler.getUser(idTag);
 
+        // Checks if user exist
         if(data){
             var result = await DatabaseHandler.updateLogin({correctPassword: "delete", user: data});
 
+            // Checks if entry was acknowledged
             if(result.acknowledged){
-                var loggedUsers = req.session.loggedUsers;
-                var index = loggedUsers.indexOf(`${data.userId}`);
-                req.session.loggedUsers.splice(index, 1);
-                resolve(result);
+                try{
+                    var loggedUsers = req.session.loggedUsers;
+                    var index = loggedUsers.indexOf(`${data.userId}`);
+                    req.session.loggedUsers.splice(index, 1);
+                    resolve(result);
+                }catch(err){
+                    resolve(result);
+                }
+                
 
             }else{
                 reject(result);
             }
             
-        }else{
-            reject("Users does not exist");
         }
 
     })
@@ -338,7 +348,6 @@ app.get("/M00933241/contents", async (req, res) => {
         posts = await DatabaseHandler.getAllPost();
     }
     
-    
     response = {
         posts: posts
     }
@@ -351,8 +360,10 @@ app.get("/M00933241/contents", async (req, res) => {
 app.get("/M00933241/contents/:id", async (req, res) => {
     var idTag, post, response;
 
+    // Get's id
     idTag = req.params['id'];
 
+    // Gets post
     post = await DatabaseHandler.getPost(idTag);
     
     response = {
@@ -366,7 +377,9 @@ app.get("/M00933241/contents/:id", async (req, res) => {
 
 // Handles GET request made to the /M00933241/:id/contents path
 app.get("/M00933241/:id/contents", async (req, res) => {
-    var idTag = req.params['id']
+    var idTag = req.params['id'];
+
+    // Get user's post
     var post = await DatabaseHandler.getUserPost(idTag);
 
     var response = {
@@ -396,6 +409,7 @@ app.post("/M00933241/contents", async (req, res) => {
     if(imageData != '' && post.caption != ''){
         post.type = "text & image";
     }else{
+        // Checks if image data exist
         if(imageData){
             post.type = "image";
         }else{
@@ -421,12 +435,12 @@ app.post("/M00933241/contents", async (req, res) => {
     if(imageData != ""){
         // Creates folder for uploaded profile image
         uploadFolderPath = `./public/uploads/${authorId}/uploads`;
-
         createFolder(uploadFolderPath);
 
         // Sets profile_image to created path
         var writeResult = await writeImage(imageData, uploadFolderPath, postId);
         
+        // Checks if write was successful
         if(writeResult.result == true){
             imgPath = `public/uploads/${authorId}/uploads/${writeResult.file}`;
             post.imgPath = imgPath;
@@ -458,6 +472,7 @@ app.post("/M00933241/follow", async (req, res) => {
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
 
+    // Gets follow result
     var result = await DatabaseHandler.followHandler(true, followerIdTag, followedIdTag);
     res.send(result);
 });
@@ -467,27 +482,33 @@ app.delete("/M00933241/follow", async (req, res) => {
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
 
+    // Get's unfollow result
     var result = await DatabaseHandler.followHandler(false, followerIdTag, followedIdTag);
     res.send(result);
 });
 
 // Handles GET request made to the /M00933241/:id/suggestFollowing path
 app.get("/M00933241/:id/suggestFollowing", async (req, res) => {
-    var idTag = req.params['id']
+    var idTag = req.params['id'];
+
+    // Gets specified user
     var user = await DatabaseHandler.getUser(idTag);
 
+    // Gets all users
     var usersList = await DatabaseHandler.getAllUsers();
 
     var addedUserCount = 0;
     var followList = [];
-
     var stopLoop = false;
     var index = 0;
 
-    while ( !stopLoop){
+    // Loop to add users to suggestion
+    while (!stopLoop){
        
+        // Makes sure user is not in suggestion
         if(`${usersList[index]._id}` != `${user._id}`){
 
+            // Makes sure the user isn't already following
             if (!(isFollowing(user.following, usersList[index]._id))){
                 var friendTodAdd = {
                     _id: usersList[index]._id,
@@ -499,14 +520,15 @@ app.get("/M00933241/:id/suggestFollowing", async (req, res) => {
                 addedUserCount++;
             }
             
+            // Checks if added users suggestion is up to 6
             if(addedUserCount == 6){
                 stopLoop = true;
-            }
-            
+            }    
             
         }
 
         index++;
+        // Checks if index is equivalent to length
         if(index == usersList.length){
             stopLoop = true;
         }
@@ -520,42 +542,41 @@ app.get("/M00933241/:id/suggestFollowing", async (req, res) => {
 
 });
 
+// Checks if user is following
 function isFollowing(followingList, suggestion){
+    // Itterates over user following
     for(var following of followingList){
-        if (!(`${following.userId}` != `${suggestion}`)){
+        // Checks if suggestion is in following list
+        if (`${following.userId}` == `${suggestion}`){
             return true;
         }
     }
 }
 
 // Handles GET request made to the /M00933241/users/search path
-app.get("/M00933241/users/search", (req, res) => {
+app.get("/M00933241/users/search", async (req, res) => {
 
     // Gets idTag
-    var idTag = req.body.idTag
-    var userData = new Promise( async (resolve, reject) => {
-        var data = await DatabaseHandler.getUser(idTag);
-
-        if (data != false){ 
-            resolve(data);
-        }else{
-            reject("No such user");
-        }
-
-    })
+    var idTag = req.query.idTag;
     
-    userData.then((message) => {
-        res.send(message);
-    }).catch((message) => {
-        res.send(message);
-    })
+    // Gets users from DatabaseHandler
     
-   
+    var data = await DatabaseHandler.getUsers(idTag);
+    res.send(data);
+       
+    
+
 });
 
 // Handles GET request made to the /M00933241/content/search path
-app.get("/M00933241/content/search", (req, res) => {
-    res.send("search content");
+app.get("/M00933241/content/search", async(req, res) => {
+    // Gets idTag
+    var idTag = req.query.idTag;
+    
+    // Get's post
+    var data = await DatabaseHandler.getPosts(idTag);
+    res.send(data);
+    
 });
 
 
