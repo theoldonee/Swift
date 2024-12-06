@@ -251,8 +251,12 @@ class AppManager{
         // Checks the page which the post should be injected into
         if(page == "feedPage"){
             $(".feed").prepend(post);
-        }else{
+        }else if(page == "accountPage"){
             $(".user_post").prepend(post);
+        }else if(page == "tag"){
+            $(".results_tags").prepend(post);
+        }else if(page == "caption"){
+            $(".results_text").prepend(post);
         }
         
         // initializes post buttons
@@ -430,8 +434,25 @@ class AppManager{
     
         });
 
-        $("#search_icon").click( () => {
+        $("#search_icon").click( async () => {
             this.searchDivDisplay("down");
+
+            var search = $("#search").val();
+
+            await SearchAndSuggestionsManager.getUserSearch(search);
+            await SearchAndSuggestionsManager.getContentSearch(search);
+            SearchAndSuggestionsManager.resultPage = "account";
+
+
+            $("#account_result").addClass("selected_nav_option");
+
+            $(".results").html(`
+                <div class="results_account">
+                </div>
+            `);
+            
+            SearchAndSuggestionsManager.displayedAccounts = [];
+            SearchAndSuggestionsManager.showResults(); 
         });
     
         $(".suggested_friend_username").click( () => {
@@ -439,6 +460,9 @@ class AppManager{
         });
     
         $("#close_serach").click( () => {
+            $("#account_result").removeClass("selected_nav_option");
+            $("#tags_result").removeClass("selected_nav_option");
+            $("#text_result").removeClass("selected_nav_option");
             this.searchDivDisplay("up");
         });
 
@@ -454,8 +478,9 @@ class AppManager{
 
     }
 
+    // Cancels get post interval
     static ShouldCancelPostGet(){
-        
+        // Checks if current page is not feed 
         if (AppManager.currentPage != "feed"){
             PostManager.displayedPost = [];
             clearInterval(AppManager.getPostInterval);
@@ -466,27 +491,33 @@ class AppManager{
     }
 
     static searchDivDisplay(state){
-        if(state == "down"){
-            $(".search_result_div").slideDown({
-                duration: 'fast',
-                step: function() {
-                    if ($(this).css('display') == 'block') {
-                        $(this).css('display', 'flex');
-                    }
-                },
-                complete: function() {
-    
-                    if ($(this).css('display') == 'block') {
-                        $(this).css('display', 'flex');
-                    }
-                }
-            });
+        // Checks if search div is down or up
+        if(!state || state == "down"){
+            // Slides search dive down
+            this.slideDownResult()
         }else{
-    
+            // Slidees search div up
             $(".search_result_div").slideUp({
                 duration: 'fast'
             });
         }
+    }
+
+    static slideDownResult(){
+        $(".search_result_div").slideDown({
+            duration: 'fast',
+            step: function() {
+                if ($(this).css('display') == 'block') {
+                    $(this).css('display', 'flex');
+                }
+            },
+            complete: function() {
+
+                if ($(this).css('display') == 'block') {
+                    $(this).css('display', 'flex');
+                }
+            }
+        });
     }
     
     
@@ -688,7 +719,16 @@ feedPage = `
 
                     <div class="result_display">
 
-                        
+                        <nav class="search_result">
+                            <ul>
+                                <li class="search_result_options" id="account_result">Accounts</li>
+                                <li class="search_result_options" id="tags_result">Tags</li>
+                                <li class="search_result_options" id="text_result">Caption</li>
+                            </ul>
+                        </nav>
+                        <div class="results">
+
+                        </div>
 
                     </div>
                 </div>
