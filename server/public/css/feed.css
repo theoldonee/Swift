@@ -368,7 +368,7 @@
     justify-content: center;
 }
 
-.suggested_fiend_follow_button{
+.suggested_friend_follow_button{
     width: 80px;
     height: 50px;
     background-color: #6552fc;
@@ -379,12 +379,12 @@
     border-radius: 10px;
 }
 
-.suggested_fiend_follow_button:hover{
+.suggested_friend_follow_button:hover{
     cursor: pointer;
     transform: scale(1.1);
 }
 
-.suggested_fiend_follow_button:active{
+.suggested_friend_follow_button:active{
     cursor: pointer;
     transform: scale(1);
 }
