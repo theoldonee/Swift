@@ -427,4 +427,31 @@ export class DatabaseHandler{
             postByTag: postByTag
         }
     }
+
+    static async updatePostLike(idTag, likeStatus, userId){
+            // Create query
+            var query = {_id: new ObjectId(idTag)};
+            var post = await this.getPost(idTag);
+            var likes = post.likes;
+
+            var update, likesCount;
+            
+            if( likeStatus == "like"){
+                likesCount = post.likesCount + 1;
+                likes.push(userId);
+                update = {$set: {likesCount: likesCount, likes: likes}};
+            }else{
+
+                likesCount = post.likesCount - 1;
+                var userIndex = likes.indexOf(userId);
+                likes.splice(userIndex, 1);
+                update = {$set: {likesCount: likesCount, likes: likes}};
+            }
+            
+
+            // Get's post
+            var postResult = await postCollection.updateOne(query, update);
+            return postResult;
+    
+    }
 }
