@@ -1,3 +1,5 @@
+import { AppManager } from "./appManager.js";
+
 export{
     PostManager
 };
@@ -8,6 +10,7 @@ class PostManager{
     static postFollowing;
     static userId;
     static displayedPost = [];
+    static postLikesInterval = {};
 
     static constructPost(postJSON, following, userId){
 
@@ -109,6 +112,98 @@ class PostManager{
         `
 
         return postContentDiv;
+    }
+
+    // Likes post
+    static async likePost(postId, likeStatus){
+        var data = {
+            likedBy: this.userId,
+            likeStatus: likeStatus
+        }
+        var requestData = JSON.stringify(data);
+
+        try{
+            var response = await fetch(`/M00933241/contents/${postId}/like`,{
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: requestData
+ 
+            });
+
+            var result = await response.json();
+            var postResult = result.postResult;
+
+            if (postResult.acknowledged){
+
+                if(likeStatus == "like"){
+                    $(`#${postId}_like_icon i`).removeClass("fa-regular");
+                    $(`#${postId}_like_icon i`).addClass("fa-solid");
+                    $(`#${postId}_like_icon`).addClass("liked");
+                }else{
+                    $(`#${postId}_like_icon`).removeClass("liked");
+                    $(`#${postId}_like_icon i`).addClass("fa-regular");
+                    $(`#${postId}_like_icon i`).removeClass("fa-solid");
+                }
+            }
+
+        }catch(err){
+            console.log("Could not like post \nError: " + err)
+        }
+    }
+
+    static async getLikes(postId){
+
+        try{
+            var response = await fetch(`/M00933241/contents/${postId}/like`,{
+                method: "GET",
+                headers: {
+                    "content-type": "application/json"
+                }
+ 
+            });
+
+            var result = await response.json();
+            var likesCount = result.likesCount;
+
+            $(`#${postId}_like_count`).html(likesCount);
+
+        }catch(err){
+            console.log("Could not like post \nError: " + err)
+        }
+    }
+
+    static async startPostInterval(postId){
+
+        // Checks if a post interval for a specific post  exist
+        if(!(this.postLikesInterval[postId])){
+            this.postLikesInterval[postId] = {};
+        }
+
+       
+
+        var likeIntervalId = this.postLikesInterval[postId].getPostInterval;
+        var cancelIntervalId = this.postLikesInterval[postId].cancelInterval;
+
+        if( likeIntervalId && cancelIntervalId){
+            clearInterval(likeIntervalId);
+            clearInterval(cancelIntervalId);
+        }
+
+        this.getPostInterval = setInterval(function () { PostManager.getLikes(postId) },  4000);
+        this.cancelInterval = setInterval(function () { PostManager.ShouldCancelLikesGet(postId) }, 1000);
+    }
+
+    static async ShouldCancelLikesGet(postId){
+        if (AppManager.currentPage != "feed"){
+
+            var likeIntervalId = this.postLikesInterval[postId].getPostInterval;
+            var cancelIntervalId = this.postLikesInterval[postId].cancelInterval;
+
+            clearInterval(likeIntervalId);
+            clearInterval(cancelIntervalId);
+        }
     }
     
 }
