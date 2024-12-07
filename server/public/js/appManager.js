@@ -6,7 +6,7 @@ export {
     AppManager
 };
 
-var id, user, app, feedPage, chatPage, accountPage, allResults;
+var id, user, app, feedPage, chatPage, accountPage, allResults, createPost;
 
 class AppManager{
     static currentPage;
@@ -24,6 +24,7 @@ class AppManager{
     static panelInitialize() {
 
         $("#feed_option").click( () => {
+            PostManager.displayedPost = [];
             $("#feed_option").addClass("selected_option");
             $("#chat_option").removeClass("selected_option");
             $("#account_option").removeClass("selected_option");
@@ -186,7 +187,8 @@ class AppManager{
                 var result = await response.json();
                 var postJSON = result.post;
                 var post = PostManager.constructPost(postJSON, false, id);
-                AppManager.injectPost(post, postJSON._id, "accountPage", postJSON.authorId);
+                
+                AppManager.injectPost(post, postJSON._id, "accountPage", postJSON.authorId, postJSON.likes);
     
             }catch(err){
                 console.log(`Issue getting post ${postID} of user \nError: ` + err);
@@ -220,7 +222,7 @@ class AppManager{
                         if(index == -1){
                             PostManager.displayedPost.push(postJSON._id);
                             var post = PostManager.constructPost(postJSON, true, id);
-                            AppManager.injectPost(post, postJSON._id, "feedPage", postJSON.authorId);
+                            AppManager.injectPost(post, postJSON._id, "feedPage", postJSON.authorId, postJSON.likes);
                         }
                         
                     }
@@ -246,7 +248,7 @@ class AppManager{
     }
     
     // Injects post into display div
-    static injectPost(post, postID, page, authorId){
+    static injectPost(post, postId, page, authorId, likeList){
         
         // Checks the page which the post should be injected into
         if(page == "feedPage"){
@@ -258,29 +260,39 @@ class AppManager{
         }else if(page == "caption"){
             $(".results_text").prepend(post);
         }
+
+        for (var user of likeList){
+            if( user == id){
+                $(`#${postId}_like_icon i`).removeClass("fa-regular");
+                $(`#${postId}_like_icon i`).addClass("fa-solid");
+                $(`#${postId}_like_icon`).addClass("liked");
+            }
+        }
+
         
         // initializes post buttons
-        $(`#${postID}_like_icon i`).click( () => {
-            if ($(`#${postID}_like_icon`).hasClass("liked")){
-                $(`#${postID}_like_icon`).removeClass("liked");
-                $(`#${postID}_like_icon i`).addClass("fa-regular");
-                $(`#${postID}_like_icon i`).removeClass("fa-solid");
+        $(`#${postId}_like_icon i`).click( () => {
+            // Checks if a post is already liked or not
+            if ($(`#${postId}_like_icon`).hasClass("liked")){
+                PostManager.likePost(postId, "unlike");
             }else{
-                $(`#${postID}_like_icon i`).removeClass("fa-regular");
-                $(`#${postID}_like_icon i`).addClass("fa-solid");
-                $(`#${postID}_like_icon`).addClass("liked");
+                PostManager.likePost(postId, "like");
             }
         });
 
         // Checks if a follow button is clicked
-        $(`#${postID}_${authorId}_follow`).click( () => {
-            if($(`#${postID}_${authorId}_follow`).hasClass("following_button")){
+        $(`#${postId}_${authorId}_follow`).click( () => {
+            if($(`#${postId}_${authorId}_follow`).hasClass("following_button")){
                 this.unfollow(authorId);
             }else{
                 this.follow(authorId);
             }
         });
+
+        PostManager.startPostInterval(postId);
+
     }
+
 
     // Sends follow request
     static async follow(authorId){
@@ -367,23 +379,90 @@ class AppManager{
         SearchAndSuggestionsManager.start();
 
 
-        $(".nav_bottom_icons i").click( () => {
-            $(".create_post_div").slideToggle({
-                duration: 'fast',
-                step: function() {
-                    if ($(this).css('display') == 'block') {
-                        $(this).css('display', 'flex');
-                    }
-                },
-                complete: function() {
+        $(".nav_bottom_icons i").click( async() => {
+            console.log("here")
+            if($(".nav_bottom_icons").has('.create_post_div').length){
 
-                    if ($(this).css('display') == 'block') {
-                        $(this).css('display', 'flex');
+                $(".create_post_div").slideUp();
+                setTimeout( 
+                    function () {
+                        $(".create_post_div").remove();
+                    },
+                    1000
+                );
+
+                // $(".create_post_div").remove();
+
+            }else{
+                $(".nav_bottom_icons").append(createPost);
+
+                $(".create_post_div").slideDown({
+                    duration: 'fast',
+                    step: function() {
+                        if ($(this).css('display') == 'block') {
+                            $(this).css('display', 'flex');
+                        }
+                    },
+                    complete: function() {
+    
+                        if ($(this).css('display') == 'block') {
+                            $(this).css('display', 'flex');
+                        }
                     }
-                }
-            });
+                });
+
+                this.initalizeCreatePost();
+            }
             
         });
+
+
+
+        $("#search_icon").click( async () => {
+            this.searchDivDisplay("down");
+
+            var search = $("#search").val();
+
+            await SearchAndSuggestionsManager.getUserSearch(search);
+            await SearchAndSuggestionsManager.getContentSearch(search);
+            SearchAndSuggestionsManager.resultPage = "account";
+
+
+            $("#account_result").addClass("selected_nav_option");
+
+            $(".results").html(`
+                <div class="results_account">
+                </div>
+            `);
+            
+            SearchAndSuggestionsManager.displayedAccounts = [];
+            SearchAndSuggestionsManager.showResults(); 
+        });
+    
+        $(".suggested_friend_username").click( () => {
+            this.searchDivDisplay("down");
+        });
+    
+        $("#close_serach").click( () => {
+            $("#account_result").removeClass("selected_nav_option");
+            $("#tags_result").removeClass("selected_nav_option");
+            $("#text_result").removeClass("selected_nav_option");
+            this.searchDivDisplay("up");
+        });
+
+        await this.getAllPost();
+
+        if(this.getPostInterval && this.cancelInterval){
+            clearInterval(this.getPostInterval);
+            clearInterval(this.cancelInterval);
+        }
+
+        this.getPostInterval = setInterval(this.getAllPost, 3000);
+        this.cancelInterval = setInterval(this.ShouldCancelPostGet, 1000);
+
+    }
+
+    static initalizeCreatePost(){
 
         var post, img;
         post = {
@@ -433,49 +512,6 @@ class AppManager{
             };
     
         });
-
-        $("#search_icon").click( async () => {
-            this.searchDivDisplay("down");
-
-            var search = $("#search").val();
-
-            await SearchAndSuggestionsManager.getUserSearch(search);
-            await SearchAndSuggestionsManager.getContentSearch(search);
-            SearchAndSuggestionsManager.resultPage = "account";
-
-
-            $("#account_result").addClass("selected_nav_option");
-
-            $(".results").html(`
-                <div class="results_account">
-                </div>
-            `);
-            
-            SearchAndSuggestionsManager.displayedAccounts = [];
-            SearchAndSuggestionsManager.showResults(); 
-        });
-    
-        $(".suggested_friend_username").click( () => {
-            this.searchDivDisplay("down");
-        });
-    
-        $("#close_serach").click( () => {
-            $("#account_result").removeClass("selected_nav_option");
-            $("#tags_result").removeClass("selected_nav_option");
-            $("#text_result").removeClass("selected_nav_option");
-            this.searchDivDisplay("up");
-        });
-
-        await this.getAllPost();
-
-        if(this.getPostInterval && this.cancelInterval){
-            clearInterval(this.getPostInterval);
-            clearInterval(this.cancelInterval);
-        }
-
-        this.getPostInterval = setInterval(this.getAllPost, 3000);
-        this.cancelInterval = setInterval(this.ShouldCancelPostGet, 1000);
-
     }
 
     // Cancels get post interval
@@ -740,26 +776,7 @@ feedPage = `
         <div class="nav_bottom_icons">
             <i class="fa-regular fa-square-plus"></i>
 
-            <div class="create_post_div">
-
-                <div class="create_post_img_div">
-                    <img src="public/uploads/default_profile/default_profile.jpg" alt="default_profile" id="create_post_img">
-                    <div class="file_upload_div">
-                        <label for="create_post_upload" class="create_upload_label">+</label>
-                        <input type="file", id="create_post_upload">   
-                    </div>
-                </div>
-                <div class="create_post_input_div">
-
-                    <textarea name="caption_text" id="create_post_caption" placeholder="Caption"></textarea>
-                    <textarea name="caption_tag" id="create_post_Tag" placeholder="Tag (#tag #tag)"></textarea>
-                    
-                </div>
-                <div>
-                    <button id="create_post_button">Post</button>
-                </div>
-
-            </div>
+            
         </div>
         
     </div>
@@ -814,6 +831,28 @@ allResults = `
         </ul>
     </nav>
     <div class="results">
+
+    </div>
+`
+createPost = `
+    <div class="create_post_div">
+
+        <div class="create_post_img_div">
+            <img src="public/uploads/default_profile/default_profile.jpg" alt="default_profile" id="create_post_img">
+            <div class="file_upload_div">
+                <label for="create_post_upload" class="create_upload_label">+</label>
+                <input type="file", id="create_post_upload">   
+            </div>
+        </div>
+        <div class="create_post_input_div">
+
+            <textarea name="caption_text" id="create_post_caption" placeholder="Caption"></textarea>
+            <textarea name="caption_tag" id="create_post_Tag" placeholder="Tag (#tag #tag)"></textarea>
+            
+        </div>
+        <div>
+            <button id="create_post_button">Post</button>
+        </div>
 
     </div>
 `
