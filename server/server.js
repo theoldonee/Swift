@@ -375,6 +375,84 @@ app.get("/M00933241/contents/:id", async (req, res) => {
 });
 
 
+
+app.get("/M00933241/contents/:id/like", async (req, res) => {
+    var idTag, post, response;
+
+    // Get's id
+    idTag = req.params['id'];
+
+    // Gets post
+    post = await DatabaseHandler.getPost(idTag);
+    
+    response = {
+        likesCount: post.likesCount
+    };
+
+    res.send(response);
+
+});
+
+
+
+app.get("/M00933241/contents/:id/comment", async (req, res) => {
+    var idTag, post, response;
+
+    // Get's id
+    idTag = req.params['id'];
+
+    // Gets post
+    post = await DatabaseHandler.getPost(idTag);
+    
+    response = {
+        commentCount: post.commentCount
+    };
+
+    res.send(response);
+
+});
+
+
+
+app.post("/M00933241/contents/:id/like", async (req, res) => {
+    var idTag, postResult, response, likeStatus, userId;
+
+    // Get's id
+    idTag = req.params['id'];
+    userId = req.body.likedBy;
+    likeStatus = req.body.likeStatus;
+
+    // Gets post
+    postResult = await DatabaseHandler.updatePostLike(idTag, likeStatus, userId);
+    
+    response = {
+        postResult: postResult
+    };
+
+    res.send(response);
+
+});
+
+
+
+app.post("/M00933241/contents/:id/comment", async (req, res) => {
+    var idTag, post, response;
+
+    // Get's id
+    idTag = req.params['id'];
+
+    // Gets post
+    post = await DatabaseHandler.getPost(idTag);
+    
+    response = {
+        post: post
+    };
+
+    res.send(response);
+
+});
+
+
 // Handles GET request made to the /M00933241/:id/contents path
 app.get("/M00933241/:id/contents", async (req, res) => {
     var idTag = req.params['id'];
