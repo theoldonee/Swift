@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./css/account.css">
     <link rel="stylesheet" href="./css/post.css">
     <link rel="stylesheet" href="./css/searchDiv.css">
+    <link rel="stylesheet" href="./css/tooltip.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <title>Document</title>
@@ -265,32 +266,89 @@
                             <div class="info_header">
                                 <span><b>weather</b></span>
                             </div>
-                            <div class="info">
-
+                            <div class="weather_info">
+                                <div class="weather_panel">
+                                    <div class="weather_content">
+                                        <div class="weather_content_display">
+                                            <span><b id="minTemp">23</b><b>°c</b></span>
+                                        </div>
+                                        <div class="weather_content_name">
+                                            <span>minTemp</span>
+                                        </div>
+                                    </div>
+                                    <div class="weather_content">
+                                        <div class="weather_content_display">
+                                        <img src="//cdn.weatherapi.com/weather/64x64/day/176.png" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="weather_content">
+                                        <div class="weather_content_display">
+                                            <span><b id="maxTemp">27.8</b><b>°c</b></span>
+                                        </div>
+                                        <div class="weather_content_name">
+                                            <span>maxTemp</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="weather_panel">
+                                    <div class="weather_content">
+                                        <div class="weather_content_display">
+                                            <span><b id="avdHum">73</b></span>
+                                        </div>
+                                        <div class="weather_content_name">
+                                            <span>avgHum</span>
+                                        </div>
+                                    </div>
+                                    <div class="weather_content">
+                                        <div class="weather_content_display">
+                                            <span><b id="rainChance">89</b><b>%</b></span>
+                                        </div>
+                                        <div class="weather_content_name">
+                                            <span>Chance of rain</span>
+                                        </div>
+                                    </div>
+                                    <div class="weather_content">
+                                        <div class="weather_content_display">
+                                            <span><b id="maxTemp">2.8</b></span>
+                                        </div>
+                                        <div class="weather_content_name">
+                                            <span>UV</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="activity_suggestion">
+                        <div class="activity_suggestion ">
                             <div class="info_header">
                                 <span><b>Activity suggestion</b></span>
                             </div>
-                            <div class="suggestion">
-                                <span><b>Activity:</b> Mow your neighbor's lawn</span>
-                                <span><b>Type:</b> Charity</span>
-                                <span><b>Participants:</b> 1</span>
-                                <span><b>Duration:</b> Minutes</span>
-                            </div>
+                            <!-- tooltip -->
+                             <div class="tooltip">
+                                <div class="suggestion">
+                                    <span><b>Activity:</b> Mow your neighbor's lawn</span>
+                                    <span><b>Type:</b> Charity</span>
+                                    <span><b>Participants:</b> 1</span>
+                                    <span><b>Duration:</b> Minutes</span>
+                                    <!-- <span class="tooltiptext">Click to reload</span> -->
+                                </div>
+                                <span class="tooltiptext">Click to reload</span>
+                             </div>
+                            
 
                         </div>
 
                         <div class="search_suggestion">
+
                             <div class="info_header">
                                 <span><b>Search</b></span>
                             </div>
+
                             <div class="search_div">
                                 <input type="text" id="search" placeholder="Search...(Tags, users, text)">
                                 <i class="fa-solid fa-magnifying-glass" id="search_icon"></i>
                             </div>
+
                             <div class="friend_suggestion_div">
                                 <div class="friend_suggestion_info">
                                     <span><b>Friend Suggestion</b></span>
@@ -317,7 +375,7 @@
                                             <span><b>_username_</b></span>
                                         </div>
                                         <div class="suggested_friend_follow">
-                                            <button class="suggested_fiend_follow_button">Follow</button>
+                                            <button class="suggested_friend_follow_button">Follow</button>
                                        </div>
                                     </div>
 
@@ -329,7 +387,7 @@
                                             <span><b>_username_</b></span>
                                         </div>
                                         <div class="suggested_friend_follow">
-                                            <button class="suggested_fiend_follow_button">Follow</button>
+                                            <button class="suggested_friend_follow_button">Follow</button>
                                        </div>
                                     </div>
 
@@ -341,7 +399,7 @@
                                             <span><b>_username_</b></span>
                                         </div>
                                         <div class="suggested_friend_follow">
-                                            <button class="suggested_fiend_follow_button">Follow</button>
+                                            <button class="suggested_friend_follow_button">Follow</button>
                                        </div>
                                     </div>
 
@@ -353,7 +411,7 @@
                                             <span><b>_username_</b></span>
                                         </div>
                                         <div class="suggested_friend_follow">
-                                            <button class="suggested_fiend_follow_button">Follow</button>
+                                            <button class="suggested_friend_follow_button">Follow</button>
                                        </div>
                                     </div>
 
@@ -365,7 +423,7 @@
                                             <span><b>_username_</b></span>
                                         </div>
                                         <div class="suggested_friend_follow">
-                                            <button class="suggested_fiend_follow_button">Follow</button>
+                                            <button class="suggested_friend_follow_button">Follow</button>
                                        </div>
                                     </div>
 
@@ -378,17 +436,321 @@
                                 </div>
 
                                 <div class="result_display">
-
-                                    <nav class="search_result">
-                                        <ul>
-                                            <li class="search_result_options">Accounts</li>
-                                            <li class="search_result_options">Tags</li>
-                                            <li class="search_result_options">Text</li>
-                                        </ul>
-                                    </nav>
-                                    <div class="results">
+                                    <div class="search_account_div">
+                                        <div class="search_account_info">
+                                            <div class="search_user_info_div">
+                                                <div class="search_user_profile_img">
+                                                    <img src="./uploads/default_profile/default_profile.jpg" alt="profile_picture" id="search_user_profile_img">
+                                                </div>
+                                                <div class="search_user_info">
+                                                    <div class="search_user_username">
+                                                        <span><b>_username_</b></span>
+                                                    </div>
+                                                    <div class="search_follow_info">
+                                                        <span><b id="search_user_post_count">0</b> Post</span>
+                                                        <span><b id="search_user_followers_count">0</b> Followers</span>
+                                                        <span><b id="search_user_following_count">0</b> Following</span>
+                                                    </div>
+                                                    <div id="search_user_name">
+                                                        <span><b>Gabby</b> <b>Babby</b></span>
+                                                    </div>
+                    
+                                                    <div id="search_user_buttons">
+                                                        <button id="search_follow_button">Follow</button>
+                                                    </div>
+                    
+                                                </div>
+                                            </div>
+                    
+                                            <div class="search_user_post">
+                                                <div class="post">
+                                                    <!--                           -->
+                                                    <div class="post_profile">
+                                                        <div class="post_profile_img">
+                                                            <img src="public/uploads/default_profile/default_profile.jpg" alt="Profile" class="user_post_profile_img">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!--                         -->
+                                                    <div class="post_content_div">
+                                                        <div class="post_aurthor">
+                                                            <div>
+                                                                <span><b>_username_</b></span>
+                                                            </div>
+                                                            <span><b>.</b></span>
+                                                            <div>
+                                                                <span id="" class="follow_button"><b>follow</b></span>
+                                                            </div>
+                                                        </div>
+                    
+                                                        <div class="post_content">
+                                                            <!--                 -->
+                                                            <div class="post_text">
+                                                                <span>
+                                                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                                                                    Eius, quisquam distinctio aliquid omnis corporis delectus perspiciatis molestias ipsa illo quis cum hic? 
+                                                                    Natus doloribus illo tenetur at enim aliquam sint?
+                                                                </span>
+                                                            </div>
+                                                            <!--                 -->
+                                                            <div class="post_img_div">
+                                                                <img src="./uploads/673da053683fbd69c3b6670e/default_profile/profile_img.jpeg" alt="Profile">
+                                                            </div>
+                                                        </div>
+                    
+                                                        <!--                   -->
+                                                        <div class="post_bar">
+                                                            <div class="post_bar_icon like_icon">
+                                                                <span>1</span>
+                                                                <i class="fa-regular fa-heart"></i>
+                                                            </div>
+                    
+                                                            <div class="post_bar_icon">
+                                                                <span>1</span>
+                                                                <i class="fa-regular fa-comment"></i> 
+                                                            </div>
+                                                        </div>        
+                                                    </div>
+                        
+                                                </div>
+                    
+                                                <div class="post">
+                                                    <div class="post_profile">
+                                                        <div class="post_profile_img">
+                                                            <img src="./uploads/default_profile/default_profile.jpg" alt="Profile" class="user_post_profile_img">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="post_content_div">
+                                                        <div class="user_post_aurthor">
+                                                            <span><b>_username_</b></span>
+                                                        </div>
+                                                        
+                                                        <div class="post_content">
+                                                            <div class="post_text">
+                                                                <span>
+                                                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                                                                    Eius, quisquam distinctio aliquid omnis corporis delectus perspiciatis molestias ipsa illo quis cum hic? 
+                                                                    Natus doloribus illo tenetur at enim aliquam sint?
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                    
+                                                        <div class="post_bar">
+                                                            <div class="post_bar_icon like_icon">
+                                                                <span>1</span>
+                                                                <i class="fa-regular fa-heart"></i>
+                                                            </div>
+                    
+                                                            <div class="post_bar_icon">
+                                                                <span>1</span>
+                                                                <i class="fa-regular fa-comment"></i> 
+                                                            </div>
+                        
+                                                        </div>        
+                                                    </div>
+                        
+                                                </div>
+                        
+                                            </div>
+                    
+                                        </div>
 
                                     </div>
+                                    <!-- <nav class="search_result">
+                                        <ul>
+                                            <li class="search_result_options" id="account_result">Accounts</li>
+                                            <li class="search_result_options" id="tags_result">Tags</li>
+                                            <li class="search_result_options" id="text_result">Caption</li>
+                                        </ul>
+                                    </nav> -->
+                                    <!-- <div class="results"> -->
+
+                                        <!-- <div class="results_account">
+                                            <div class="search_follow_suggestion">
+                                                <div class="search_follow_img_div">
+                                                    <img src="./uploads/default_profile/default_profile.jpg" alt="">
+                                                </div>
+                                                <div class="search_follow_suggestion_info">
+                                                    <div class="search_follow_username">
+                                                        <span><b>_username_</b></span>
+                                                    </div>
+                                                    <div class="search_followstatus_post_info">
+                                                        <div>
+                                                            <div class="search_post_count">
+                                                                <span >900</span>
+                                                            </div>
+                                                            <span><b>Post</b></span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="search_followstatus_count">
+                                                                <span >0</span>
+                                                            </div>
+            
+                                                            <span><b>Following</b></span>
+                                                        </div>
+                                                        <div>
+                                                            <div class="search_followstatus_count">
+                                                                <span >0</span>
+                                                            </div>
+                                                            <span><b>Followers</b></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div> -->
+
+                                        <!-- <div class="results_tags">
+                                            <div class="post">
+                                                <div class="post_profile">
+                                                    <div class="post_profile_img">
+                                                        <img src="./uploads/default_profile/default_profile.jpg" alt="Profile">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="post_content_div">
+                                                    <div class="post_aurthor">
+                                                        <span><b>_username_</b></span>
+                                                    </div>
+                                                    <div class="post_content">
+                                                        <div class="post_text">
+                                                            <span>
+                                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                                                                Eius, quisquam distinctio aliquid omnis corporis delectus perspiciatis molestias ipsa illo quis cum hic? 
+                                                                Natus doloribus illo tenetur at enim aliquam sint?
+                                                            </span>
+                                                        </div>
+                                                        <div class="post_img_div">
+                                                            <img src="./uploads/673da053683fbd69c3b6670e/default_profile/profile_img.jpeg" alt="Profile">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="post_bar">
+                                                        <div class="post_bar_icon like_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-heart"></i>
+                                                        </div>
+
+                                                        <div class="post_bar_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-comment"></i> 
+                                                        </div>
+                                                    </div>         
+                                                </div>
+
+                                            </div>
+
+                                            <div class="post">
+                                                <div class="post_profile">
+                                                    <div class="post_profile_img">
+                                                        <img src="./uploads/default_profile/default_profile.jpg" alt="Profile">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="post_content_div">
+                                                    <div class="post_aurthor">
+                                                        <span><b>_username_</b></span>
+                                                    </div>
+                                                    <div class="post_content">
+                                                        <div class="post_text">
+                                                            <span>
+                                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                                                                Eius, quisquam distinctio aliquid omnis corporis delectus perspiciatis molestias ipsa illo quis cum hic? 
+                                                                Natus doloribus illo tenetur at enim aliquam sint?
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="post_bar">
+                                                        <div class="post_bar_icon like_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-heart"></i>
+                                                        </div>
+
+                                                        <div class="post_bar_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-comment"></i> 
+                                                        </div>
+                                                    </div>         
+                                                </div>
+
+                                            </div>
+
+                                            <div class="post">
+                                                <div class="post_profile">
+                                                    <div class="post_profile_img">
+                                                        <img src="./uploads/default_profile/default_profile.jpg" alt="Profile">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="post_content_div">
+                                                    <div class="post_aurthor">
+                                                        <span><b>_username_</b></span>
+                                                    </div>
+                                                    <div class="post_content">
+                                                        <div class="post_text">
+                                                            <span>
+                                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                                                                Eius, quisquam distinctio aliquid omnis corporis delectus perspiciatis molestias ipsa illo quis cum hic? 
+                                                                Natus doloribus illo tenetur at enim aliquam sint?
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="post_bar">
+                                                        <div class="post_bar_icon like_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-heart"></i>
+                                                        </div>
+
+                                                        <div class="post_bar_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-comment"></i> 
+                                                        </div>
+                                                    </div>       
+                                                </div>
+
+                                            </div>
+
+                                            <div class="post">
+                                                <div class="post_profile">
+                                                    <div class="post_profile_img">
+                                                        <img src="./uploads/default_profile/default_profile.jpg" alt="Profile">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="post_content_div">
+                                                    <div class="post_aurthor">
+                                                        <span><b>_username_</b></span>
+                                                    </div>
+                                                    <div class="post_content">
+                                                        <div class="post_img_div">
+                                                            <img src="./uploads/673d98cb683fbd69c3b6670d/default_profile/profile_img.jpeg" alt="Profile">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="post_bar">
+                                                        <div class="post_bar_icon like_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-heart"></i>
+                                                        </div>
+                        
+                                                        <div class="post_bar_icon">
+                                                            <span>1</span>
+                                                            <i class="fa-regular fa-comment"></i> 
+                                                        </div>
+                                                    </div>        
+                                                </div>
+
+                                            </div>
+                                        </div> -->
+
+                                        <!-- <div class="results_text">
+                                            
+                                        </div> -->
+
+                                    <!-- </div> -->
                                 </div>
                             </div>
                             
@@ -399,8 +761,10 @@
                 </div>
                 <div class="nav_bar_bottom">
                     <div class="nav_bottom_icons">
-                        <i class="fa-regular fa-square-plus"></i>
-
+                        <i class="fa-regular fa-square-plus tooltip">
+                            <span class="tooltiptext">Create post</span>
+                        </i>
+                        
                         <div class="create_post_div">
 
                             <div class="create_post_img_div">
@@ -450,6 +814,10 @@ HOME
 <i class="fa-solid fa-house"></i>
 
 -->
+
+<!-- <i class="fa-solid fa-cloud-rain"></i> -->
+<!-- <i class="fa-solid fa-sun"></i> -->
+<!-- <i class="fa-solid fa-cloud"></i> -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="./js/app.js" type="module"></script>
 </html>

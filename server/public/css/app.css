@@ -8,7 +8,7 @@
 .panel_div{
     height: 100%;
     width: 16%;
-    background-color: black;
+    background-color: #272635;
 }
 
 .panel_icon{
@@ -120,7 +120,7 @@
 
 .display{
     width: 94%;
-    height: 100%;
+    height: 911px;
     border-left: 1px solid #09bd96;
-    background-color: black;
+    background-color: #272635;
 }
