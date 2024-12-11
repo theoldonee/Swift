@@ -1,7 +1,10 @@
+// Imports
 import { MongoClient, ServerApiVersion, ObjectId} from "mongodb";
 
+// Connection string
 const connectionURI = "mongodb://127.0.0.1:27017?retryWrites=true&w=majority";
 
+// Create connection
 const client = new MongoClient(connectionURI, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -10,12 +13,17 @@ const client = new MongoClient(connectionURI, {
     }
 });
 
+// Database
 const database = client.db("Swift_DB");
+
+// Collections
 const userCollection = database.collection("User");
-const chatsCollection = database.collection("Chats");
+const conversationCollection = database.collection("Conversations");
 const postCollection = database.collection("Post");
 const loginCollection = database.collection("Loggedin");
+const weatherCollection = database.collection("WeatherData");
 
+// Database handler class
 export class DatabaseHandler{
     
     // Returns all users in the user collection
@@ -43,6 +51,7 @@ export class DatabaseHandler{
         // Searches user collection based on query
         var user =  await userCollection.find(query).toArray();
 
+        // Checks if user lenght is 0
         if (user.length == 0){
 
             // Query for a username match
@@ -177,7 +186,7 @@ export class DatabaseHandler{
     static async updateLogin({correctPassword, user, status} = {}){
 
         // Checks if user data already exist in Login collection
-        var log = await this.isLogged(user.email);
+        var log = await this.isLogged(user._id);
 
         // Checks if user is not in logged collection
         if ((!log) && (correctPassword != "delete") ){
@@ -198,10 +207,11 @@ export class DatabaseHandler{
            return result;
             
         }else{
+
             // Checks if password is correct
             if(correctPassword == true){
 
-                // Get's and returns  update result
+                // Gets and returns  update result
                 var result = await this.updateLogStatus(true, user.email);
 
                 // Returns result
@@ -235,10 +245,14 @@ export class DatabaseHandler{
 
     // Checks if a user is logged in
     static async isLogged(idTag){
-
-        // Query for email
-        var query = {userName: idTag};
-
+        var query;
+        try{
+            // Query for an ID match
+            query = { userId: new ObjectId(`${idTag}`)};
+        }catch{
+            // Query for an email match
+            query = {email: idTag};
+        }
         
         // Searches loggedin collection based on query
         var user =  await loginCollection.find(query).toArray();
@@ -310,27 +324,21 @@ export class DatabaseHandler{
         var follower = await this.getUser(followerIdTag);
         var followed = await this.getUser(followedIdTag);
 
-
         // Set queries
         var followedQuery = {_id: new ObjectId(followed._id)};
         var followerQuery = {_id: new ObjectId(follower._id)};
-
-        // Set update parameters
-        var followedUpdate = {$set: {followers: followed.followers}};
-        var followerUpdate = {$set: {following: follower.following}};
-       
 
 
         var followedResult, followerResult, followedDetails, followerDetails, indexOfFollower, indexOfFollowed ;
         
         // Follower details
         followerDetails = { 
-            userId: new ObjectId(follower._id)
+            userId: `${new ObjectId(follower._id)}`
         }
 
         // Followed details
         followedDetails = {
-            userId: new ObjectId(followed._id)
+            userId: `${new ObjectId(followed._id)}`
         }
 
         // Checks if request is a follow request
@@ -348,14 +356,32 @@ export class DatabaseHandler{
         }else{
 
             // Removes follower to followers list
-            indexOfFollower = followed.followers.indexOf(followerDetails);
+            var followedFollowers = followed.followers;
+
+            // Itterates over follower list
+            for(var index = 0; index < followedFollowers.length; index++){
+                if(followedFollowers[index].userId == followerDetails.userId){
+                    indexOfFollower = index;
+                }
+            }
             followed.followers.splice(indexOfFollower, 1);
 
             // Removes followed user to following list
-            indexOfFollowed = follower.following.indexOf(followedDetails);
+            var followerFollowing = follower.following;
+
+            // Itterates over following list
+            for( var index = 0; index < followerFollowing.length; index++){
+                if(followerFollowing[index].userId == followedDetails.userId){
+                    indexOfFollowed = index;
+                }
+            }
             follower.following.splice(indexOfFollowed, 1);
         }
 
+        // Set update parameters
+        var followedUpdate = {$set: {followers: followed.followers}};
+        var followerUpdate = {$set: {following: follower.following}};
+       
         // Updates user collection
         followedResult = await userCollection.updateOne(followedQuery, followedUpdate);
         followerResult = await userCollection.updateOne(followerQuery, followerUpdate);
@@ -366,6 +392,139 @@ export class DatabaseHandler{
             followerResult: followerResult
         };
 
+    }
+
+    // Checks if users are friends
+    static async isFriends(followerIdTag, followedIdTag){
+        // Get follower and followed user
+        var follower = await this.getUser(followerIdTag);
+        var followed = await this.getUser(followedIdTag);
+
+        var followedFollowers = followed.followers;
+
+        var followResult1, followResult2
+
+        // Checks if the followerIdTag is present in list
+        for(var user of followedFollowers){
+            if(user.userId == followerIdTag){
+                followResult1 = true;
+            }
+        }
+        
+        var followerFollowers = follower.followers;
+        // Checks if the followedIdTag is present in list
+        for( var user of followerFollowers){
+            if(user.userId == followedIdTag){
+                followResult2 = true;
+            }
+        }
+
+        if(followResult1 && followResult2){
+           return true;
+        }else{
+            return false;
+        }
+    }
+
+    // Handles friend addition and removal
+    static async friendHandler(followerIdTag, followedIdTag, type){
+        // Get user information
+        var follower = await this.getUser(followerIdTag);
+        var followed = await this.getUser(followedIdTag);
+
+         // Set queries
+         var followedQuery = {_id: new ObjectId(followed._id)};
+         var followerQuery = {_id: new ObjectId(follower._id)};
+
+         var followedUpdate, followerUpdate
+
+        //  Checks type
+        if(type == "add"){
+            followed.friends.push(followerIdTag);
+            follower.friends.push(followedIdTag);
+            
+            var isContact =  await this.isContact(follower.contacts, followerIdTag, followed.contacts, followedIdTag);
+    
+            if (!isContact){
+                followed.contacts.push(followerIdTag);
+                follower.contacts.push(followedIdTag);
+            }
+            
+            
+            // Set update parameters
+            followedUpdate = {$set: {friends: followed.friends, contacts: followed.contacts}};
+            followerUpdate = {$set: {friends: follower.friends, contacts: follower.contacts}};
+
+         }else{
+
+            var indexOfFollowedFriend, indexOfFollowerFriend
+            // Removes follower from friend list
+            var followedFriends = followed.friends;
+
+            // Itterates over friend list
+            for(var index = 0; index < followedFriends.length; index++){
+                if(followedFriends[index].userId == followerIdTag){
+                    indexOfFollowerFriend = index;
+                }
+            }
+            // Removes friend
+            followed.friends.splice(indexOfFollowerFriend, 1);
+
+            // Removes followed user from friend list
+            var followerFriends = follower.friends;
+
+            // Itterates over friend list
+            for( var index = 0; index < followerFriends.length; index++){
+                if(followerFriends[index].userId == followedIdTag){
+                    indexOfFollowedFriend = index;
+                }
+            }
+
+            // Removes friend
+            follower.friends.splice(indexOfFollowedFriend, 1);
+
+            // Set update parameters
+            followedUpdate = {$set: {friends: followed.friends}};
+            followerUpdate = {$set: {friends: follower.friends}};
+         }
+
+
+         // Updates user collection
+         var followedResult = await userCollection.updateOne(followedQuery, followedUpdate);
+         var followerResult = await userCollection.updateOne(followerQuery, followerUpdate);
+
+        // Retruns true if both updates have been acknowleded
+        if(followedResult.acknowledged && followerResult.acknowledged){
+            return true;
+        }
+    }
+
+    // Checks if user is in contacts.
+    static async isContact(followerContact, followerIdTag,  followedContact, followedIdTag){
+
+        var contactResult1, contactResult2
+
+        // Checks if the followerIdTag is present in list
+        for(var user of followedContact){
+            if(user == followerIdTag){
+                contactResult1 = true;
+            }
+        }
+        
+        // Checks if the followedIdTag is present in list
+        for( var user of followerContact){
+            if(user == followedIdTag){
+                contactResult2 = true;
+            }
+        }
+
+        console.log(contactResult1, contactResult2);
+
+        if(contactResult1 && contactResult2){
+           return true;
+        }else{
+            return false;
+        }
     }
 
     // Handles post
@@ -384,7 +543,9 @@ export class DatabaseHandler{
     // Updates post Image path
     static async updatePostImgPath(postId, imgPath){
 
+        // Search by Id
         var query = {_id: new ObjectId(postId)};
+        // Sets update parameters
         var update = {$set: {imgPath: imgPath}};
 
         // Gets result of update
@@ -415,43 +576,139 @@ export class DatabaseHandler{
         return post[0];
     }
 
+    // Searches for post by string
     static async getPosts(idTag){
+        // Searches by caption
         var captionQuery = {caption: {$regex: `${idTag}`}};
+
+        // Search by tag
         var tagQuery = {tags: {$regex: `${idTag}`}};
 
         var postByCaption =  await postCollection.find(captionQuery).toArray();
         var postByTag =  await postCollection.find(tagQuery).toArray();
-        
+
+        // Returns results
         return {
             postByCaption: postByCaption,
             postByTag: postByTag
         }
     }
 
+    // Updates a post's likes
     static async updatePostLike(idTag, likeStatus, userId){
             // Create query
             var query = {_id: new ObjectId(idTag)};
+
+            // Gets post
             var post = await this.getPost(idTag);
+
+            // Gets post likes
             var likes = post.likes;
 
             var update, likesCount;
             
+            // Checks like status
             if( likeStatus == "like"){
+                // Updates like count by 1
                 likesCount = post.likesCount + 1;
+                // Adds user to like array
                 likes.push(userId);
+                // Sets update parameters
                 update = {$set: {likesCount: likesCount, likes: likes}};
             }else{
 
+                // Updates like count by -1
                 likesCount = post.likesCount - 1;
+
+                // Removes user from like array
                 var userIndex = likes.indexOf(userId);
                 likes.splice(userIndex, 1);
+
+                // Sets update parameters
                 update = {$set: {likesCount: likesCount, likes: likes}};
             }
             
 
-            // Get's post
+            // Updates post
             var postResult = await postCollection.updateOne(query, update);
+            // Returns post result
             return postResult;
     
+    }
+
+    // Gets weather data from database
+    static async getWeatherData(){
+        // Gets last inserted weather data
+        var result = await weatherCollection.findOne({}, {sort: { "entryTime": -1 }});
+
+        // Returns weather data
+        return result;
+    }
+
+    // Adds weather data to database
+    static async addWeatherData(data){
+        var result = await weatherCollection.insertOne(data);
+
+        // Returns addition result
+        return result;
+    }
+
+    static async getConversation(party1, party2){
+
+        var query = {"$and": [{parties: {"$in": [party1]}}, {parties: {"$in": [party2]}}]}
+        
+        var result = await conversationCollection.findOne(query);
+
+        return result;
+    }
+
+    static async addConversation(party1, party2){
+        var date = new Date();
+
+        var conversation = {
+            parties: [party1, party2],
+            chats: [],
+            lastUpdated: {
+                year: date.getFullYear(),
+                month: date.getMonth(),
+                day: date.getDate(),
+                hour: date.getHours(),
+                minute: date.getMinutes(),
+                second: date.getSeconds(),
+            }
+        }
+
+        var result = await conversationCollection.insertOne(conversation);
+
+        return result;
+
+    }
+
+    static async updateConversation(party1, party2, chat){
+        
+        var date = new Date(); 
+        var query = {"$and": [{parties: {"$in": [party1]}}, {parties: {"$in": [party2]}}]};
+
+
+        var conversation = await this.getConversation(party1, party2);
+        var chatList = conversation.chats
+        chatList.push(chat);
+        
+        var update = {"$set": {
+            lastUpdated: date, 
+            chats: chatList
+        }}
+        
+        var result = await conversationCollection.updateOne(query, update);
+
+        return result;
+
+    }
+
+    static async getUserConversation(user){
+        var query = {parties: {"$in": [user]}};
+
+        var result = await conversationCollection.find(query).sort({lastUpdated: -1}).toArray();
+        return result;
     }
 }
