@@ -149,8 +149,7 @@ class HomeManager{
                     }
                 }else{
                     alert("Your username cannot have '?', '/', '\\', '=' ");
-                }
-                
+                }  
             }
         });
     }
@@ -234,7 +233,8 @@ class HomeManager{
                 },
             
             });
-        
+            
+            // Converts response to json format
             const result = await response.json();
             return result.result;
         }catch(err){
@@ -254,7 +254,8 @@ class HomeManager{
                 },
             
             });
-        
+            
+            // Converts response to json format
             const result = await response.json();
             return result.result;
         }catch(err){
@@ -275,7 +276,8 @@ class HomeManager{
                 },
                 body: data
             });
-        
+
+            // Converts response to json format
             const result = await response.json();
 
             // Checks if user has been added to database
@@ -293,6 +295,7 @@ class HomeManager{
                     console.log(loginResult);
                     // Checks if user should be logged in
                     if(loginResult.login){
+                        AppManager.currentPage = "feed";
                         AppManager.appLoad(idTag);
                     }else{
                         this.showLoginPage();
@@ -325,7 +328,10 @@ class HomeManager{
             // Checks if user exist
             if (loginValResult){
                 var loginResult = await this.checkLogin(idTag);
+
+                // Checks if logged in
                 if(loginResult.login){
+                    AppManager.currentPage = "feed";
                     AppManager.appLoad(loginResult.id);
                 }else{
                     alert("Wrong password");
@@ -355,7 +361,8 @@ class HomeManager{
                 },
                 body: data
             });
-        
+            
+            // Converts response to json format
             const result = await response.json();
 
             // returns result
@@ -376,7 +383,8 @@ class HomeManager{
                     "Content-Type": "application/json"
                 },
             });
-        
+            
+            // Converts response to json format
             const result = await response.json();
 
             return result;
