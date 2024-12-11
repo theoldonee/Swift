@@ -4,7 +4,6 @@ export{
     PostManager
 };
 
-
 class PostManager{
 
     static postFollowing;
@@ -12,6 +11,7 @@ class PostManager{
     static displayedPost = [];
     static postLikesInterval = {};
 
+    // Constructs post
     static constructPost(postJSON, following, userId){
 
        this.postFollowing = following;
@@ -26,16 +26,15 @@ class PostManager{
                     postJSON.authorUsername, 
                     postJSON._id, 
                     postJSON.likesCount,
-                    postJSON.commentCount,
                     postJSON.authorId
                 )}
             </div>
-        `
-        
+        ` 
         return postConstruct;
     }
     
 
+    // Constructs post profile
     static postProfile(path){
         return`
         <div class="post_profile">
@@ -46,7 +45,9 @@ class PostManager{
         `   
     }
 
+    // Sets following status
     static setFollowing(postId, authorId){
+        // Checks is following is true
         if(this.postFollowing){
             return `<span id="${postId}_${authorId}_follow" class="follow_button following_button"><b>following</b></span>`   
         }else if(authorId != this.userId){
@@ -56,8 +57,8 @@ class PostManager{
         }
     }
     
-    
-    static postContent(caption, path, authorUsername, postId, likes, comments, authorId, following){
+    // Constructs post content
+    static postContent(caption, path, authorUsername, postId, likes, authorId, following){
         
         
         var postContentDiv= `
@@ -99,11 +100,6 @@ class PostManager{
                             <span id="${postId}_like_count">${likes}</span>
                             <i class="fa-regular fa-heart"></i>
                         </div>
-
-                        <div class="post_bar_icon">
-                            <span id="${postId}_comment_count">${comments}</span>
-                            <i class="fa-regular fa-comment"></i> 
-                        </div>
                     </div>
 
                 </div>
@@ -122,6 +118,7 @@ class PostManager{
         }
         var requestData = JSON.stringify(data);
 
+        // Sends POST request to /M00933241/contents/:id/like path
         try{
             var response = await fetch(`/M00933241/contents/${postId}/like`,{
                 method: "POST",
@@ -132,11 +129,14 @@ class PostManager{
  
             });
 
+            // Converts response to json format
             var result = await response.json();
             var postResult = result.postResult;
 
+            // Checks if post was acknowledged
             if (postResult.acknowledged){
 
+                // Checks if likestatus is equal to like
                 if(likeStatus == "like"){
                     $(`#${postId}_like_icon i`).removeClass("fa-regular");
                     $(`#${postId}_like_icon i`).addClass("fa-solid");
@@ -153,8 +153,9 @@ class PostManager{
         }
     }
 
+    // Gets post likes
     static async getLikes(postId){
-
+        // Sends GET request to /M00933241/contents/:id/like path
         try{
             var response = await fetch(`/M00933241/contents/${postId}/like`,{
                 method: "GET",
@@ -164,9 +165,11 @@ class PostManager{
  
             });
 
+            // Converts response to json format
             var result = await response.json();
             var likesCount = result.likesCount;
 
+            // Injects post likes into webpage
             $(`#${postId}_like_count`).html(likesCount);
 
         }catch(err){
@@ -174,6 +177,7 @@ class PostManager{
         }
     }
 
+    // Starts get post likes interval
     static async startPostInterval(postId){
 
         // Checks if a post interval for a specific post  exist
@@ -181,23 +185,23 @@ class PostManager{
             this.postLikesInterval[postId] = {};
         }
 
-       
-
         var likeIntervalId = this.postLikesInterval[postId].getPostInterval;
         var cancelIntervalId = this.postLikesInterval[postId].cancelInterval;
 
+        // Checks if inteval exist
         if( likeIntervalId && cancelIntervalId){
             clearInterval(likeIntervalId);
             clearInterval(cancelIntervalId);
         }
 
-        this.getPostInterval = setInterval(function () { PostManager.getLikes(postId) },  4000);
-        this.cancelInterval = setInterval(function () { PostManager.ShouldCancelLikesGet(postId) }, 1000);
+        this.postLikesInterval[postId].getPostInterval = setInterval(function () { PostManager.getLikes(postId) },  4000);
+        this.postLikesInterval[postId].cancelInterval = setInterval(function () { PostManager.ShouldCancelLikesGet(postId) }, 1000);
     }
 
+    // Cancels get post likes intervals
     static async ShouldCancelLikesGet(postId){
-        if (AppManager.currentPage != "feed"){
-
+        // Checks if the app's current page is chat or home
+        if (AppManager.currentPage == "chat" || AppManager.currentPage == "home"){
             var likeIntervalId = this.postLikesInterval[postId].getPostInterval;
             var cancelIntervalId = this.postLikesInterval[postId].cancelInterval;
 
