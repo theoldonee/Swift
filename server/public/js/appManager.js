@@ -1,6 +1,8 @@
+// Imports
 import {PostManager} from "./postManager.js"
 import { HomeManager } from "./home.js";
 import { SearchAndSuggestionsManager } from "./searchAndSuggestions.js";
+import { ChatManager } from "./chatManager.js";
 
 export {
     AppManager
@@ -23,39 +25,58 @@ class AppManager{
     // Initializes panel
     static panelInitialize() {
 
+        // Detects when the feed option has been clicked
         $("#feed_option").click( () => {
+            // Clears displayed post
             PostManager.displayedPost = [];
+
+            // Removes selected_option from all other options and adds it to the feed option
             $("#feed_option").addClass("selected_option");
             $("#chat_option").removeClass("selected_option");
             $("#account_option").removeClass("selected_option");
+
+            // Sets current page to feed.
             AppManager.currentPage = "feed";
-            console.log(AppManager.currentPage);
             this.feedInitialize()
         });
 
+        // Detects when the chat option has been clicked
         $("#chat_option").click( () => {
+            
+            // Removes selected_option from all other options and adds it to the chat option
             $("#chat_option").addClass("selected_option");
             $("#feed_option").removeClass("selected_option");
             $("#account_option").removeClass("selected_option");
-        });
 
+            AppManager.currentPage = "chat";
+            this.chatPageInitialize();
+        });
+        
+        // Detects when the account option has been clicked
         $("#account_option").click( () => {
+
+            // Removes selected_option from all other options and adds it to the account option
             $("#account_option").addClass("selected_option");
             $("#chat_option").removeClass("selected_option");
             $("#feed_option").removeClass("selected_option");
+
+            // Sets current page to home.
             AppManager.currentPage = "account";
-            console.log(AppManager.currentPage);
-            this.accountPageinitialize(); 
+            this.accountPageInitialize(); 
         });
 
+        // Detects when the logout button has been clicked
         $("#logout_button").click( () => {
+            // Sets current page to home.
             AppManager.currentPage = "home";
             this.logoutUser();
         });
 
     }
 
+    // Logs out user.
     static async logoutUser(){
+        // Sends DELETE request to  /M00933241/login path
         try{
             var response = await fetch( `/M00933241/login?id=${id}`, {
                 method: "DELETE",
@@ -64,7 +85,10 @@ class AppManager{
                 }
             });
 
+            // Gets response in json format
             var result = await response.json();
+
+            // Checks if request was acknowledged
             if(result.acknowledged){
                 HomeManager.showHomePage();
             }
@@ -75,10 +99,11 @@ class AppManager{
     
     // injects app into html
     static async injectApp(){
+        // Injects app string
         $("section").html(app);
 
         // gets user data
-        var result = await this.getUserData();
+        var result = await this.getUserData(id);
     
         user = result.result;
 
@@ -93,15 +118,17 @@ class AppManager{
     }
 
     // Gets user data from server
-    static async  getUserData(){
+    static async  getUserData(userId){
+        // Sends GET request to /M00933241/user path
         try{
-            var response = await fetch( `/M00933241/user?id=${id}`, {
+            var response = await fetch( `/M00933241/user?id=${userId}`, {
                 method: "GET",
                 headers: {
                     "content-type": "application/json"
                 }
             });
-    
+            
+            // Gets response in json format
             var result = await response.json();
             return result;
     
@@ -112,6 +139,7 @@ class AppManager{
 
     // Get user following
     static async  getUserFollowing(type){
+        // Sends GET request to /M00933241/:id/follow path
         try{
             var response = await fetch( `/M00933241/${id}/follow?listType=${type}`, {
                 method: "GET",
@@ -119,9 +147,11 @@ class AppManager{
                     "content-type": "application/json"
                 }
             });
-    
+
+            // Gets response in json format
             var result = await response.json();
 
+            // Checks following type
             if (type == "following"){
                 user.following = result.result;
             }else if (type == "followers"){
@@ -132,14 +162,15 @@ class AppManager{
             console.log("Issue getting following of user \nError: " + err);
         }
     }
-    
 
     // Sets username of user
     static setUserName(userName){
+        // Injects username into panel
         $(".panel_icon_text").html(`
             <span><b>${userName}</b></span>
         `);
-    
+
+        // Injects username into account
         $(".user_username").html(`
             <span><b>${userName}</b></span>
         `);
@@ -149,25 +180,31 @@ class AppManager{
     // Sets user profile image
     static setProfileImage(path){
         
+        // Sets panel profile picture
         $("#user_profile_img").attr("src", path);
 
+        // Sets account profile picture
         $("#user_account_profile_img").attr("src", path);
 
     }
     
     // Sets user's name in account page
     static setName(firstName, lastName){
+        // Injects first and last name into account page
         $("#user_name").html(`
             <span><b>${firstName}</b> <b>${lastName}</b></span>
-            `)
+        `);
     }
     
     // Displays users following info
     static setFollowingInfo(post, following, followers){
+        // Sets post count
         $("#user_post_count").text(`${post}`);
-    
+
+        // Sets follow count
         $("#user_following_count").text(`${following}`);
-    
+         
+        // Sets follower count
         $("#user_followers_count").text(`${followers}`);
     }
     
@@ -176,6 +213,8 @@ class AppManager{
 
         // Loops over user post ids
         for (var postID of posts){
+
+            // Sends GET request to /M00933241/contents/:id path
             try{
                 var response = await fetch( `/M00933241/contents/${postID}`, {
                     method: "GET",
@@ -183,11 +222,14 @@ class AppManager{
                         "content-type": "application/json"
                     }
                 });
-    
+                
+                // Gets response in json format
                 var result = await response.json();
                 var postJSON = result.post;
+
+                // Constructs post
                 var post = PostManager.constructPost(postJSON, false, id);
-                
+                // Injects post into webpage
                 AppManager.injectPost(post, postJSON._id, "accountPage", postJSON.authorId, postJSON.likes);
     
             }catch(err){
@@ -198,15 +240,16 @@ class AppManager{
 
     // Gets all available post from server
     static async getAllPost(){
-       
+            // Sends GET request to /M00933241/contents path
             try{
-                const response = await fetch( `/M00933241/contents?getBy="all"`, {
+                const response = await fetch( `/M00933241/contents`, {
                     method: "GET",
                     headers: {
                         "content-type": "application/json"
                     }
                 });
-    
+                
+                // Gets response in json format
                 var result = await response.json();
                 var postList = result.posts;
 
@@ -217,16 +260,16 @@ class AppManager{
                     if(AppManager.isFollowing(postJSON.authorId) ){
                         var displayedPost = PostManager.displayedPost;
 
+                        // Gets index of post
                         var index = displayedPost.indexOf(postJSON._id);
 
+                        // Checks if post is not displayed
                         if(index == -1){
                             PostManager.displayedPost.push(postJSON._id);
                             var post = PostManager.constructPost(postJSON, true, id);
                             AppManager.injectPost(post, postJSON._id, "feedPage", postJSON.authorId, postJSON.likes);
-                        }
-                        
-                    }
-                    
+                        }                      
+                    }      
                 }
     
             }catch(err){
@@ -259,9 +302,13 @@ class AppManager{
             $(".results_tags").prepend(post);
         }else if(page == "caption"){
             $(".results_text").prepend(post);
+        }else if(page == "search_account"){
+            $(".search_user_post").prepend(post);
         }
 
+        // Itterates over liked list
         for (var user of likeList){
+            // Checks if a current user has liked displayed post
             if( user == id){
                 $(`#${postId}_like_icon i`).removeClass("fa-regular");
                 $(`#${postId}_like_icon i`).addClass("fa-solid");
@@ -282,6 +329,7 @@ class AppManager{
 
         // Checks if a follow button is clicked
         $(`#${postId}_${authorId}_follow`).click( () => {
+            console.log(authorId);
             if($(`#${postId}_${authorId}_follow`).hasClass("following_button")){
                 this.unfollow(authorId);
             }else{
@@ -289,6 +337,7 @@ class AppManager{
             }
         });
 
+        // Starts post interval for post
         PostManager.startPostInterval(postId);
 
     }
@@ -303,7 +352,9 @@ class AppManager{
             followedIdTag: authorId,
         }
 
+        // Convers data to json string
         requestData = JSON.stringify(data);
+
         // Sends POST request to /M00933241/follow
         try{
 
@@ -317,6 +368,7 @@ class AppManager{
 
             var result, followedResult, followerResult
             
+            // Gets response in json format
             result = await response.json();
             followedResult = result.followedResult;
             followerResult = result.followerResult;
@@ -326,8 +378,7 @@ class AppManager{
                 this.updateFollowButton(authorId, "following");
                 this.getUserFollowing("following");
             }
-
-            
+      
         }catch(err){
             console.log(`Issue making follow request \nError: ` + err);
         }
@@ -342,8 +393,10 @@ class AppManager{
             followedIdTag: authorId,
         }
 
+        // Convers data to json string
         requestData = JSON.stringify(data);
-        // Delete request to /M00933241/follow
+
+        // Sends DELETE request to /M00933241/follow
         try{
             var response = await fetch( `/M00933241/follow`, {
                 method: "DELETE",
@@ -355,6 +408,7 @@ class AppManager{
 
             var result, followedResult, followerResult
             
+            // Converts response to json format
             result = await response.json();
             followedResult = result.followedResult;
             followerResult = result.followerResult;
@@ -373,17 +427,23 @@ class AppManager{
     
     // Initializes feedPage
     static async feedInitialize(){
-        $(".display").html(feedPage);
 
+        // Injects feed page
+        $(".display").html(feedPage);
+        
+        // Sets search and suggestion userId
         SearchAndSuggestionsManager.userId = id;
+
+        // Starts search and suggestion
         SearchAndSuggestionsManager.start();
 
-
+        // Dettects create post icon click
         $(".nav_bottom_icons i").click( async() => {
-            console.log("here")
             if($(".nav_bottom_icons").has('.create_post_div').length){
-
+                // Slides up the create post div
                 $(".create_post_div").slideUp();
+
+                // Sets delay for create div removal
                 setTimeout( 
                     function () {
                         $(".create_post_div").remove();
@@ -391,11 +451,11 @@ class AppManager{
                     1000
                 );
 
-                // $(".create_post_div").remove();
-
             }else{
+                // Adds create div to nav_bottom_icons
                 $(".nav_bottom_icons").append(createPost);
 
+                // Slides down create post div
                 $(".create_post_div").slideDown({
                     duration: 'fast',
                     step: function() {
@@ -416,52 +476,100 @@ class AppManager{
             
         });
 
-
-
+        // Detects search icon click
         $("#search_icon").click( async () => {
+            // Slides down search div
             this.searchDivDisplay("down");
-
+            
+            $('.result_display').html(allResults);
+            SearchAndSuggestionsManager.initializeNav();
+            // Gets value of search
             var search = $("#search").val();
 
+            // Searches based on search value
             await SearchAndSuggestionsManager.getUserSearch(search);
             await SearchAndSuggestionsManager.getContentSearch(search);
+
+            // Sets result page
             SearchAndSuggestionsManager.resultPage = "account";
 
-
+            // Adds class selected_nav_option to account_result
             $("#account_result").addClass("selected_nav_option");
 
+            // Injects account result div 
             $(".results").html(`
                 <div class="results_account">
                 </div>
             `);
             
+            // Clears displayed accounts
             SearchAndSuggestionsManager.displayedAccounts = [];
+            // Displays account
             SearchAndSuggestionsManager.showResults(); 
         });
-    
-        $(".suggested_friend_username").click( () => {
-            this.searchDivDisplay("down");
-        });
-    
+        
+        // Detects close button click
         $("#close_serach").click( () => {
+
+            // Removes selected_nav_option from all tabs 
             $("#account_result").removeClass("selected_nav_option");
             $("#tags_result").removeClass("selected_nav_option");
             $("#text_result").removeClass("selected_nav_option");
+
+            // Slides search div up
             this.searchDivDisplay("up");
         });
 
+        // Gets all post
         await this.getAllPost();
 
+        // Checs if post interval exist
         if(this.getPostInterval && this.cancelInterval){
             clearInterval(this.getPostInterval);
             clearInterval(this.cancelInterval);
         }
 
+        // Creates get post interval and cancel interval
         this.getPostInterval = setInterval(this.getAllPost, 3000);
         this.cancelInterval = setInterval(this.ShouldCancelPostGet, 1000);
 
+        // Detects activity suggestion click
+        $(".activity_suggestion").click( () => {
+            this.getSuggestion();
+        });
+
     }
 
+    // Gets activity suggestion
+    static async getSuggestion(){
+        // Sends GET request to /M00933241/activity path
+        try{
+            const response = await fetch("/M00933241/activity",{
+                method: "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                }
+            });
+
+            // Convets response to json format
+            var result = await response.json();
+             console.log(result);
+            
+            // Injects activity into suggestion div
+            $(".suggestion").html(`
+                <span><b>Activity: </b>${result.activity}</span>
+                <span><b>Type: </b>${result.type}</span>
+                <span><b>Participants: </b>${result.participants}</span>
+                <span><b>Duration: </b> ${result.duration}</span>
+            `);
+            
+
+        }catch(err){
+            console.log("Issue getting activity \nError: " + err);
+        }
+    }
+
+    // Initializes create post buttons
     static initalizeCreatePost(){
 
         var post, img;
@@ -518,14 +626,14 @@ class AppManager{
     static ShouldCancelPostGet(){
         // Checks if current page is not feed 
         if (AppManager.currentPage != "feed"){
+            // Clears displayed post
             PostManager.displayedPost = [];
             clearInterval(AppManager.getPostInterval);
             clearInterval(AppManager.cancelInterval);
-        }
-            
-        
+        }   
     }
 
+    // Displays or removes search display
     static searchDivDisplay(state){
         // Checks if search div is down or up
         if(!state || state == "down"){
@@ -539,6 +647,7 @@ class AppManager{
         }
     }
 
+    // Slides down search result
     static slideDownResult(){
         $(".search_result_div").slideDown({
             duration: 'fast',
@@ -555,8 +664,7 @@ class AppManager{
             }
         });
     }
-    
-    
+      
     //  Send user's post to server
     static async sendUserPost(postData, imageData){
         var data, requestData;
@@ -565,9 +673,11 @@ class AppManager{
             postData: postData,
             imageData: imageData
         }
-    
+        
+        // Converts data to json string
         requestData = JSON.stringify(data);
-    
+        
+        // Sends GET request to /M00933241/activity path
         try{
             const response = await fetch(`/M00933241/contents`, {
                 method: "POST",
@@ -576,7 +686,8 @@ class AppManager{
                 },
                 body: requestData
             });
-        
+            
+            // Converts response to json format
             const result = await response.json();
         }catch(err){
             console.log("Issue registering user " + err);
@@ -601,14 +712,12 @@ class AppManager{
                     $(`#${buttonId}`).removeClass("following_button");
                     $(`#${buttonId} b`).text("follow");
                 }
-            }
-                
-            
+            }  
         }
     }
 
     // Initializes accountPage
-    static async accountPageinitialize(){
+    static async accountPageInitialize(){
         // Injects account page into display div
         $(".display").html(accountPage);
         
@@ -618,36 +727,49 @@ class AppManager{
         this.setName(user.firstName, user.lastName);
         this.setProfileImage(user.profile_img);
 
+        // Gets user follwoing and followers
         await this.getUserFollowing("following");
         await this.getUserFollowing("followers");
 
+        // Sets following
         this.setFollowingInfo(
             user.post.length, 
             user.following.length, 
             user.followers.length
         );
 
+        // Sends GET request to /M00933241/:id/contents path
         try{
-            var response = await fetch( `/M00933241/${user._id}/contents?`, {
+            const response = await fetch( `/M00933241/${user._id}/contents`, {
                 method: "GET",
                 headers: {
                     "content-type": "application/json"
                 }
             });
 
+            // Converts response to json format
             var result = await response.json();
             var postList = result.post;
-
             this.getUserPost(postList);
         }catch(err){
+            console.log("Issue getting user's post list. \nError: " + err);
 
         }
         
     
     }
 
+    static async chatPageInitialize(){
+        // Injects chat page into display div
+        $(".display").html(chatPage);
+
+        ChatManager.userId = id;
+        ChatManager.chatInitialize();
+    }
+
 }
 
+// App html string 
 app = ` 
     <div class="app">
         <div class="panel_div">
@@ -701,7 +823,7 @@ app = `
 
     </div>
 `
-
+// Feed page html string 
 feedPage = `
     <div class="feed_div">
         <div class="feed">
@@ -713,8 +835,56 @@ feedPage = `
                 <div class="info_header">
                     <span><b>weather</b></span>
                 </div>
-                <div class="info">
-
+                <div class="weather_info">
+                    <div class="weather_panel">
+                        <div class="weather_content">
+                            <div class="weather_content_display">
+                                <span><b id="minTemp">23</b><b>°c</b></span>
+                            </div>
+                            <div class="weather_content_name">
+                                <span>minTemp</span>
+                            </div>
+                        </div>
+                        <div class="weather_content">
+                            <div class="weather_content_display">
+                            <img src="//cdn.weatherapi.com/weather/64x64/day/176.png" alt="">
+                            </div>
+                        </div>
+                        <div class="weather_content">
+                            <div class="weather_content_display">
+                                <span><b id="maxTemp">27.8</b><b>°c</b></span>
+                            </div>
+                            <div class="weather_content_name">
+                                <span>maxTemp</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="weather_panel">
+                        <div class="weather_content">
+                            <div class="weather_content_display">
+                                <span><b id="avdHum">73</b></span>
+                            </div>
+                            <div class="weather_content_name">
+                                <span>avgHum</span>
+                            </div>
+                        </div>
+                        <div class="weather_content">
+                            <div class="weather_content_display">
+                                <span><b id="rainChance">89</b><b>%</b></span>
+                            </div>
+                            <div class="weather_content_name">
+                                <span>Chance of rain</span>
+                            </div>
+                        </div>
+                        <div class="weather_content">
+                            <div class="weather_content_display">
+                                <span><b id="maxTemp">2.8</b></span>
+                            </div>
+                            <div class="weather_content_name">
+                                <span>UV</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -755,16 +925,7 @@ feedPage = `
 
                     <div class="result_display">
 
-                        <nav class="search_result">
-                            <ul>
-                                <li class="search_result_options" id="account_result">Accounts</li>
-                                <li class="search_result_options" id="tags_result">Tags</li>
-                                <li class="search_result_options" id="text_result">Caption</li>
-                            </ul>
-                        </nav>
-                        <div class="results">
-
-                        </div>
+                        
 
                     </div>
                 </div>
@@ -774,17 +935,26 @@ feedPage = `
     </div>
     <div class="nav_bar_bottom">
         <div class="nav_bottom_icons">
-            <i class="fa-regular fa-square-plus"></i>
-
-            
+            <i class="fa-regular fa-square-plus tooltip">
+                <span class="tooltiptext">Post</span>
+            </i>  
         </div>
         
     </div>
 `
+// Chat page html string 
 chatPage = `
-
+    <div class="chat_display">
+        <div class="contacts">
+            
+        </div>
+        
+        <div class="conversation">
+            
+        </div>
+    </div>
 `
-
+// Accout page html string 
 accountPage = `
     <div class="account_display">
         <div class="account_info">
@@ -805,11 +975,6 @@ accountPage = `
                         <span><b>Gabby</b> <b>Babby</b></span>
                     </div>
 
-                    <div id="user_buttons">
-                        
-                        <button id="edit_button">Edit profile</button>
-                    </div>
-
                 </div>
             </div>
 
@@ -821,19 +986,21 @@ accountPage = `
             
 
 `
-
+// all results html string 
 allResults = `
     <nav class="search_result">
         <ul>
-            <li class="search_result_options">Accounts</li>
-            <li class="search_result_options">Tags</li>
-            <li class="search_result_options">Text</li>
+            <li class="search_result_options" id="account_result">Accounts</li>
+            <li class="search_result_options" id="tags_result">Tags</li>
+            <li class="search_result_options" id="text_result">Caption</li>
         </ul>
     </nav>
     <div class="results">
 
     </div>
 `
+
+// create post html string 
 createPost = `
     <div class="create_post_div">
 
@@ -841,7 +1008,7 @@ createPost = `
             <img src="public/uploads/default_profile/default_profile.jpg" alt="default_profile" id="create_post_img">
             <div class="file_upload_div">
                 <label for="create_post_upload" class="create_upload_label">+</label>
-                <input type="file", id="create_post_upload">   
+                <input type="file" id="create_post_upload">   
             </div>
         </div>
         <div class="create_post_input_div">
