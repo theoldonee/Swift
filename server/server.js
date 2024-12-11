@@ -7,11 +7,19 @@ import {DatabaseHandler} from "./databaseHandler.js";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 import fs from "fs";
+import axios from "axios";
 
 
-
+// File path
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Initialize express app
 const app = express();
+
+// APIs
+const bordomAPI = 'https://bored-api.appbrewery.com/random';
+const KEY = 'e224ad6b28d64563aab95231242311';
+const weatherAPI = `http://api.weatherapi.com/v1/forecast.json?key=${KEY}&q=auto:ip`;
 
 // Set port
 const port = process.env.PORT || 8080;
@@ -31,7 +39,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// app.use(express.urlencoded({ extended: true }));
 
 // Configures espress to use body-parser urlencoded
 app.use(bodyParser.urlencoded({
@@ -59,7 +66,7 @@ app.use(
 
 // Handles GET request made to the home path
 app.get("/", (req, res) => {
-    // Sends response
+    // Sends homepage
     res.sendFile(__dirname + "/public/index.html");
 });
 
@@ -67,6 +74,7 @@ app.get("/", (req, res) => {
 app.get("/M00933241/email", async (req, res) => {
     var idTag = req.query.email;
     
+    // Checks if email exist;
     var result = await DatabaseHandler.isUser(idTag);
 
     res.send({result: result});
@@ -76,6 +84,7 @@ app.get("/M00933241/email", async (req, res) => {
 app.get("/M00933241/username", async (req, res) => {
     var idTag = req.query.userName;
     
+    // Checks if username exist
     var result = await DatabaseHandler.isUser(idTag);
 
     res.send({result: result});
@@ -84,7 +93,8 @@ app.get("/M00933241/username", async (req, res) => {
 // Handles GET request made to the /M00933241/user path
 app.get("/M00933241/user", async (req, res) => {
     var idTag = req.query.id;
-    
+
+    // Gets a user
     var result = await DatabaseHandler.getUser(idTag);
 
     res.send({result: result});
@@ -100,6 +110,7 @@ app.get("/M00933241/:id/follow", async (req, res) => {
     
     user = await DatabaseHandler.getUser(idTag);
 
+    // Checks if user has been gotten
     if(user){
         if (listType == "following"){
             result = user.following;
@@ -111,6 +122,34 @@ app.get("/M00933241/:id/follow", async (req, res) => {
     }
     
 });
+
+
+app.get("/M00933241/:id/contacts", async (req, res) => {
+    var idTag, user;
+
+    // Gets the value of the parameter "id"
+    idTag = req.params['id'];
+    
+    user = await DatabaseHandler.getUser(idTag);
+    var userContacts = user.contacts;
+
+    var contactList = [];
+    for (var contact of userContacts){
+        var contactInfo = await DatabaseHandler.getUser(contact);
+
+        contactList.push({
+            contactId: contact,
+            profile_img: contactInfo.profile_img,
+            userName: contactInfo.userName
+        });
+    }
+
+    res.send({
+        contactList: contactList
+    });
+    
+});
+
 
 // Handles POST request made to the /M00933241/user path
 app.post("/M00933241/users", async (req, res) => {
@@ -202,15 +241,6 @@ async function createFolder(directoryPath){
     }
 }
 
-// Handles DELETE request made to the /M00933241/users path
-// app.delete("/M00933241/users", async (req, res) => {
-//     var idTag = req.body.idTag;
-
-//     // 
-//     var result = await DatabaseHandler.deleteUser(idTag);
-//     res.send(result);
-// });
-
 // Handles GET request made to the /M00933241/login path
 app.get("/M00933241/login", async (req, res) => {
     var idTag = req.query.idTag;
@@ -230,7 +260,9 @@ app.get("/M00933241/login", async (req, res) => {
                 try{
                     var loggedUsers = req.session.loggedUsers;
                     var index = loggedUsers.indexOf(`${data.userId}`);
-                    if(index){
+
+                    // Cheks if user is not in session;
+                    if(!index){
                         req.session.loggedUsers.push(`${data.userId}`);
                     }
                     
@@ -340,13 +372,10 @@ app.delete("/M00933241/login", (req, res) => {
 
 // Handles GET request made to the /M00933241/contents path
 app.get("/M00933241/contents", async (req, res) => {
-    var getBy, posts, response;
+    var posts, response;
 
-    getBy = req.query.getBy;
-
-    if (getBy = "all"){
-        posts = await DatabaseHandler.getAllPost();
-    }
+    // Gets all post
+    posts = await DatabaseHandler.getAllPost();
     
     response = {
         posts: posts
@@ -374,8 +403,7 @@ app.get("/M00933241/contents/:id", async (req, res) => {
 
 });
 
-
-
+// Handles GET request made to the /M00933241/contents/:id/like path
 app.get("/M00933241/contents/:id/like", async (req, res) => {
     var idTag, post, response;
 
@@ -394,26 +422,7 @@ app.get("/M00933241/contents/:id/like", async (req, res) => {
 });
 
 
-
-app.get("/M00933241/contents/:id/comment", async (req, res) => {
-    var idTag, post, response;
-
-    // Get's id
-    idTag = req.params['id'];
-
-    // Gets post
-    post = await DatabaseHandler.getPost(idTag);
-    
-    response = {
-        commentCount: post.commentCount
-    };
-
-    res.send(response);
-
-});
-
-
-
+// Handles POST request made to the /M00933241/contents/:id/like path
 app.post("/M00933241/contents/:id/like", async (req, res) => {
     var idTag, postResult, response, likeStatus, userId;
 
@@ -433,26 +442,6 @@ app.post("/M00933241/contents/:id/like", async (req, res) => {
 
 });
 
-
-
-app.post("/M00933241/contents/:id/comment", async (req, res) => {
-    var idTag, post, response;
-
-    // Get's id
-    idTag = req.params['id'];
-
-    // Gets post
-    post = await DatabaseHandler.getPost(idTag);
-    
-    response = {
-        post: post
-    };
-
-    res.send(response);
-
-});
-
-
 // Handles GET request made to the /M00933241/:id/contents path
 app.get("/M00933241/:id/contents", async (req, res) => {
     var idTag = req.params['id'];
@@ -470,7 +459,6 @@ app.get("/M00933241/:id/contents", async (req, res) => {
 
 // Handles POST request made to the /M00933241/contents path
 app.post("/M00933241/contents", async (req, res) => {
-
     var post, imageData;
     
     // Sets post properties
@@ -553,12 +541,30 @@ app.post("/M00933241/follow", async (req, res) => {
     // Gets follow result
     var result = await DatabaseHandler.followHandler(true, followerIdTag, followedIdTag);
     res.send(result);
+
+    var isfriend = await DatabaseHandler.isFriends(followerIdTag, followedIdTag);
+    if(isfriend){
+        var friendResult = await DatabaseHandler.friendHandler(followerIdTag, followedIdTag, "add");
+        if (friendResult){
+            console.log("\n Friending successful \n");
+        }
+    }
+
 });
 
 // Handles DELETE request made to the /M00933241/follow path
 app.delete("/M00933241/follow", async (req, res) => {
+
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
+
+    var isfriend = await DatabaseHandler.isFriends(followerIdTag, followedIdTag);
+    if(isfriend){
+        var friendResult = await DatabaseHandler.friendHandler(followerIdTag, followedIdTag, "remove");
+        if (friendResult){
+            console.log("\n unFriending successful \n");
+        }
+    }
 
     // Get's unfollow result
     var result = await DatabaseHandler.followHandler(false, followerIdTag, followedIdTag);
@@ -594,6 +600,7 @@ app.get("/M00933241/:id/suggestFollowing", async (req, res) => {
                     profile_img: usersList[index].profile_img
                 }
 
+                // console.log(friendTodAdd);
                 followList.push(friendTodAdd);
                 addedUserCount++;
             }
@@ -626,6 +633,7 @@ function isFollowing(followingList, suggestion){
     for(var following of followingList){
         // Checks if suggestion is in following list
         if (`${following.userId}` == `${suggestion}`){
+            // console.log(following.userId, suggestion);
             return true;
         }
     }
@@ -638,12 +646,9 @@ app.get("/M00933241/users/search", async (req, res) => {
     var idTag = req.query.idTag;
     
     // Gets users from DatabaseHandler
-    
     var data = await DatabaseHandler.getUsers(idTag);
     res.send(data);
        
-    
-
 });
 
 // Handles GET request made to the /M00933241/content/search path
@@ -657,16 +662,226 @@ app.get("/M00933241/content/search", async(req, res) => {
     
 });
 
+// Handles GET request made to the /M00933241/activity path
+app.get("/M00933241/activity", async(req, res) => {
+    
+    try{
+        // Gets activity suggetion from 
+        const response = await axios.get(bordomAPI);
+        res.send(response.data);
 
-const bordomAPI = 'https://bored-api.appbrewery.com/random';
+    }catch(err){
 
-async function getActivity(){
-    const response = await axios.get(bordomAPI);
+        // Sends defautlt activity
+        res.send({
+            "activity": "Learn and play a new card game",
+            "availability": 0,
+            "type": "recreational",
+            "participants": 1,
+            "price": 0,
+            "accessibility": "Few to no challenges",
+            "duration": "minutes",
+            "kidFriendly": true,
+            "link": "https://www.pagat.com",
+            "key": "9660022"
+        });
+    }
+    
+});
+
+// Handles GET request made to the /M00933241/weather path
+app.get("/M00933241/weather", async(req, res) => {
+
+    // Gets weather data from database;
+    var result = await DatabaseHandler.getWeatherData();
+
+    // Create a new date object
+    var date = new Date();
+
+    // Checks if result is not null
+    if(result){
+
+        var weaterDate = result.date;
+
+        // converts date to ISO string and splits 
+        var ISOdate = date.toISOString().split('T')[0];
+
+        // Checks if weather data is current
+        if(ISOdate == weaterDate){
+
+            res.send(result);
+
+        }else{
+            // Gets weather data insert result
+            var insertResult = await getWeaterData();
+
+            // Cheks if insert result has been acknowledged
+            if (insertResult.acknowledged){
+                // Gets weather data from database
+                result = await DatabaseHandler.getWeatherData();
+
+                res.send(result);
+
+            }else{
+                res.send({
+                    acknowledged: false
+                });
+            }
+
+        }
+
+    }else{
+        // Gets weather data insert result
+        var insertResult = await getWeaterData(); 
+
+        // Cheks if insert result has been acknowledged
+        if (insertResult.acknowledged){
+            // Gets weather data from database
+            result = await DatabaseHandler.getWeatherData();
+            res.send(result);
+
+        }else{
+            res.send({
+                acknowledged: false
+            });
+        }
+    }
+    
+    
+});
+
+// Gets and inserts weather data
+async function getWeaterData() {
+    try{
+        // Gets weather data
+        const response = await axios.get(weatherAPI);
+        var result = response.data;
+        console.log(result.forecast[0].day);
+        // Gets forcast for the day.
+        var forecastday = result.forecast.forecastday;
+        var date = forecastday[0].date;
+        var weatherToday = forecastday[0].day;
+
+        var data = {
+            date: date,
+            maxtemp: weatherToday.maxtemp_c,
+            mintemp: weatherToday.mintemp_c,
+            avghumidity: weatherToday.avghumidity,
+            condition: weatherToday.condition,
+            uv: weatherToday.uv,
+            entryTime: new Date()
+        }
+
+        // Adds data to database
+        var result = await DatabaseHandler.addWeatherData(data);
+
+        // Returns inset result.
+        return result;
+        
+    }catch{
+        return{
+            acknowledged: false
+        }
+    }
 }
 
-const weatherAPI = 'https://bored-api.appbrewery.com/random';
+app.get("/M00933241/conversation", async(req, res) => {
+    var party1 = req.query.party1;
+    var party2 = req.query.party2;
 
-async function getWeather(){
-    const response = await axios.get(weatherAPI);
-}
+    var conversation = await DatabaseHandler.getConversation(party1, party2);
 
+    if (conversation){
+        res.send({
+            conversation: conversation
+        });
+    }else{
+
+        var result = await DatabaseHandler.addConversation(party1, party2);
+
+        if(result.acknowledged){
+            conversation = await DatabaseHandler.getConversation(party1, party2);
+            res.send({
+                conversation: conversation
+            });
+        }else{
+            res.send({
+                conversation: null
+            });
+        }
+    }
+   
+    
+});
+
+app.post("/M00933241/conversation/chat", async(req, res) => {
+    var party1 = req.query.party1;
+    var party2 = req.query.party2;
+
+    // var chat = req.body.chat;
+    var chat = {};
+    chat.authorId = req.body.authorId;
+    chat.content = req.body.content;
+
+    var date = new Date(); 
+    var time = date.getHours() + ':' + date.getMinutes();
+    chat.timeStamp = time;
+
+
+    var result = await DatabaseHandler.updateConversation(party1, party2, chat);
+
+    if (result.acknowledged){
+        res.send({
+            result: result
+        });
+    }else{
+        res.send({
+            result: {
+                acknowledged: false
+            }
+        });
+    }
+    
+});
+
+app.get("/M00933241/conversation/chat", async(req, res) => {
+    var party1 = req.query.party1;
+    var party2 = req.query.party2;
+    
+    var conversation = await DatabaseHandler.getConversation(party1, party2);
+
+    var chatList = conversation.chats;
+
+    res.send({
+        chatList: chatList
+    })
+
+});
+
+app.get("/M00933241/:userId/conversations", async(req, res) => {
+    var user = req.params['userId'];
+
+    var conversations = await DatabaseHandler.getUserConversation(user);
+
+    if (conversations){
+        res.send({
+            conversations: conversations
+        });
+    }
+
+    //     var result = await DatabaseHandler.addConversation(party1, party2);
+
+    //     if(result.acknowledged){
+    //         conversation = await DatabaseHandler.getConversation(party1, party2);
+    //         res.send({
+    //             conversation: conversation
+    //         });
+    //     }else{
+    //         res.send({
+    //             conversation: null
+    //         });
+    //     }
+    // }
+   
+    
+});
