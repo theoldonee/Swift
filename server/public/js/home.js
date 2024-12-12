@@ -1,9 +1,12 @@
+// Imports
 import {AppManager} from "./appManager.js";
 
+// Exports
 export{
     HomeManager
 }
 
+// Home manager class
 class HomeManager{
     // Displays home page
     static showHomePage(){
@@ -12,20 +15,26 @@ class HomeManager{
 
         // Detects when the login button is clicked
         $("#home_login").click( () => {
+            // Adds class shrink to swift
             $("#swift").addClass("shrink");
+            // Sets time out for grow
             setTimeout(HomeManager.grow, 1000, "login", "Login");
         });
         
         // Detects when the register button is clicked
         $("#home_register").click( () => {
+            // Adds class shrink to swift
             $("#swift").addClass("shrink");
+            // Sets time out for grow
             setTimeout(HomeManager.grow, 1000, "register", "Register");
         });
     }
 
     // Adds grow class
     static grow(page, text){
+        // Changes swift text
         $("#swift").text(`${text}`);
+        // Adds class grow to swift
         $("#swift").addClass("grow");
 
         // Checks if the page is login
@@ -44,11 +53,13 @@ class HomeManager{
 
         // Detects when the back button is clicked 
         $(".back_div").click( () => {
+            // Goes back to previous page
             HomeManager.back();
         });
 
         // Detects when the login button is clicked 
         $("#login_button").click( () => {
+            // Validates login
             HomeManager.validateLogin();
         });
     }
@@ -60,11 +71,13 @@ class HomeManager{
 
         // Detects when the "next" button is clicked 
         $("#next_button").click( async () => {
+            // Validates registration
             HomeManager.validateRegistration();
         });
 
         // Detects when the back button is clicked 
         $(".back_div").click( () => {
+            // Goes back to previous page
             HomeManager.back();
         });
     }
@@ -76,6 +89,7 @@ class HomeManager{
 
         // Takes User back to the previous page
         $(".back_div").click( () => {
+            // Goes back to previous page
             HomeManager.back();
         });
 
@@ -85,6 +99,7 @@ class HomeManager{
 
             // changes image source to choosen file.
             fr.onload = function (e) { 
+                // Sets image
                 document.getElementById("profile_picture").src = this.result;
                 user.profile_img = this.result;
             };
@@ -156,12 +171,15 @@ class HomeManager{
 
     // Takes user back to the previous page
     static back(){
+        // Sets id
         var id = $(".back_div").attr("id");
 
         // Checks if user is on login or register page
         if ((id == "login_back_div") || (id == "next_back_div")){
+            // Shows home page
             this.showHomePage();
         }else{
+            // Shows registration page
             this.showRegisterPage();
         }
     }
@@ -169,7 +187,10 @@ class HomeManager{
     // Checks registration field 
     static validateRegistration(){
         var firstName , lastName, email, password;
+        // User object
         var user = {};
+
+        // Gets user information
         firstName = $("#firstName").val();
         lastName = $("#lastName").val();
         email = $("#email").val();
@@ -183,6 +204,7 @@ class HomeManager{
         }else if(!password){
             alert("Please enter a password");
         }else{
+            // Sets user infromation
             user.firstName = firstName;
             user.lastName = lastName;
             user.password = password;
@@ -205,10 +227,14 @@ class HomeManager{
                     // Suggest redirection to login page if email exist
                     if (result){
                         if (confirm("Email already registered. Would you like to login?")){
+                            // Displays login page
                             this.showLoginPage();
                         }
                     }else{
+                        // Sets user email
                         user.email = email;
+
+                        // Displays final registration page
                         this.showFinalRegisterPage(user);
                     }
                 }else{
@@ -295,12 +321,16 @@ class HomeManager{
                     console.log(loginResult);
                     // Checks if user should be logged in
                     if(loginResult.login){
+                        // Sets current page to feed
                         AppManager.currentPage = "feed";
+                        // Loads app
                         AppManager.appLoad(idTag);
                     }else{
+                        // Displays login page
                         this.showLoginPage();
                     }
                 }else{
+                    // Displays login page
                     this.showLoginPage();
                 };
 
@@ -314,6 +344,8 @@ class HomeManager{
     // Checks login field 
     static async validateLogin(){
         var idTag, password;
+
+        // Set idtag and password
         idTag = $("#idTag").val();
         password = $("#password").val();
 
@@ -323,14 +355,18 @@ class HomeManager{
         }else if(!password){ // checks if password has been inputed
             alert("Please enter a password");
         }else{
+            // Get user login result
             var loginValResult = await this.loginUser(idTag, password);
             
             // Checks if user exist
             if (loginValResult){
+
+                // Get user login
                 var loginResult = await this.checkLogin(idTag);
 
                 // Checks if logged in
                 if(loginResult.login){
+                    // Sets current page to feed
                     AppManager.currentPage = "feed";
                     AppManager.appLoad(loginResult.id);
                 }else{
@@ -338,6 +374,7 @@ class HomeManager{
                 }
             }else{
                 if (confirm("Email or username not registered. Would you like to register?")){
+                    // Displays registration page
                     this.showRegisterPage();
                 }
             };
@@ -347,6 +384,7 @@ class HomeManager{
 
     // Sends a login POST request to the server
     static async loginUser(idTag, password){
+        // Creates json sring
         var data = JSON.stringify({
             idTag: idTag,
             password: password,
@@ -393,9 +431,6 @@ class HomeManager{
         }
     }
 }
-
-
-
 
 var loginPageString, registerPageString, finalRegisterPageString, homePage;
 
@@ -476,7 +511,5 @@ finalRegisterPageString = `
     </div>
 
 `
-
-// showHomePage();
-// HomeManager.showRegisterPage();
-HomeManager.showLoginPage();
+// Displays home page
+HomeManager.showHomePage();
