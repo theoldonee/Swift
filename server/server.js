@@ -253,6 +253,7 @@ async function writeImage(image, directory, fileName){
         const data = image.replace(/^data:image\/\w+;base64,/, '');
         const encoding  = 'base64';
 
+        // Sets file name and extension
         const file = `${fileName}.${extension}`;
 
         // Path to image
@@ -274,6 +275,7 @@ async function writeImage(image, directory, fileName){
 async function createFolder(directoryPath){
      // Creates new directory if directory doesn't exist,
     if (!fs.existsSync(directoryPath)) {
+        // Creates directory
         fs.mkdirSync(directoryPath);
         console.log(`Directory '${directoryPath}' created.`);
     } else {
@@ -283,6 +285,7 @@ async function createFolder(directoryPath){
 
 // Handles GET request made to the /M00933241/login path
 app.get("/M00933241/login", async (req, res) => {
+    // Set id tag
     var idTag = req.query.idTag;
 
     // gets log status of user
@@ -303,11 +306,14 @@ app.get("/M00933241/login", async (req, res) => {
 
                     // Cheks if user is not in session;
                     if(!index){
+                        // Adds user id to logged users array
                         req.session.loggedUsers.push(`${data.userId}`);
                     }
                     
                 }catch{
+                    // Creates logged users in session
                     req.session.loggedUsers = [];
+                    // Adds user id to logged users array
                     req.session.loggedUsers.push(`${data.userId}`);
                 }
 
@@ -372,6 +378,7 @@ app.post("/M00933241/login", (req, res) => {
 
 // Handles DELETE request made to the /M00933241/login path
 app.delete("/M00933241/login", (req, res) => {
+    // Set id tag
     var idTag = req.query.id;
 
     var userData = new Promise( async (resolve, reject) => {
@@ -385,14 +392,15 @@ app.delete("/M00933241/login", (req, res) => {
             // Checks if entry was acknowledged
             if(result.acknowledged){
                 try{
+                    // Gets login user session
                     var loggedUsers = req.session.loggedUsers;
                     var index = loggedUsers.indexOf(`${data.userId}`);
+                    // Removes login user
                     req.session.loggedUsers.splice(index, 1);
                     resolve(result);
                 }catch(err){
                     resolve(result);
                 }
-                
 
             }else{
                 reject(result);
@@ -400,11 +408,10 @@ app.delete("/M00933241/login", (req, res) => {
             
         }
 
-    })
+    });
     
     userData.then((message) => {
         res.send(message);
-        // res.send(message);
     }).catch((message) => {
         res.send(message);
     })
@@ -582,9 +589,15 @@ app.post("/M00933241/follow", async (req, res) => {
     var result = await DatabaseHandler.followHandler(true, followerIdTag, followedIdTag);
     res.send(result);
 
+    // Gets frienship status
     var isfriend = await DatabaseHandler.isFriends(followerIdTag, followedIdTag);
+
+    // Checks frienship status
     if(isfriend){
+        // Gets result of friendship addition
         var friendResult = await DatabaseHandler.friendHandler(followerIdTag, followedIdTag, "add");
+
+        // Checks result of friendship addition
         if (friendResult){
             console.log("\n Friending successful \n");
         }
@@ -594,13 +607,19 @@ app.post("/M00933241/follow", async (req, res) => {
 
 // Handles DELETE request made to the /M00933241/follow path
 app.delete("/M00933241/follow", async (req, res) => {
-
+    // Sets follow tags
     var followerIdTag = req.body.followerIdTag;
     var followedIdTag = req.body.followedIdTag;
 
+    // Gets frienship status
     var isfriend = await DatabaseHandler.isFriends(followerIdTag, followedIdTag);
+
+    // Checks frienship status
     if(isfriend){
+        // Gets result of friendship removal
         var friendResult = await DatabaseHandler.friendHandler(followerIdTag, followedIdTag, "remove");
+
+        // Checks result of friendship removal
         if (friendResult){
             console.log("\n unFriending successful \n");
         }
@@ -802,9 +821,9 @@ async function getWeaterData() {
         var date = forecastday[0].date;
         var weatherToday = forecastday[0].day;
 
+        // Weather data object creation
         var data = {
-            date: date,
-            
+            date: date, 
             maxtemp: weatherToday.maxtemp_c,
             mintemp: weatherToday.mintemp_c,
             avghumidity: weatherToday.avghumidity,
@@ -843,9 +862,12 @@ app.get("/M00933241/conversation", async(req, res) => {
         });
     }else{ // Creates converastion
 
+        // Gets insert result
         var result = await DatabaseHandler.addConversation(party1, party2);
 
+        // Checks if insertion was acknowledged
         if(result.acknowledged){
+            // Gets conversation
             conversation = await DatabaseHandler.getConversation(party1, party2);
             res.send({
                 conversation: conversation
@@ -862,6 +884,7 @@ app.get("/M00933241/conversation", async(req, res) => {
 
 // Handles POST request made to the /M00933241/conversation/chat path
 app.post("/M00933241/conversation/chat", async(req, res) => {
+    // Set parties
     var party1 = req.query.party1;
     var party2 = req.query.party2;
 
@@ -870,6 +893,7 @@ app.post("/M00933241/conversation/chat", async(req, res) => {
     chat.authorId = req.body.authorId;
     chat.content = req.body.content;
 
+    // Creates new date object
     var date = new Date(); 
     var time = date.getHours() + ':' + date.getMinutes();
     chat.timeStamp = time;
@@ -877,6 +901,7 @@ app.post("/M00933241/conversation/chat", async(req, res) => {
     // Gets converation id
     var conversationId = await DatabaseHandler.getConversationId(party1, party2);
 
+    // Sends message to room
     io.to(conversationId).emit('chat message', chat);
 
     // Gets update result
@@ -899,29 +924,18 @@ app.post("/M00933241/conversation/chat", async(req, res) => {
 
 // Handles GET request made to the /M00933241/:userId/conversations path
 app.get("/M00933241/:userId/conversations", async(req, res) => {
+    // Set user
     var user = req.params['userId'];
 
+    // Gets user's conversation
     var conversations = await DatabaseHandler.getUserConversation(user);
 
+    // Checks if conversation holds value
     if (conversations){
         res.send({
             conversations: conversations
         });
     }
 
-    //     var result = await DatabaseHandler.addConversation(party1, party2);
-
-    //     if(result.acknowledged){
-    //         conversation = await DatabaseHandler.getConversation(party1, party2);
-    //         res.send({
-    //             conversation: conversation
-    //         });
-    //     }else{
-    //         res.send({
-    //             conversation: null
-    //         });
-    //     }
-    // }
-   
     
 });
