@@ -4,12 +4,14 @@ import { HomeManager } from "./home.js";
 import { SearchAndSuggestionsManager } from "./searchAndSuggestions.js";
 import { ChatManager } from "./chatManager.js";
 
+// Exports
 export {
     AppManager
 };
 
 var id, user, app, feedPage, chatPage, accountPage, allResults, createPost;
 
+// App manager class
 class AppManager{
     static currentPage;
     static getPostInterval;
@@ -17,9 +19,20 @@ class AppManager{
 
     // Loads app and gets id value
     static appLoad(userID){
+        // Sets id
         id = userID;
+
+        // injects app
         this.injectApp();
+
+        // feed initialization
         this.feedInitialize();
+
+        // Sets current page to feed.
+        AppManager.currentPage = "feed";
+
+        // Sets feed_option as the default selected option.
+        $("#feed_option").addClass("selected_option");
     }
 
     // Initializes panel
@@ -48,6 +61,7 @@ class AppManager{
             $("#feed_option").removeClass("selected_option");
             $("#account_option").removeClass("selected_option");
 
+            // Sets current oage to chat
             AppManager.currentPage = "chat";
             this.chatPageInitialize();
         });
@@ -69,6 +83,7 @@ class AppManager{
         $("#logout_button").click( () => {
             // Sets current page to home.
             AppManager.currentPage = "home";
+            // Logs user out
             this.logoutUser();
         });
 
@@ -90,6 +105,7 @@ class AppManager{
 
             // Checks if request was acknowledged
             if(result.acknowledged){
+                // Opens home page
                 HomeManager.showHomePage();
             }
         }catch(err){
@@ -104,7 +120,8 @@ class AppManager{
 
         // gets user data
         var result = await this.getUserData(id);
-    
+        
+        // Sets user
         user = result.result;
 
         // Initializes panel
@@ -133,6 +150,7 @@ class AppManager{
             return result;
     
         }catch(err){
+            alert("Could not get user info. Try again later");
             console.log("Issue getting data of user \nError: " + err);
         }
     }
@@ -153,8 +171,10 @@ class AppManager{
 
             // Checks following type
             if (type == "following"){
+                // Sets user's following
                 user.following = result.result;
             }else if (type == "followers"){
+                // Sets user's followers
                 user.followers = result.result;
             }
             
@@ -229,10 +249,12 @@ class AppManager{
 
                 // Constructs post
                 var post = PostManager.constructPost(postJSON, false, id);
+
                 // Injects post into webpage
                 AppManager.injectPost(post, postJSON._id, "accountPage", postJSON.authorId, postJSON.likes);
     
             }catch(err){
+                alert("Could not get user's post. Try again later");
                 console.log(`Issue getting post ${postID} of user \nError: ` + err);
             }
         }
@@ -265,8 +287,13 @@ class AppManager{
 
                         // Checks if post is not displayed
                         if(index == -1){
+                            // Adds post id to displayed post array
                             PostManager.displayedPost.push(postJSON._id);
+
+                            // Gets post string
                             var post = PostManager.constructPost(postJSON, true, id);
+
+                            // Injects post into webpage
                             AppManager.injectPost(post, postJSON._id, "feedPage", postJSON.authorId, postJSON.likes);
                         }                      
                     }      
@@ -310,6 +337,7 @@ class AppManager{
         for (var user of likeList){
             // Checks if a current user has liked displayed post
             if( user == id){
+                // Makes icon solid and liked
                 $(`#${postId}_like_icon i`).removeClass("fa-regular");
                 $(`#${postId}_like_icon i`).addClass("fa-solid");
                 $(`#${postId}_like_icon`).addClass("liked");
@@ -321,18 +349,22 @@ class AppManager{
         $(`#${postId}_like_icon i`).click( () => {
             // Checks if a post is already liked or not
             if ($(`#${postId}_like_icon`).hasClass("liked")){
+                // Unlikes post
                 PostManager.likePost(postId, "unlike");
             }else{
+                // Likes post
                 PostManager.likePost(postId, "like");
             }
         });
 
         // Checks if a follow button is clicked
         $(`#${postId}_${authorId}_follow`).click( () => {
-            console.log(authorId);
+            // Checks if followed button has class following_button
             if($(`#${postId}_${authorId}_follow`).hasClass("following_button")){
+                // Unfollows author
                 this.unfollow(authorId);
             }else{
+                // Follows author
                 this.follow(authorId);
             }
         });
@@ -370,16 +402,23 @@ class AppManager{
             
             // Gets response in json format
             result = await response.json();
+
+            // Sets followed result
             followedResult = result.followedResult;
+            // Sets follower result
             followerResult = result.followerResult;
 
             // Checks if both results have been acknowledged
             if(followedResult.acknowledged && followerResult.acknowledged){
+                // Updates follow button
                 this.updateFollowButton(authorId, "following");
+
+                // Gets user's following
                 this.getUserFollowing("following");
             }
       
         }catch(err){
+            alert("Could not follow user. Try again later");
             console.log(`Issue making follow request \nError: ` + err);
         }
 
@@ -410,16 +449,24 @@ class AppManager{
             
             // Converts response to json format
             result = await response.json();
+
+            // Sets followed result
             followedResult = result.followedResult;
+
+            // Sets follower result
             followerResult = result.followerResult;
 
             // Checks if both results have been acknowledged
             if(followedResult.acknowledged && followerResult.acknowledged){
+                // Updates follow button
                 this.updateFollowButton(authorId, "unfollowing");
+
+                // Gets user's following
                 this.getUserFollowing("following");
             }
 
         }catch(err){
+            alert("Could not unfollow user. Try again later");
             console.log(`Issue making unfollow request \nError: ` + err);
         }
 
@@ -471,6 +518,7 @@ class AppManager{
                     }
                 });
 
+                // Initialize create post button
                 this.initalizeCreatePost();
             }
             
@@ -519,6 +567,9 @@ class AppManager{
             // Slides search div up
             this.searchDivDisplay("up");
         });
+
+        // Gets weather forcast
+        this.getWeatherForcast();
 
         // Gets all post
         await this.getAllPost();
@@ -573,6 +624,8 @@ class AppManager{
     static initalizeCreatePost(){
 
         var post, img;
+
+        // Post object
         post = {
             caption: '',
             tag: ''
@@ -586,7 +639,7 @@ class AppManager{
     
             // changes image source to choosen file.
             fr.onload = function(e) {
-    
+                // Gets image string
                 document.getElementById("create_post_img").src = this.result;
                 img = this.result;
             };
@@ -604,17 +657,22 @@ class AppManager{
     
         // Detects when post button is clicked
         $("#create_post_button").click( () => {
+            // Sets post caption
             post.caption = $("#create_post_caption").val();
+
+            // Sets post tags
             post.tags = $("#create_post_Tag").val();
             
             // Checks if image string is empty
             if (img == '' && post.caption  == ''){
                 alert("You cannot make and empty post");
             }else{
+                // Set post data
                 post.authorId = id;
                 post.profile_img = user.profile_img
                 post.authorUsername = user.userName;
                 
+                // Send user's post
                 this.sendUserPost(post, img);
                 
             };
@@ -696,6 +754,7 @@ class AppManager{
     
     // Updates all follow buttons containind author Id
     static updateFollowButton(authorId, buttonState){
+        // Gets follow buttons
         var followButtonList = $(".follow_button");
         
         // itterates over the list of follow buttons
@@ -749,7 +808,9 @@ class AppManager{
 
             // Converts response to json format
             var result = await response.json();
+            // Sets post list
             var postList = result.post;
+            // Gets user's post
             this.getUserPost(postList);
         }catch(err){
             console.log("Issue getting user's post list. \nError: " + err);
@@ -759,12 +820,40 @@ class AppManager{
     
     }
 
+    // Starts chat page
     static async chatPageInitialize(){
         // Injects chat page into display div
         $(".display").html(chatPage);
 
         ChatManager.userId = id;
+        // Gets chat functiionality running
         ChatManager.chatInitialize();
+    }
+
+    // Gets weather forcast
+    static async getWeatherForcast(){
+        // Sends GET request to /M00933241/weather path
+        try{
+            const response =  await fetch('/M00933241/weather', {
+                method: "GET",
+                headers:{
+                    "Content-Type": "application/json"
+                }
+            });
+
+            // Converts response to json format
+            var result = await response.json();
+
+            // Displays result values
+            $("#minTemp").text(result.mintemp);
+            $(".weather_content_display img").attr("src", result.condition.icon);
+            $("#maxTemp").text(result.maxtemp);
+            $("#avdHum").text(result.avghumidity);
+            $("#rainChance").text(result.chanceofRain);
+            $("#uv").text(result.uv);
+        }catch(err){
+
+        }
     }
 
 }
@@ -839,7 +928,7 @@ feedPage = `
                     <div class="weather_panel">
                         <div class="weather_content">
                             <div class="weather_content_display">
-                                <span><b id="minTemp">23</b><b>°c</b></span>
+                                <span><b id="minTemp"></b><b>°c</b></span>
                             </div>
                             <div class="weather_content_name">
                                 <span>minTemp</span>
@@ -847,12 +936,12 @@ feedPage = `
                         </div>
                         <div class="weather_content">
                             <div class="weather_content_display">
-                            <img src="//cdn.weatherapi.com/weather/64x64/day/176.png" alt="">
+                                <img src="" alt="">
                             </div>
                         </div>
                         <div class="weather_content">
                             <div class="weather_content_display">
-                                <span><b id="maxTemp">27.8</b><b>°c</b></span>
+                                <span><b id="maxTemp"></b><b>°c</b></span>
                             </div>
                             <div class="weather_content_name">
                                 <span>maxTemp</span>
@@ -862,7 +951,7 @@ feedPage = `
                     <div class="weather_panel">
                         <div class="weather_content">
                             <div class="weather_content_display">
-                                <span><b id="avdHum">73</b></span>
+                                <span><b id="avdHum"></b></span>
                             </div>
                             <div class="weather_content_name">
                                 <span>avgHum</span>
@@ -870,7 +959,7 @@ feedPage = `
                         </div>
                         <div class="weather_content">
                             <div class="weather_content_display">
-                                <span><b id="rainChance">89</b><b>%</b></span>
+                                <span><b id="rainChance"></b><b>%</b></span>
                             </div>
                             <div class="weather_content_name">
                                 <span>Chance of rain</span>
@@ -878,7 +967,7 @@ feedPage = `
                         </div>
                         <div class="weather_content">
                             <div class="weather_content_display">
-                                <span><b id="maxTemp">2.8</b></span>
+                                <span><b id="uv"></b></span>
                             </div>
                             <div class="weather_content_name">
                                 <span>UV</span>
