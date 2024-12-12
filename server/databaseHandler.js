@@ -68,6 +68,7 @@ export class DatabaseHandler{
         return user[0];
     }
 
+    // Returns all users
     static async getUsers(idTag){
         var userNameQuery = {userName: {$regex: `${idTag}`}};
         var firstNameQuery = {firstName: {$regex: `${idTag}`}};
@@ -647,24 +648,37 @@ export class DatabaseHandler{
 
     // Adds weather data to database
     static async addWeatherData(data){
+        // Gets result insert
         var result = await weatherCollection.insertOne(data);
 
         // Returns addition result
         return result;
     }
 
+    // Gets conversation
     static async getConversation(party1, party2){
-
+        // Search query
         var query = {"$and": [{parties: {"$in": [party1]}}, {parties: {"$in": [party2]}}]}
         
+        // Gets result of search
         var result = await conversationCollection.findOne(query);
 
         return result;
     }
 
+    // Gets conversation id
+    static async getConversationId(party1, party2){
+        // Gets converstaion
+        var conversation = await this.getConversation(party1, party2);
+
+        return `${conversation._id}`;
+    }
+
+    // Adds conversation
     static async addConversation(party1, party2){
         var date = new Date();
 
+        // Create conversation json
         var conversation = {
             parties: [party1, party2],
             chats: [],
@@ -680,34 +694,42 @@ export class DatabaseHandler{
 
         var result = await conversationCollection.insertOne(conversation);
 
+        // Returns insert result
         return result;
 
     }
 
+    // Updates conversation
     static async updateConversation(party1, party2, chat){
         
         var date = new Date(); 
+        // search query
         var query = {"$and": [{parties: {"$in": [party1]}}, {parties: {"$in": [party2]}}]};
 
-
+        // Get Conversation
         var conversation = await this.getConversation(party1, party2);
         var chatList = conversation.chats
         chatList.push(chat);
         
+        // Update parameters
         var update = {"$set": {
             lastUpdated: date, 
             chats: chatList
         }}
         
+        // Returns update result
         var result = await conversationCollection.updateOne(query, update);
 
         return result;
 
     }
 
+    // Get specific user conversations
     static async getUserConversation(user){
+        // Search query
         var query = {parties: {"$in": [user]}};
 
+        // Gets result of search 
         var result = await conversationCollection.find(query).sort({lastUpdated: -1}).toArray();
         return result;
     }
