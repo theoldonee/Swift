@@ -124,6 +124,7 @@ nav ul li:hover {
     background-color: #008080;
 }
 
+/* Styling for search_follow_suggestion when hovering*/
 .search_follow_suggestion:hover{
     cursor: pointer;
 }
@@ -185,6 +186,7 @@ nav ul li:hover {
     width: 30px;
 }
 
+/* Styling for searched account div*/
 .search_account_div{
     width: 100%;
     height: 850px;
@@ -193,6 +195,7 @@ nav ul li:hover {
     justify-content: center;
 }
 
+/* Styling for searched account div scrollbar*/
 .search_account_div::-webkit-scrollbar{
     display: none;
 }

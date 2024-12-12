@@ -1,3 +1,5 @@
+
+/* Syling for app div*/
 .app{
     display: flex;
     height: 100%;
@@ -5,12 +7,15 @@
     color: white;
 }
 
+/* PANEL STYLING */
+/* Syling for panel div */
 .panel_div{
     height: 100%;
     width: 16%;
     background-color: #272635;
 }
 
+/* Syling for panel icon */
 .panel_icon{
     padding: 10px;
     height: 90px;
@@ -21,12 +26,14 @@
     color: white;
 }
 
+/* Syling for div in panel icon */
 .panel_icon > div{
     width: 80%;
     height: 100%;
     display: flex;
 }
 
+/* Syling for panel icon image div */
 .panel_icon_img{
     height: 100%;
     width: 70px;   
@@ -35,6 +42,7 @@
     align-items: center;
 }
 
+/* Syling for panel icon text */
 .panel_icon_text{
     height: 100%;
     width: 100%;   
@@ -43,7 +51,7 @@
     align-items: center;
 }
 
-
+/* Syling for image in panel icon image */
 .panel_icon_img img{
     width: 60px;
     height: 60px;
@@ -51,6 +59,7 @@
     object-fit: cover;
 }
 
+/* Syling for panel options di */
 .panel_option_div{
     height: 250px;
     display: flex;
@@ -59,6 +68,7 @@
     gap: 10px;
 }
 
+/* Syling for panel options */
 .panel_options{
     display: flex;
     justify-content: flex-start;
@@ -68,33 +78,39 @@
     border: 1px solid #09bd96;
 }
 
+/* Syling for panel options when hovering */
 .panel_options:hover{
     cursor: pointer;
     box-shadow: 2px 0px 10px rgba(255, 255, 255, 0.336);
     transform: scaleY(1.1);
 }
 
+/* Syling selected option */
 .selected_option{
     color: white;
     background-color: #493caa;
 }
 
+/* Syling for panel options name */
 .panel_option_name{
     padding-left: 15px;
     display: flex;
     gap: 20px;
 }
 
+/* Syling for span in panel options name */
 .panel_option_name span{
     font-size: 20px;
     font-weight: bold;
     user-select: none;
 }
 
+/* Syling for i tag in panel options name */
 .panel_option_name i{
     font-size: 22px;
 }
 
+/* Syling for panel options names */
 #logout_div{
     width: 100%;
     position: relative;
@@ -102,6 +118,7 @@
     top: 451px;
 }
 
+/* Syling for logout button */
 #logout_button{
     width: 100%;
     height: 70px;
@@ -113,11 +130,14 @@
     font-weight: bold;
 }
 
+/* Syling for logout button when hovering */
 #logout_button:hover{
     cursor: pointer;
     background-color: #089778;
 }
 
+/* DISPLAY STYLING */
+/* Syling for display div */
 .display{
     width: 94%;
     height: 911px;

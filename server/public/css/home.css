@@ -1,11 +1,14 @@
+/* Font imports */
 @import url('https://fonts.googleapis.com/css2?family=Borel&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Lobster&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;1,300&display=swap');
 
+/* Styling for ll elements */
 *{
     padding: 0;
     margin: 0;
 }
 
+/* Syling for section */
 section{
     height: 100vh;
     width: 100%;
@@ -24,7 +27,7 @@ section{
     overflow-y: hidden; /* Hide vertical scrollbar */
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
-
+/* Syling for BackgroundColour animation */
 @keyframes BackgroundColour {
     0%{
         background-position: 0 50%;
@@ -37,7 +40,7 @@ section{
     }
 }
 
-/* */
+/* home styling*/
 .home{
     width: 900px;
     height: 500px;
@@ -66,6 +69,7 @@ section{
     justify-content: space-evenly;
 }
 
+/* Syling home buttons */
 .home_buttons button{
     border: none;
     width: 400px;
@@ -74,18 +78,21 @@ section{
     
 }
 
+/* Syling home buttons when hovering */
 .home_buttons button:hover{
     cursor: pointer;
     height: 60px;
     transition: all 0.5s ;
 }
 
+/* Syling home login button */
 #home_login{
     color: white;
     background-color: #7462ff;
     /* animation: name duration timing-function delay iteration-count direction fill-mode; */
 }
 
+/* Syling home login button when hovering */
 #home_login:hover{
     background-color: #493caa;
 }
@@ -100,6 +107,7 @@ section{
     animation: GrowSwift 2s ease-in-out 1;
 }
 
+/* Syling for shrinkSwift animation */
 @keyframes shrinkSwift {
     0%{
         color: #493caa;
@@ -110,6 +118,7 @@ section{
     }
 }
 
+/* Syling for GrowSwift animation */
 @keyframes GrowSwift {
     0%{
         
@@ -123,6 +132,7 @@ section{
     }
 }
 
+/* Syling for back button */
 .back_div{
     position: absolute;
     color: white;
@@ -133,16 +143,19 @@ section{
     transition: all 0.5 ease-in;
 }
 
+/* Syling for back button when hovering*/
 .back_div:hover{
     font-size: 32px;
     cursor: pointer;
 }
 
+/* Syling for back button when clicked*/
 .back_div:active{
     font-size: 30px;
     color: #7462ff;
 }
 
+/* Syling for span back button */
 .back_div span{
     user-select: none;
 }
@@ -167,12 +180,13 @@ input{
     outline: none;
 }
 
-
+/* Syling for file input */
 input[type="file"] {
     /* color: white; */
     display: none;
 }
 
+/* Syling for file upload button */
 .custom_upload{
     /* border: 1px solid #ccc; */
     color: white;
@@ -187,7 +201,7 @@ input[type="file"] {
     
 }
 
-
+/* Syling for login input div */
 .login_input_div{
     height: 200px;
     display: flex;
@@ -221,6 +235,7 @@ input[type="file"] {
 }
 
 /* REGISTER PAGE CSS */
+/* Syling for register input div */
 .register_input_div{
     height: 400px;
     display: flex;
@@ -229,12 +244,13 @@ input[type="file"] {
     align-items: center;
 }
 
+/* Syling for p tag in register input div */
 .register_input_div p{
     color: white;
     font-family: "Montserrat";
 }
 
-
+/* Syling for default profile div */
 .default_profile{
     width: 200px;
     height: 200px;
@@ -242,6 +258,7 @@ input[type="file"] {
     object-fit: contain;
 }
 
+/* Syling for image default profile */
 .default_profile img{
     width: 200px;
     height: 200px;
@@ -249,6 +266,7 @@ input[type="file"] {
     object-fit: cover;
 }
 
+/* Syling for file upload div */
 .file_upload_div{
     position: relative;
     left: 170px;

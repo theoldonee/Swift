@@ -1,3 +1,4 @@
+/* Syling for account display */
 .account_display{
     width: 100%;
     height: 100%;
@@ -6,20 +7,21 @@
     background-color: #272635;
 }
 
+/* Syling for account information */
 .account_info{
     width: 800px;
     height: 100%;
     overflow: scroll;
 }
 
+/* Syling for account information scroll bar */
 .account_info::-webkit-scrollbar { 
     display: none; 
 }
 
-
+/* Syling for user information div*/
 .user_info_div{
     width: 100%;
-    /* background-color: rgb(105, 105, 105); */
     background-color: #272635;
     display: flex;
     justify-content: center;
@@ -28,6 +30,7 @@
     border-radius: 30px;
 }
 
+/* Syling for user profile image div*/
 .user_profile_img{
     width: 300px;
     height: 300px;
@@ -36,6 +39,7 @@
     align-items: center;
 }
 
+/* Syling for image in user profile image div*/
 .user_profile_img > img{
     border: none;
     border-radius: 40px;
@@ -43,6 +47,7 @@
     height: 150px;
 }
 
+/* Syling for user information */
 .user_info{
     width: 400px;
     height: 300px;
@@ -51,6 +56,7 @@
     gap: 20px;
 }
 
+/* Syling for user username, follow information and names */
 .user_username, .follow_info, #user_name{
     display: flex;
     align-items: center;
@@ -58,119 +64,26 @@
     color: white;
 }
 
+/* Syling for user  follow information */
 .follow_info{
     gap: 20px;
 }
 
-/* #user_name{
-
-} */
-
-#edit_button{
-    width: 60px;
-    height: 40px;
-    font-family: "Montserrat";
-    font-weight: bold;
-    background-color: #7462ff;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    transition: all 0.5s ;
-}
-
-#edit_button:hover{
-    cursor: pointer;
-    background-color: #6652fa;
-    color: white;   
-}
-
-#edit_button:active{
-    background-color: white;
-    color: #6652fa;   
-
-}
-
-
+/* Syling for user post div */
 .user_post{
     width: 100%;
     height: 900px;
-    /* background-color: blueviolet; */
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+/* Syling for user  post author */
 .user_post_aurthor{
     height: 30px;
 }
 
-.edit_account{
-    width: 900px;
-    height: 800px;
-    top: 50px;
-    border-radius: 10px;
-    background-color: #1f1f1f;
-    position: absolute;
-    display: none;
-    flex-direction: column;
-}
-
-.close_edit_account_div{
-    width: 890px;
-    height: 30px;
-    display: flex;
-    justify-content: end;
-    align-items: center;
-    font-size: 20px;
-    padding-right: 10px;
-}
-
-.edit_display{
-    width: 100%;
-    height: 740px;
-    /* border: 1px solid red; */
-    display: flex;
-}
-
-.edit_image_div, .edit_info_div{
-    width: 50%;
-    border: 1px solid green;
-    height: 100%;
-}
-
-.edit_image_div{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.edit_file_upload_div{
-    position: relative;
-    top: -150px;
-    left: -15px;
-    width: 30px;
-    height: 25px;
-}
-
-.edit_profile_label{
-    /* position: ; */
-    padding: 10px;
-    background-color: #6652fa;
-    border-radius: 10px;
-}
-
-#edit_profile_img{
-    width: 300px;
-    height: 300px;
-    border-radius: 10px;
-}
-
-/* .edit_image_div{
-
-} */
-
-/* --------------------------------------------------------------------------------------------------------- */
-
-
+/* Syling for searched user's information div */
 .search_user_info_div{
     width: 100%;
     display: flex;
@@ -180,6 +93,7 @@
     border-radius: 30px;
 }
 
+/* Syling for searched user's profile image */
 .search_user_profile_img{
     width: 300px;
     height: 300px;
@@ -188,6 +102,7 @@
     align-items: center;
 }
 
+/* Syling for image in searched user's profile image */
 .search_user_profile_img > img{
     border: none;
     border-radius: 40px;
@@ -195,6 +110,7 @@
     height: 150px;
 }
 
+/* Syling for searched user's information */
 .search_user_info{
     width: 400px;
     height: 300px;
@@ -203,6 +119,7 @@
     gap: 20px;
 }
 
+/* Syling for searched user's username, follow information and names */
 .search_user_username, .search_follow_info, #search_user_name{
     display: flex;
     align-items: center;
@@ -210,12 +127,12 @@
     color: white;
 }
 
+/* Syling for search follow info */
 .search_follow_info{
     gap: 20px;
 }
 
-
-
+/* Syling for search follow button when not followed*/
 .search_follow_button{
     width: 60px;
     height: 40px;
@@ -229,6 +146,7 @@
     padding: 2px;
 }
 
+/* Syling for search follow button when followed*/
 .search_following_button{
     width: 70px;
     height: 40px;
@@ -241,28 +159,33 @@
     transition: all 0.5s ;
 }
 
+/* Syling for search follow button when hovering*/
 .search_follow_button:hover{
     cursor: pointer;
     background-color: #196666;
     color: white;   
 }
 
+/* Syling for search following button when hovering*/
 .search_following_button:hover{
     cursor: pointer;
     background-color: #6652fa;
     color: white
 }
 
+/* Syling for search follow button when pressed*/
 .search_follow_button:active{
     background-color: #6652fa;
     color: #008080;   
 }
 
+/* Syling for search following button when active*/
 .search_following_button:active{
     background-color: #008080;
     color: #6652fa;   
 }
 
+/* Syling for searched user's post*/
 .search_user_post{
     width: 100%;
     height: 900px;

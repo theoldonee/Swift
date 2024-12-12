@@ -1,12 +1,13 @@
+/* Syling for chat display */
 .chat_display{
     width: 100%;
     height: 100%;
     display: flex;
 }
 
+/* Syling for contacts */
 .contacts{
     width: 20%;
-    /* height: 100%; */
     display: flex;
     padding-top: 20px;
     gap: 10px;
@@ -16,28 +17,32 @@
     overflow-y: scroll;
 }
 
+/* Syling for contacts scrollbar */
 .contacts::-webkit-scrollbar { 
     display: none; 
 }
 
+/* Syling for contact */
 .contact{
     width: 90%;
     height: 100px;
     border-radius: 10px;
     display: flex;
     background-color: #008080;
-
 }
 
+/* Syling for contact when hovering */
 .contact:hover{
     background-color: #00808031;
     cursor: pointer;
-
 }
+
+/* Syling for selected contact when hovering */
 .selected_contact{
-    background-color: #008080;
+    background-color: #493caa;
 }
 
+/* Syling for contact profile */
 .contact_profile{
     width: 120px;
     height: 100%;
@@ -46,6 +51,7 @@
     align-items: center;
 }
 
+/* Syling for image in contact profile */
 .contact_profile img{
     width: 60px;
     height: 60px;
@@ -53,6 +59,7 @@
     object-fit: cover;
 }
 
+/* Syling for contact username */
 .contact_username{
     height: 100%;
     width: 90px;
@@ -61,27 +68,26 @@
     justify-content: center;
 }
 
+/* Syling for conversation */
 .conversation{
     width: 80%;
     height: 100%;
 }
 
-
+/* Syling for conversation info */
 .conversation_info{
     width: 100%;
     height: 100px;
     background-color: #3f3d57;
-    /* background-image: url("../uploads/chat_background/chat_background.jpg"); */
-    /* server\public\uploads\chat_background\chat_background.jpg */
     border-bottom: 1px solid white;
+    display: flex;
 }
 
+/* Syling for conversation display */
 .conversation_display{
     width: 100%;
     height: 730px;
     background-color: #272635;
-    /* background-image: url("../uploads/chat_background/chat_background.jpg"); */
-    /* background-repeat: repeat; */
     padding-top: 10px; 
     padding-bottom: 10px; 
     display: flex;
@@ -91,29 +97,30 @@
     gap: 5px;
 }
 
+/* Syling for conversation display */
 .conversation_display::-webkit-scrollbar { 
     display: none; 
 }
 
-.conversation_info{
-    display: flex;
-}
-
+/* Syling for chat block */
 .chat_block{
     width: 90%;
     height: auto;
 }
 
+/* Syling for contact block */
 .contact_block{
     display: flex;
     justify-content: start;
 }
 
+/* Syling for user block */
 .user_block{
     display: flex;
     justify-content: end;
 }
 
+/* Syling for chat content */
 .chat_content{
     border-radius: 10px;
     display: flex;
@@ -123,14 +130,17 @@
     height: auto;
 }
 
+/* Syling for user chat content */
 .user_chat_content{
     background-color: #008080;
 }
 
+/* Syling for contact chat content */
 .contact_chat_content{
     background-color: #493caa;
 }
 
+/* Syling for chat text */
 .chat_text{
     min-width: 20px;
     min-height: 20px;
@@ -138,16 +148,20 @@
     align-items: center;
 }
 
+/* Syling for span in chat text */
 .chat_text span{
     text-align: justify;
     text-justify: inter-character;
 }
 
+
+/* Syling for send time */
 .send_time{
     padding-left: 5px;
     font-size: smaller;
 }
 
+/* Syling for chat input */
 .chat_input{
     width: 100%;
     height: 58px;
@@ -159,6 +173,7 @@
     gap: 10px;
 }
 
+/* Syling for user chat input */
 #user_chat_input{
     border-radius: 0px;
     width: 80%;
@@ -171,17 +186,20 @@
     font-size: 17px;
 }
 
+/* Syling for user chat input when focused */
 #user_chat_input:focus{
     outline: none;
     border: none;
 }
 
+/* Syling for i tag in chat input */
 .chat_input i{
     font-size: 20px;
     transform: rotate(45deg);
     color: #008080;
 }
 
+/* Syling for i tag in chat input when hovering */
 .chat_input i:hover{
     cursor: pointer;
 }

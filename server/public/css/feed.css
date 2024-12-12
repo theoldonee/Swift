@@ -5,7 +5,6 @@
 .nav_bar_bottom{
     width: 100%;
     height: 70px;
-    /* background-color: #089778; */
     display: flex;
     align-items: center;
 }
@@ -86,7 +85,6 @@
 
 /* Styling for create post input div*/
 .create_post_input_div{
-    /* border: 1px solid white; */
     width: 800px;
     height: 200px;
     display: flex;
@@ -104,7 +102,6 @@
     width: 98%;
     height: 80px;
     resize: none;
-    /* background-color: rgb(49, 49, 49); */
     background-color: #272635;
 }
 
@@ -139,7 +136,6 @@
 .feed_div{
     width: 100%;
     height: 841px;
-    /* background-color: #ad0fb3; */
     display: flex;
     justify-content: center;
 }
@@ -148,7 +144,6 @@
 .feed{
     width: 800px;
     height: 100%;
-    /* background-color: #493caa; */
     overflow: scroll;
     margin-right: 20px;
 }
@@ -166,7 +161,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    /* background-color: #7462ff; */
 }
 
 /* Syling for weather */
@@ -180,24 +174,25 @@
 /* Syling for info */
 .weather_info{
     height: 88%;
-
 }
 
+/* Style for weather panel */
 .weather_panel{
     width: 100%;
     height: 50%;
-    
     display: flex;
     justify-content: space-evenly;
 
 }
 
+/* Style for weather content */
 .weather_content{
     width: 33%;
     height: 100%;
     padding-top: 2px;
 }
 
+/* Style for weather content display */
 .weather_content_display{
     width: 100%;
     height: 80%;
@@ -207,10 +202,12 @@
     justify-content: center;
 }
 
+/* Style for span tag in weather content display */
 .weather_content_display span{
     font-size: 45px;
 }
 
+/* Style for weather content name */
 .weather_content_name{
     width: 100%;
     height: 20%;
@@ -320,7 +317,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* justify-content: space-evenly; */
     gap: 10px;
 }
 
@@ -350,45 +346,36 @@
     height: 90px;
     padding-top: 10px;
     padding-bottom: 10px;
-    /* background-color: #404040; */
     background-color: #008080;
     border-radius: 10px;
     display: flex;
     align-items: center;
 }
 
+/* Syling for suggested friends div when hovering*/
 .suggested_friend_div:hover{
     transform: translateY(-3px);
     box-shadow: 2px 0px 10px rgba(255, 255, 255, 0.336);
 }
 
-
+/* Syling for suggested friends image div */
 .suggested_friend_img_div{
     width: 100px;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    
 }
 
+/* Syling for suggested friends image div image */
 .suggested_friend_img_div img{
     width: 60px;
     height: 60px;
     object-fit: cover;
     border-radius: 10px;
-    
 }
 
-.suggested_friend_img_div{
-    width: 100px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-}
-
+/* Syling for suggested friends information */
 .suggested_friend_info{
     height: 100%;
     width: 200px;
@@ -397,11 +384,13 @@
     justify-content: center;
 }
 
+/* Syling for b tag in  suggested friends information span tag when hovering */
 .suggested_friend_info span b:hover{
     color: #6552fc;
     cursor: pointer;
 }
 
+/* Syling for suggested friends follow */
 .suggested_friend_follow{
     height: 100%;
     width: 150px;
@@ -410,6 +399,7 @@
     justify-content: center;
 }
 
+/* Syling for suggested friends follow button*/
 .suggested_friend_follow_button{
     width: 80px;
     height: 50px;
@@ -421,11 +411,13 @@
     border-radius: 10px;
 }
 
+/* Syling for suggested friends follow button when hovering*/
 .suggested_friend_follow_button:hover{
     cursor: pointer;
     transform: scale(1.1);
 }
 
+/* Syling for suggested friends follow button when clicked*/
 .suggested_friend_follow_button:active{
     cursor: pointer;
     transform: scale(1);

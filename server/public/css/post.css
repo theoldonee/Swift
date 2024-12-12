@@ -4,16 +4,14 @@
 .post{
     padding: 10px 0px 0px 15px;
     border-top: 1px solid gray;
-    /* border-bottom: 1px solid white; */
     width: 80%;
     display: flex; 
     color: white;
-    /* color: white; */
 }
 
 /* Syling for post profile */
 .post_profile{
-margin-right: 10px;
+    margin-right: 10px;
 }
 
 /* Syling for post profile image */
@@ -34,7 +32,6 @@ margin-right: 10px;
     height: 30px;
     display: flex;
     gap: 3px;
-
 }
 
 /* Syling for follow button */
