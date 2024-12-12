@@ -1,10 +1,13 @@
+// Imports
 import { AppManager } from "./appManager.js";
 import { PostManager } from "./postManager.js";
 
+// Exports
 export {
     SearchAndSuggestionsManager
 };
 
+// SearchAndSuggestionsManager class
 class SearchAndSuggestionsManager{
     static userId;
     static displayedUsers = [];
@@ -20,6 +23,7 @@ class SearchAndSuggestionsManager{
     static tagResult;
     static captionResult;
 
+    // Starts suggestion processes
     static async start(){
         // Gets following suggestions
         await this.getFollowSuggestion();
@@ -34,6 +38,7 @@ class SearchAndSuggestionsManager{
         this.cancelInterval = setInterval(this.ShouldCancelInterval, 1000);
     }
 
+    // Initialize navigation buttons
     static initializeNav(){
         // Detects when account tab is clicked
         $("#account_result").click( () => {
@@ -155,6 +160,7 @@ class SearchAndSuggestionsManager{
 
     // Constructs suggestion
     static constructSuggestion(id, profile_img, userName){
+        // Syggested friend string
         var suggestedFriend = `
             <div class="suggested_friend_div" id="${id}_suggested_friend">
                 <div class="suggested_friend_img_div">
@@ -182,6 +188,7 @@ class SearchAndSuggestionsManager{
         $(`#${suggestion._id}_suggested_friend_follow_button`).click( async () => {
             // Removes the suggested friend from web page
             $(`#${suggestion._id}_suggested_friend`).remove();
+            // Sends follow request to user
             await AppManager.follow(suggestion._id);
 
             // Gets index of suggested friend
@@ -196,24 +203,50 @@ class SearchAndSuggestionsManager{
 
         // Detects when suggested friend username is clicked
         $(`#${suggestion._id}_suggested_friend_username`).click( async () => {
+            // Slides down search display div
             AppManager.searchDivDisplay("down");
+
+            // Gets user data
             var result = await AppManager.getUserData(suggestion._id);
+
+            // Sets displayed account result
             this.displayedAccount = result.result;
 
+            // Checks if user is following
             var isfollowing = AppManager.isFollowing(this.displayedAccount._id);
-            var accountString = this.constructAccontPage(isfollowing)
+
+            // Constructs account string
+            var accountString = this.constructAccontPage(isfollowing);
+
+            // Displays account string
             $(".result_display").html(accountString);
 
+            // Detects follow button click
             $(`#${suggestion._id}_follow_button`).click( () => {
+                // Checks if button has class of search_following_button
                 if($(`#${suggestion._id}_follow_button`).hasClass("search_following_button")){
+                    // Removes class search_following_button
                     $(`#${suggestion._id}_follow_button`).removeClass("search_following_button");
+
+                    // Adds class search_follow_button
                     $(`#${suggestion._id}_follow_button`).addClass("search_follow_button");
+
+                    // Sets button text to follow
                     $(`#${suggestion._id}_follow_button`).text("Follow");
+
+                    // Sends unfollow request
                     AppManager.unfollow(suggestion._id);
                 }else{
+                    // Removes class search_following_button
                     $(`#${suggestion._id}_follow_button`).removeClass("search_follow_button");
+
+                    // Adds class search_follow_button
                     $(`#${suggestion._id}_follow_button`).addClass("search_following_button");
+
+                    // Sets button text to following
                     $(`#${suggestion._id}_follow_button`).text("Following");
+
+                    // Sends follow request
                     AppManager.follow(suggestion._id);
                 }
             });
@@ -241,8 +274,11 @@ class SearchAndSuggestionsManager{
             // Converts response to json format
             var result = await response.json();
 
+            // Sets username result array
             this.userNameResult = result.userByUsername;
+            // Sets first name result array
             this.firstNameResult = result.userByFirstName;
+            // Sets last name result array
             this.lastNameResult = result.userByLastName;
 
         }catch(err){
@@ -263,7 +299,10 @@ class SearchAndSuggestionsManager{
 
             // Converts response to json format
             var result = await response.json();
+
+            // Sets caption result array
             this.captionResult = result.postByCaption;
+            // Sets tag result array
             this.tagResult = result.postByTag;
 
         }catch(err){
@@ -277,7 +316,8 @@ class SearchAndSuggestionsManager{
         if(this.resultPage == "account"){
             // Itterates over uasername results
             for (var account of this.userNameResult){
-                
+
+                // Gets displayed accounts array
                 var displayedAccounts = this.displayedAccounts;
 
                 // Gets index of displayed accounts
@@ -285,10 +325,12 @@ class SearchAndSuggestionsManager{
 
                 // Checks if account isn't displayed
                 if(index == -1){
+                    // Adds account to displayed account array
                     this.displayedAccounts.push(account._id);
+                    // Gets account string
                     var accountString = this.constructAccount(account);
+                    // Injects account into webpage
                     this.injectAccount(accountString,  account._id);
-
                 }
                        
             }
@@ -296,20 +338,26 @@ class SearchAndSuggestionsManager{
             // Itterates over first name results
             for (var account of this.firstNameResult){
                 
+                // Gets displayed accounts array
                 var displayedAccounts = this.displayedAccounts;
 
                 var index = displayedAccounts.indexOf(account._id);
 
+                // Checks if account is not displayed
                 if(index == -1){
+                    // Adds account to displayed account array
                     this.displayedAccounts.push(account._id);
+                    // Gets account string
                     var accountString = this.constructAccount(account);
+                    // Injects account into webpage
                     this.injectAccount(accountString,  account._id);
                 }
                        
             }
             // Itterates over last name results
             for (var account of this.lastNameResult){
-                
+
+                // Gets displayed accounts array
                 var displayedAccounts = this.displayedAccounts;
 
                 // Gets index of displayed accounts
@@ -317,8 +365,11 @@ class SearchAndSuggestionsManager{
 
                 // Checks if account isn't displayed
                 if(index == -1){
+                    // Adds account to displayed account array
                     this.displayedAccounts.push(account._id);
+                    // Gets account string
                     var accountString = this.constructAccount(account);
+                    // Injects account into webpage
                     this.injectAccount(accountString,  account._id);
                 }
                        
@@ -329,8 +380,9 @@ class SearchAndSuggestionsManager{
             for (var postJSON of this.tagResult){
                 // Constructs post
                 var following = AppManager.isFollowing(postJSON.authorId);
+                // Gets post string
                 var post = PostManager.constructPost(postJSON, following, this.userId);
-                console.log(postJSON.likes)
+                // Injects post into webpage
                 AppManager.injectPost(post, postJSON._id, "tag", postJSON.authorId, postJSON.likes);  
         
             }
@@ -341,7 +393,9 @@ class SearchAndSuggestionsManager{
             for (var postJSON of this.captionResult){
                 // Constructs post
                 var following = AppManager.isFollowing(postJSON.authorId);
+                // Gets post string
                 var post = PostManager.constructPost(postJSON, following, this.userId);
+                // Injects post into webpage
                 AppManager.injectPost(post, postJSON._id, "caption", postJSON.authorId, postJSON.likes);
             }
         }
@@ -349,6 +403,7 @@ class SearchAndSuggestionsManager{
 
     // Constructs account for search 
     static constructAccount(accountInfo){
+        // Account string
         var account = `
             <div class="search_follow_suggestion" id="${accountInfo._id}_search_suggeston">
                 <div class="search_follow_img_div">
@@ -391,25 +446,51 @@ class SearchAndSuggestionsManager{
     static injectAccount(accountString, accountId){
         $(".results_account").append(accountString);
 
+        // Detects suggested account click
         $(`#${accountId}_search_suggeston`).click( async () => {
- 
+            
+            // Gets user data
             var result = await AppManager.getUserData(accountId);
+
+            // Sets displayed account
             this.displayedAccount = result.result;
 
+            // Checks if user is following account
             var isfollowing = AppManager.isFollowing(this.displayedAccount._id);
-            var accountString = this.constructAccontPage(isfollowing)
+
+            // Constructs account string
+            var accountString = this.constructAccontPage(isfollowing);
+
+            // Displays account string
             $(".result_display").html(accountString);
 
+            // Detects follow button press
             $(`#${accountId}_follow_button`).click( () => {
+                // Checks if button has class of search_following_button
                 if($(`#${accountId}_follow_button`).hasClass("search_following_button")){
+
+                    // Removes class search_following_button
                     $(`#${accountId}_follow_button`).removeClass("search_following_button");
+
+                    // Adds class search_follow_button
                     $(`#${accountId}_follow_button`).addClass("search_follow_button");
+
+                    // Sets button text to follow
                     $(`#${accountId}_follow_button`).text("Follow");
+
+                    // Sends unfollow request
                     AppManager.unfollow(accountId);
                 }else{
+                    // Removes class search_follow_button
                     $(`#${accountId}_follow_button`).removeClass("search_follow_button");
+
+                    // Adds class search_following_button
                     $(`#${accountId}_follow_button`).addClass("search_following_button");
+                    
+                    // Sets button text to following
                     $(`#${accountId}_follow_button`).text("Following");
+
+                    // Sends unfollow request
                     AppManager.follow(accountId);
                 }
             });
@@ -484,6 +565,7 @@ class SearchAndSuggestionsManager{
 
             // Constructs post
             var post = PostManager.constructPost(postJSON, isFollowing, this.displayedAccount._id);
+
             // Injects post into webpage
             AppManager.injectPost(post, postJSON._id, "search_account", postJSON.authorId, postJSON.likes);
 
