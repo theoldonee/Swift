@@ -1,21 +1,23 @@
-import {PostManager} from "./postManager.js"
-var id, user;
+// import {PostManager} from "./postManager.js"
+
+var id, user, app;
 
 window.onload = function (){
-    // const params = new URL(location.href).searchParams;
-    // console.log(params)
-    // id = params.get('id');
-
     id = window.location.search.split("?")[1];
-    // console.log(id);
-    accountPageinitialize();
-};
 
-
-function appLoad(userID){
-    id = window.location.search.split("?")[1];
-    // id = userID;
     accountPageinitialize();
+}
+
+// function appLoad(userID){
+//     id = userID;
+//     console.log(id);
+//     injectApp();
+//     accountPageinitialize();
+//     feedInitialize();
+// }
+
+function injectApp(){
+    $("section").html(app);
 }
 
 async function getUserData(userId){
@@ -29,7 +31,7 @@ async function getUserData(userId){
 
         var result = await response.json();
         return result;
-        // console.log(response);
+
     }catch(err){
         console.log("Issue getting data of user \nError: " + err);
     }
@@ -65,8 +67,67 @@ async function accountPageinitialize(){
         user.following.length, 
         user.followers.length
     );
-    getPost(user.post);
 
+    // getPost(user.post);
+    $(".follow_button").click( () => {
+        if($(".follow_button").hasClass("following_button")){
+            $(".follow_button").removeClass("following_button");
+            unfollow();
+            $(".follow_button b").text("follow");
+        }else{
+            $(".follow_button").addClass("following_button");
+            $(".follow_button b").text("following");
+            follow();
+        }
+    });
+
+    $("#search_icon").click( () => {
+        // this.searchDivDisplay("down");
+        searchDivDisplay("down");
+    });
+
+    $(".suggested_friend_username").click( () => {
+        // this.searchDivDisplay("down");
+        searchDivDisplay("down");
+    });
+
+    $("#close_serach").click( () => {
+        // this.searchDivDisplay("up");
+        searchDivDisplay("up");
+    });
+
+}
+
+function searchDivDisplay(state){
+    if(state == "down"){
+        $(".search_result_div").slideDown({
+            duration: 'fast',
+            step: function() {
+                if ($(this).css('display') == 'block') {
+                    $(this).css('display', 'flex');
+                }
+            },
+            complete: function() {
+
+                if ($(this).css('display') == 'block') {
+                    $(this).css('display', 'flex');
+                }
+            }
+        });
+    }else{
+
+        $(".search_result_div").slideUp({
+            duration: 'fast'
+        });
+    }
+}
+
+function follow(){
+    alert("FOLLOWING");
+}
+
+function unfollow(){
+    alert("UNFOLLOWING")
 }
 
 function setUserName(userName){
@@ -78,13 +139,9 @@ function setUserName(userName){
         <span><b>${userName}</b></span>
     `);
     
-    $(".user_post_aurthor").html(`
-        <span><b>${userName}</b></span>
-    `);
 }
 
 function setProfileImage(path){
-    console.log(path);
     
     $("#panel_user_profile_img").attr("src", path);
     $("#user_profile_img").attr("src", path);
@@ -108,7 +165,7 @@ function setFollowingInfo(post, following, followers){
 }
 
 
-async function getPost(posts){
+async function  getPost(posts){
     for (var postID of posts){
         try{
             var response = await fetch( `/M00933241/contents?id=${postID}`, {
@@ -145,4 +202,86 @@ function injectPost(post, postID){
         }
     });
 }
+
+function feedInitialize(){
+
+    $(".nav_bottom_icons i").click( () => {
+        $(".create_post_div").slideToggle();
+    });
+
+    var post, img;
+    post = {
+        caption: '',
+        tag: ''
+    };
+
+    img = '';
+    
+    // Detects chancges for file upload
+    $('#create_post_upload').on("change", () => {
+        var fr = new FileReader();
+
+        // changes image source to choosen file.
+        fr.onload = function(e) {
+
+            document.getElementById("create_post_img").src = result;
+            img = result;
+        };
+        
+        var file =  $("#create_post_upload")[0].files[0]; // Uploaded file
+
+        // Checks if file is an image
+        if(file.type.match('image.*')){
+            fr.readAsDataURL(file);
+        }else{
+            alert("Invalid file format");
+        }
+        
+    });
+
+    // Detects when post button is clicked
+    $("#create_post_button").click( () => {
+        post.caption = $("#create_post_caption").val();
+        post.tags = $("#create_post_Tag").val();
+
+        if (img == '' && post.caption  == ''){
+            alert("You cannot make and empty post");
+        }else{
+            post.authorId = id;
+            post.profile_img = user.profile_img
+            post.authorUsername = user.userName;
+            
+            sendUserPost(post, img);
+            
+        };
+
+    });
+}
+
+async function  sendUserPost(postData, imageData){
+    var data, requestData;
+
+    data = {
+        postData: postData,
+        imageData: imageData
+    }
+
+    requestData = JSON.stringify(data);
+
+    try{
+        const response = await fetch(`/M00933241/contents`, {
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: requestData
+        });
+    
+        const result = await response.json();
+        console.log("Post result: " + result);
+    }catch(err){
+        console.log("Issue registering user " + err);
+    }
+}
+
 
