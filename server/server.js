@@ -1,4 +1,5 @@
 // Importing modules
+import dotenv from "dotenv";
 import express from "express";
 import fileUpload from "express-fileupload";
 import expressSession from "express-session";
@@ -8,7 +9,12 @@ import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 import fs from "fs";
 import axios from "axios";
+import { createServer } from 'http';
+import { Server } from "socket.io";
+import cors from 'cors';
 
+// Configure dotenv
+dotenv.config();
 
 // File path
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,17 +23,41 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // APIs
+// Activity suggestion API
 const bordomAPI = 'https://bored-api.appbrewery.com/random';
-const KEY = 'e224ad6b28d64563aab95231242311';
-const weatherAPI = `http://api.weatherapi.com/v1/forecast.json?key=${KEY}&q=auto:ip`;
+
+// Weather API
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const weatherAPI = `http://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=auto:ip`;
 
 // Set port
 const port = process.env.PORT || 8080;
 
-// Configure express to listen on set port
-app.listen(port, () =>{
-    console.log(`Running on port ${port}`);
+// Creates server
+const server = createServer(app);
+
+// Creates websocket instance
+const io = new Server(server,{
+    // specifies allowed connections and methods
+    cors: { origin: '*', methods: ['GET', 'POST'] }
 });
+
+// Detects websocket connection
+io.on("connection", (socket) => {
+    console.log("connection Made");
+
+    // Detects room join
+    socket.on('join room', async (roomId) => {
+        await socket.join(roomId);
+    });
+
+    socket.on('leave room', async (roomId) => {
+        await socket.leave(roomId);
+    });
+
+});
+
+app.use(cors());
 
 // Configure express to allow access to the public folder
 app.use("/public", express.static('public'));
@@ -62,6 +92,11 @@ app.use(
         saveUninitialized: true
     })
 );
+
+// Configure server to listen on set port
+server.listen(port, () =>{
+    console.log(`Running on port ${port}`);
+});
 
 
 // Handles GET request made to the home path
@@ -123,20 +158,26 @@ app.get("/M00933241/:id/follow", async (req, res) => {
     
 });
 
-
+// Handles GET request made to the /M00933241/:id/contacts path
 app.get("/M00933241/:id/contacts", async (req, res) => {
     var idTag, user;
 
     // Gets the value of the parameter "id"
     idTag = req.params['id'];
     
+    // Gets user information
     user = await DatabaseHandler.getUser(idTag);
     var userContacts = user.contacts;
 
     var contactList = [];
+    
+    // Itterates over user contact list
     for (var contact of userContacts){
+
+        // Gets contact information
         var contactInfo = await DatabaseHandler.getUser(contact);
 
+        // Adds contact information to contactList array
         contactList.push({
             contactId: contact,
             profile_img: contactInfo.profile_img,
@@ -149,7 +190,6 @@ app.get("/M00933241/:id/contacts", async (req, res) => {
     });
     
 });
-
 
 // Handles POST request made to the /M00933241/user path
 app.post("/M00933241/users", async (req, res) => {
@@ -756,7 +796,7 @@ async function getWeaterData() {
         // Gets weather data
         const response = await axios.get(weatherAPI);
         var result = response.data;
-        console.log(result.forecast[0].day);
+
         // Gets forcast for the day.
         var forecastday = result.forecast.forecastday;
         var date = forecastday[0].date;
@@ -764,10 +804,12 @@ async function getWeaterData() {
 
         var data = {
             date: date,
+            
             maxtemp: weatherToday.maxtemp_c,
             mintemp: weatherToday.mintemp_c,
             avghumidity: weatherToday.avghumidity,
             condition: weatherToday.condition,
+            chanceofRain: weatherToday.daily_chance_of_rain,
             uv: weatherToday.uv,
             entryTime: new Date()
         }
@@ -785,17 +827,21 @@ async function getWeaterData() {
     }
 }
 
+// Handles GET request made to the /M00933241/conversation path
 app.get("/M00933241/conversation", async(req, res) => {
+    // Gets parties 
     var party1 = req.query.party1;
     var party2 = req.query.party2;
 
+    // Gets conversation of parties
     var conversation = await DatabaseHandler.getConversation(party1, party2);
 
+    // Checks if converation has value
     if (conversation){
         res.send({
             conversation: conversation
         });
-    }else{
+    }else{ // Creates converastion
 
         var result = await DatabaseHandler.addConversation(party1, party2);
 
@@ -814,6 +860,7 @@ app.get("/M00933241/conversation", async(req, res) => {
     
 });
 
+// Handles POST request made to the /M00933241/conversation/chat path
 app.post("/M00933241/conversation/chat", async(req, res) => {
     var party1 = req.query.party1;
     var party2 = req.query.party2;
@@ -827,9 +874,15 @@ app.post("/M00933241/conversation/chat", async(req, res) => {
     var time = date.getHours() + ':' + date.getMinutes();
     chat.timeStamp = time;
 
+    // Gets converation id
+    var conversationId = await DatabaseHandler.getConversationId(party1, party2);
 
+    io.to(conversationId).emit('chat message', chat);
+
+    // Gets update result
     var result = await DatabaseHandler.updateConversation(party1, party2, chat);
 
+    // Checks if result is acknowledged
     if (result.acknowledged){
         res.send({
             result: result
@@ -844,20 +897,7 @@ app.post("/M00933241/conversation/chat", async(req, res) => {
     
 });
 
-app.get("/M00933241/conversation/chat", async(req, res) => {
-    var party1 = req.query.party1;
-    var party2 = req.query.party2;
-    
-    var conversation = await DatabaseHandler.getConversation(party1, party2);
-
-    var chatList = conversation.chats;
-
-    res.send({
-        chatList: chatList
-    })
-
-});
-
+// Handles GET request made to the /M00933241/:userId/conversations path
 app.get("/M00933241/:userId/conversations", async(req, res) => {
     var user = req.params['userId'];
 
