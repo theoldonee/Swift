@@ -201,6 +201,7 @@ app.post("/M00933241/users", async (req, res) => {
     user.following = [];
     user.friends = [];
     user.post = [];
+    user.contacts = [];
 
     var result = await DatabaseHandler.addUser(user);
 
